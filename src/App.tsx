@@ -36,6 +36,21 @@ type NavItem = {
 }
 
 const SIDEBAR_KEY = 'leenkr.sidebar.v1'
+// Below this width the 272px sidebar eats too much of the canvas, so it starts
+// folded down to the icon rail. The user can still open it by hand.
+const NARROW_QUERY = '(max-width: 1099px)'
+
+function savedSidebarPreference() {
+  try {
+    return localStorage.getItem(SIDEBAR_KEY) === 'collapsed'
+  } catch {
+    return false
+  }
+}
+
+function isNarrowWindow() {
+  return typeof window !== 'undefined' && window.matchMedia(NARROW_QUERY).matches
+}
 
 function Sidebar({
   onNavigate,
@@ -127,23 +142,29 @@ function Sidebar({
 
 function Shell() {
   const [open, setOpen] = useState(false)
-  const [collapsed, setCollapsed] = useState(() => {
-    try {
-      return localStorage.getItem(SIDEBAR_KEY) === 'collapsed'
-    } catch {
-      return false
-    }
-  })
+  const [collapsed, setCollapsed] = useState(() => (isNarrowWindow() ? true : savedSidebarPreference()))
   const { profile } = useProfile()
   const publicPath = `/${profile.username}`
 
   useEffect(() => {
+    const query = window.matchMedia(NARROW_QUERY)
+    const onChange = (event: MediaQueryListEvent) => {
+      // Entering the narrow range folds the rail; widening restores the choice.
+      setCollapsed(event.matches ? true : savedSidebarPreference())
+    }
+    query.addEventListener('change', onChange)
+    return () => query.removeEventListener('change', onChange)
+  }, [])
+
+  const toggleCollapse = () => {
+    const next = !collapsed
+    setCollapsed(next)
     try {
-      localStorage.setItem(SIDEBAR_KEY, collapsed ? 'collapsed' : 'open')
+      localStorage.setItem(SIDEBAR_KEY, next ? 'collapsed' : 'open')
     } catch {
       // Storage blocked — the choice still holds for this session.
     }
-  }, [collapsed])
+  }
 
   const viewPage = (
     <Link className="btn ghost sm" to={publicPath}>
@@ -174,7 +195,7 @@ function Shell() {
         <Sidebar
           onNavigate={() => setOpen(false)}
           collapsed={collapsed}
-          onToggleCollapse={() => setCollapsed((value) => !value)}
+          onToggleCollapse={toggleCollapse}
         />
       </div>
 
