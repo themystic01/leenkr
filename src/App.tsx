@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import {
   ArrowUpRight,
@@ -7,6 +7,8 @@ import {
   Link2,
   Menu,
   Package,
+  PanelLeftClose,
+  PanelLeftOpen,
   Send,
   Settings,
   ShieldCheck,
@@ -33,7 +35,17 @@ type NavItem = {
   badge?: number
 }
 
-function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
+const SIDEBAR_KEY = 'leenkr.sidebar.v1'
+
+function Sidebar({
+  onNavigate,
+  collapsed,
+  onToggleCollapse,
+}: {
+  onNavigate?: () => void
+  collapsed: boolean
+  onToggleCollapse: () => void
+}) {
   const { profile } = useProfile()
   const location = useLocation()
 
@@ -60,9 +72,11 @@ function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
         onClick={onNavigate}
         className={active ? 'nav-item active' : 'nav-item'}
         aria-current={active ? 'page' : undefined}
+        aria-label={item.label}
+        title={collapsed ? item.label : undefined}
       >
         <Icon size={19} strokeWidth={1.7} />
-        <span>{item.label}</span>
+        <span className="nav-label">{item.label}</span>
         {typeof item.badge === 'number' && item.badge > 0 ? (
           <span className="badge">{item.badge}</span>
         ) : null}
@@ -72,24 +86,36 @@ function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
 
   return (
     <aside className="sidebar">
-      <Link to="/" className="brand" onClick={onNavigate}>
+      <Link to="/" className="brand" onClick={onNavigate} title={collapsed ? 'Leenkr' : undefined}>
         <span className="brand-mark">L</span>
-        <span>
+        <span className="brand-text">
           <span className="brand-name">Leenkr</span>
           <span className="brand-sub">Creator Studio</span>
         </span>
       </Link>
 
-      <nav className="nav" aria-label="Dashboard">
+      <nav className="nav" id="studio-nav" aria-label="Dashboard">
         {primary.map(renderItem)}
         <div className="sidebar-divider" />
         {secondary.map(renderItem)}
       </nav>
 
       <div className="sidebar-foot">
+        <button
+          type="button"
+          className="collapse-btn"
+          onClick={onToggleCollapse}
+          aria-expanded={!collapsed}
+          aria-controls="studio-nav"
+          aria-label={collapsed ? 'Expand menu' : 'Collapse menu'}
+          title={collapsed ? 'Expand menu' : 'Collapse menu'}
+        >
+          {collapsed ? <PanelLeftOpen size={17} /> : <PanelLeftClose size={17} />}
+          <span className="collapse-label">Collapse menu</span>
+        </button>
         <div className="status-card">
           <span className={profile.published ? 'dot live' : 'dot'} />
-          <div>
+          <div className="status-text">
             <p className="status-title">{profile.published ? 'Page is live' : 'Still a draft'}</p>
             <p className="status-sub">leenkr.com/{profile.username}</p>
           </div>
@@ -101,8 +127,23 @@ function Sidebar({ onNavigate }: { onNavigate?: () => void }) {
 
 function Shell() {
   const [open, setOpen] = useState(false)
+  const [collapsed, setCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem(SIDEBAR_KEY) === 'collapsed'
+    } catch {
+      return false
+    }
+  })
   const { profile } = useProfile()
   const publicPath = `/${profile.username}`
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(SIDEBAR_KEY, collapsed ? 'collapsed' : 'open')
+    } catch {
+      // Storage blocked — the choice still holds for this session.
+    }
+  }, [collapsed])
 
   const viewPage = (
     <Link className="btn ghost sm" to={publicPath}>
@@ -112,7 +153,7 @@ function Shell() {
   )
 
   return (
-    <div className="shell">
+    <div className={collapsed ? 'shell collapsed' : 'shell'}>
       <div className="mobile-bar">
         <Link to="/" className="brand compact">
           <span className="brand-mark">L</span>
@@ -130,7 +171,11 @@ function Shell() {
         <button className="icon-btn close-btn" onClick={() => setOpen(false)} aria-label="Close menu">
           <X size={18} />
         </button>
-        <Sidebar onNavigate={() => setOpen(false)} />
+        <Sidebar
+          onNavigate={() => setOpen(false)}
+          collapsed={collapsed}
+          onToggleCollapse={() => setCollapsed((value) => !value)}
+        />
       </div>
 
       {open ? <div className="scrim" onClick={() => setOpen(false)} /> : null}

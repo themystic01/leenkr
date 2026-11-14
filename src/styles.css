@@ -210,6 +210,39 @@ select {
   padding-top: 16px;
 }
 
+.collapse-btn {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  height: 36px;
+  padding: 0 11px;
+  margin-bottom: 10px;
+  border-radius: 11px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: transparent;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.62);
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+
+.collapse-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.22);
+  color: #fff;
+}
+
+.collapse-btn:focus-visible {
+  outline: 2px solid var(--yellow);
+  outline-offset: 2px;
+}
+
+.collapse-btn svg {
+  flex: none;
+}
+
 .status-card {
   display: flex;
   gap: 10px;
@@ -2594,3 +2627,62 @@ textarea.input {
   }
 }
 
+/* ---------------------- collapsible sidebar -------------------- */
+@media (min-width: 901px) {
+  .shell {
+    transition: grid-template-columns 0.18s ease;
+  }
+
+  .shell.collapsed {
+    grid-template-columns: 84px minmax(0, 1fr);
+  }
+
+  .shell.collapsed .sidebar {
+    padding: 22px 12px 18px;
+  }
+
+  .shell.collapsed .brand {
+    justify-content: center;
+    padding: 4px 0;
+  }
+
+  .shell.collapsed .brand-text,
+  .shell.collapsed .nav-label,
+  .shell.collapsed .badge,
+  .shell.collapsed .status-text,
+  .shell.collapsed .collapse-label {
+    display: none;
+  }
+
+  .shell.collapsed .nav-item {
+    justify-content: center;
+    padding: 11px 0;
+  }
+
+  .shell.collapsed .sidebar-divider {
+    margin: 10px 2px;
+  }
+
+  /* In the rail the live dot stands alone rather than reading as a button. */
+  .shell.collapsed .status-card {
+    justify-content: center;
+    padding: 8px 0;
+    background: transparent;
+    border-color: transparent;
+  }
+
+  .shell.collapsed .status-card .dot {
+    margin-top: 0;
+  }
+
+  .shell.collapsed .collapse-btn {
+    justify-content: center;
+    padding: 0;
+  }
+}
+
+@media (max-width: 900px) {
+  .collapse-btn {
+    display: none;
+  }
+}
