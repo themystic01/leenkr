@@ -14,11 +14,19 @@ export async function downscaleImage(file: File, size = 512): Promise<string> {
     img.src = dataUrl
   })
 
+  if (!image.width || !image.height) throw new Error('size')
+
   const canvas = document.createElement('canvas')
   canvas.width = size
   canvas.height = size
   const ctx = canvas.getContext('2d')
   if (!ctx) return dataUrl
+  // JPEG has no alpha channel: transparent pixels are encoded as black, so the
+  // canvas is backed with white before drawing. Without this, PNGs with
+  // transparency (design assets, logos) come back as solid black thumbnails.
+  ctx.fillStyle = '#ffffff'
+  ctx.fillRect(0, 0, size, size)
+  ctx.imageSmoothingQuality = 'high'
   const scale = Math.max(size / image.width, size / image.height)
   const width = image.width * scale
   const height = image.height * scale
