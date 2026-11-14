@@ -1593,6 +1593,18 @@ textarea.input {
   line-height: 1.45;
 }
 
+.product-info .product-hint {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11.5px;
+  color: var(--ink-faint);
+}
+
+.product-info .product-hint svg {
+  flex: none;
+}
+
 .product-foot {
   display: flex;
   align-items: center;

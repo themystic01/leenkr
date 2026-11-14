@@ -1,10 +1,44 @@
 import { useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { ArrowUpRight, Calendar, LayoutDashboard, Link2, Mail, Package, Send, Sparkles } from 'lucide-react'
+import { ArrowUpRight, Calendar, ImageOff, LayoutDashboard, Link2, Mail, Package, Send, Sparkles } from 'lucide-react'
 import Avatar from '../components/Avatar'
 import TabSwitch, { ContentPanel, type ContentTab } from '../components/TabSwitch'
 import VerifiedBadge from '../components/VerifiedBadge'
-import { hostOf, priceLabel, socialUrl, useProfile } from '../store'
+import { hostOf, priceLabel, socialUrl, useProfile, type Product } from '../store'
+
+function ProductCard({ product }: { product: Product }) {
+  const [imageFailed, setImageFailed] = useState(false)
+  const showImage = product.image && !imageFailed
+
+  return (
+    <article className="product-card">
+      <div className="product-art">
+        {showImage ? (
+          <img src={product.image ?? ''} alt="" onError={() => setImageFailed(true)} />
+        ) : (
+          product.title.charAt(0).toUpperCase() || 'P'
+        )}
+      </div>
+      <div className="product-info">
+        <h3>{product.title}</h3>
+        {product.image && imageFailed ? (
+          <p className="product-hint">
+            <ImageOff size={13} />
+            Image couldn’t load — re-upload it in Creator Studio.
+          </p>
+        ) : null}
+        {product.description ? <p>{product.description}</p> : null}
+        <div className="product-foot">
+          <span className="price">{priceLabel(product)}</span>
+          <a className="btn sm" href={product.url} target="_blank" rel="noreferrer">
+            {product.ctaText || 'Get it'}
+            <ArrowUpRight size={14} />
+          </a>
+        </div>
+      </div>
+    </article>
+  )
+}
 
 export default function PublicProfile() {
   const { username } = useParams()
@@ -93,26 +127,7 @@ export default function PublicProfile() {
               profile.products.length > 0 ? (
                 <div className="product-list">
                   {profile.products.map((product) => (
-                    <article className="product-card" key={product.id}>
-                      <div className="product-art">
-                        {product.image ? (
-                          <img src={product.image} alt="" />
-                        ) : (
-                          product.title.charAt(0).toUpperCase()
-                        )}
-                      </div>
-                      <div className="product-info">
-                        <h3>{product.title}</h3>
-                        {product.description ? <p>{product.description}</p> : null}
-                        <div className="product-foot">
-                          <span className="price">{priceLabel(product)}</span>
-                          <a className="btn sm" href={product.url} target="_blank" rel="noreferrer">
-                            {product.ctaText || 'Get it'}
-                            <ArrowUpRight size={14} />
-                          </a>
-                        </div>
-                      </div>
-                    </article>
+                    <ProductCard key={product.id} product={product} />
                   ))}
                 </div>
               ) : (
