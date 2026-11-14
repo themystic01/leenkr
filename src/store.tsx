@@ -43,12 +43,44 @@ export type Product = {
   image: string | null
 }
 
+const amountFormat = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 })
+
+// Grouped digits so a price reads 1,000 rather than 1000.
+export function formatAmount(amount: number) {
+  return amountFormat.format(Number.isFinite(amount) ? amount : 0)
+}
+
 export function priceLabel(product: Product) {
   if (product.isFree) return 'Free'
   const symbol = CURRENCIES.find((currency) => currency.code === product.currency)?.symbol ?? '$'
-  const amount = Number.isFinite(product.price) ? product.price : 0
-  return `${symbol}${amount % 1 === 0 ? amount : amount.toFixed(2)}`
+  return `${symbol}${formatAmount(product.price)}`
 }
+
+export type PageTheme = 'light' | 'paper' | 'midnight'
+export type PageAccent = 'electric' | 'butter' | 'sky' | 'blush'
+export type PageMotion = 'still' | 'gentle' | 'lively'
+export type Appearance = { theme: PageTheme; accent: PageAccent; motion: PageMotion }
+export type Security = { twoFactor: boolean }
+export type DomainStatus = 'none' | 'pending' | 'connected'
+
+export const PAGE_THEMES: { key: PageTheme; label: string; note: string; swatch: string; ink: string }[] = [
+  { key: 'light', label: 'Light', note: 'White page, ink text.', swatch: '#ffffff', ink: '#0c0404' },
+  { key: 'paper', label: 'Paper', note: 'Warm off-white.', swatch: '#faf6ea', ink: '#0c0404' },
+  { key: 'midnight', label: 'Midnight', note: 'Asphalt with light text.', swatch: '#0c0404', ink: '#fdfaf3' },
+]
+
+export const PAGE_ACCENTS: { key: PageAccent; label: string; color: string }[] = [
+  { key: 'electric', label: 'Electric yellow', color: '#dfff00' },
+  { key: 'butter', label: 'Butter', color: '#ffe45c' },
+  { key: 'sky', label: 'Sky', color: '#b8e3ff' },
+  { key: 'blush', label: 'Blush', color: '#ffc9d8' },
+]
+
+export const PAGE_MOTIONS: { key: PageMotion; label: string; note: string }[] = [
+  { key: 'still', label: 'Still', note: 'No movement at all.' },
+  { key: 'gentle', label: 'Gentle', note: 'Quiet fade and rise as the page loads.' },
+  { key: 'lively', label: 'Lively', note: 'Bigger lift and staggered cards.' },
+]
 
 export type LinkItem = { id: string; title: string; url: string }
 export type ConnectKind = 'email' | 'call' | 'newsletter' | 'collab'
@@ -60,6 +92,7 @@ export type ToolEntry = { id: string; kind: ToolKind; values: Record<string, str
 export type Profile = {
   name: string
   username: string
+  email: string
   bio: string
   photo: string | null
   socials: Social[]
@@ -69,6 +102,10 @@ export type Profile = {
   tools: ToolEntry[]
   verified: boolean
   published: boolean
+  security: Security
+  domain: string
+  domainStatus: DomainStatus
+  appearance: Appearance
 }
 
 export const PLATFORMS: { key: PlatformKey; label: string; base: string }[] = [
@@ -109,6 +146,7 @@ export function hostOf(url: string) {
 const seed: Profile = {
   name: 'Lein Karr',
   username: 'lein',
+  email: 'hey@leinkarr.com',
   bio: 'Product designer building calm tools for loud ideas. I ship small software, write about craft, and help founders find their edge.',
   photo: null,
   socials: [
@@ -168,6 +206,10 @@ const seed: Profile = {
   tools: [],
   verified: false,
   published: true,
+  security: { twoFactor: false },
+  domain: '',
+  domainStatus: 'none',
+  appearance: { theme: 'light', accent: 'electric', motion: 'gentle' },
 }
 
 const STORAGE_KEY = 'leenkr.profile.v1'
@@ -214,11 +256,30 @@ function load(): Profile {
     if (!raw) return seed
     const parsed = JSON.parse(raw) as Partial<Profile>
     const merged = { ...seed, ...parsed } as Profile
+    const appearance = (parsed.appearance ?? {}) as Partial<Appearance>
     return {
       ...merged,
       products: ((merged.products ?? []) as unknown[]).map((item, index) =>
         toProduct((item ?? {}) as Record<string, unknown>, index),
       ),
+      // Profiles saved before Settings existed have no appearance or security.
+      appearance: {
+        theme: PAGE_THEMES.some((t) => t.key === appearance.theme)
+          ? (appearance.theme as PageTheme)
+          : seed.appearance.theme,
+        accent: PAGE_ACCENTS.some((a) => a.key === appearance.accent)
+          ? (appearance.accent as PageAccent)
+          : seed.appearance.accent,
+        motion: PAGE_MOTIONS.some((m) => m.key === appearance.motion)
+          ? (appearance.motion as PageMotion)
+          : seed.appearance.motion,
+      },
+      security: { twoFactor: Boolean(parsed.security?.twoFactor) },
+      domain: typeof parsed.domain === 'string' ? parsed.domain : '',
+      domainStatus:
+        parsed.domainStatus === 'pending' || parsed.domainStatus === 'connected'
+          ? parsed.domainStatus
+          : 'none',
     }
   } catch {
     return seed

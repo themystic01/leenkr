@@ -1,10 +1,10 @@
-import { useState } from 'react'
+import { useState, type CSSProperties } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ArrowUpRight, Calendar, ImageOff, LayoutDashboard, Link2, Mail, Package, Send, Sparkles } from 'lucide-react'
 import Avatar from '../components/Avatar'
 import TabSwitch, { ContentPanel, type ContentTab } from '../components/TabSwitch'
 import VerifiedBadge from '../components/VerifiedBadge'
-import { hostOf, priceLabel, socialUrl, useProfile, type Product } from '../store'
+import { PAGE_ACCENTS, hostOf, priceLabel, socialUrl, useProfile, type Product } from '../store'
 
 function ProductCard({ product }: { product: Product }) {
   const [imageFailed, setImageFailed] = useState(false)
@@ -44,6 +44,7 @@ export default function PublicProfile() {
   const { username } = useParams()
   const { profile } = useProfile()
   const [tab, setTab] = useState<ContentTab>('products')
+  const accent = PAGE_ACCENTS.find((item) => item.key === profile.appearance.accent)?.color ?? '#dfff00'
 
   const dashboardLink = (
     <div className="public-top">
@@ -87,7 +88,10 @@ export default function PublicProfile() {
   }
 
   return (
-    <div className="public-page">
+    <div
+      className={`public-page theme-${profile.appearance.theme} motion-${profile.appearance.motion}`}
+      style={{ '--yellow': accent } as CSSProperties}
+    >
       {dashboardLink}
       <div className="profile-wrap">
         <header className="profile-head">

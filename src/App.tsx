@@ -23,6 +23,7 @@ import Links from './pages/Links'
 import Connect from './pages/Connect'
 import Tools from './pages/Tools'
 import Verify from './pages/Verify'
+import SettingsPage from './pages/Settings'
 import { useProfile } from './store'
 
 type NavItem = {
@@ -146,7 +147,7 @@ function Shell() {
           <Route path="/tools" element={<Tools />} />
           <Route path="/analytics" element={<Stub title="Analytics" />} />
           <Route path="/verify" element={<Verify />} />
-          <Route path="/settings" element={<Stub title="Settings" />} />
+          <Route path="/settings" element={<SettingsPage />} />
           <Route
             path="*"
             element={
@@ -167,7 +168,6 @@ function Shell() {
 
 const STUB_COPY: Record<string, string> = {
   Analytics: 'Profile views, link clicks and product taps will land here. Your page needs a week of traffic before the numbers mean anything.',
-  Settings: 'Domain, theme and data export live here. Coming in the next build.',
 }
 
 function Stub({ title }: { title: string }) {

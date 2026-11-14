@@ -4,6 +4,7 @@ import { downscaleImage } from '../lib/image'
 import {
   CURRENCIES,
   PRODUCT_CATEGORIES,
+  formatAmount,
   uid,
   type Currency,
   type Product,
@@ -24,6 +25,18 @@ function blankProduct(): Product {
   }
 }
 
+// Groups digits as they are typed: 1000 reads back as 1,000. A trailing dot or
+// up to two decimals are kept so a price can still be typed as 49.99.
+function formatPriceInput(raw: string) {
+  const cleaned = raw.replace(/[^0-9.]/g, '')
+  const dot = cleaned.indexOf('.')
+  const whole = (dot === -1 ? cleaned : cleaned.slice(0, dot)).replace(/^0+(?=\d)/, '')
+  const fraction = dot === -1 ? '' : cleaned.slice(dot + 1).replace(/\./g, '').slice(0, 2)
+  const grouped = whole ? formatAmount(Number(whole)) : ''
+  if (dot === -1) return grouped
+  return `${grouped || '0'}.${fraction}`
+}
+
 function withProtocol(url: string) {
   const trimmed = url.trim()
   if (!trimmed) return ''
@@ -39,6 +52,7 @@ type Props = {
 
 export default function ProductDialog({ open, product, onClose, onSave }: Props) {
   const [draft, setDraft] = useState<Product>(() => product ?? blankProduct())
+  const [priceText, setPriceText] = useState('')
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [photoError, setPhotoError] = useState('')
   const fileRef = useRef<HTMLInputElement>(null)
@@ -48,6 +62,7 @@ export default function ProductDialog({ open, product, onClose, onSave }: Props)
   useEffect(() => {
     if (!open) return
     setDraft(product ?? blankProduct())
+    setPriceText(product && !product.isFree && product.price ? formatAmount(product.price) : '')
     setErrors({})
     setPhotoError('')
     const timer = window.setTimeout(() => titleRef.current?.focus(), 30)
@@ -245,14 +260,18 @@ export default function ProductDialog({ open, product, onClose, onSave }: Props)
                 <input
                   id="product-price"
                   className="input"
-                  type="number"
-                  min="0"
-                  step="0.01"
+                  type="text"
                   inputMode="decimal"
+                  autoComplete="off"
                   disabled={draft.isFree}
-                  placeholder={draft.isFree ? 'Free' : '49'}
-                  value={draft.isFree ? '' : draft.price || ''}
-                  onChange={(e) => patch('price', e.target.value === '' ? 0 : Number(e.target.value))}
+                  placeholder={draft.isFree ? 'Free' : '1,000'}
+                  value={draft.isFree ? '' : priceText}
+                  onChange={(e) => {
+                    const formatted = formatPriceInput(e.target.value)
+                    setPriceText(formatted)
+                    const numeric = Number(formatted.replace(/,/g, ''))
+                    patch('price', Number.isFinite(numeric) ? numeric : 0)
+                  }}
                 />
               </div>
               <label className="check-line" htmlFor="product-free">
@@ -260,7 +279,10 @@ export default function ProductDialog({ open, product, onClose, onSave }: Props)
                   id="product-free"
                   type="checkbox"
                   checked={draft.isFree}
-                  onChange={(e) => patch('isFree', e.target.checked)}
+                  onChange={(e) => {
+                    patch('isFree', e.target.checked)
+                    if (!e.target.checked) setPriceText(draft.price ? formatAmount(draft.price) : '')
+                  }}
                 />
                 This product is free
               </label>
