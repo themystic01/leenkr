@@ -10,7 +10,46 @@ export type PlatformKey =
   | 'dribbble'
 
 export type Social = { id: string; platform: PlatformKey; handle: string }
-export type Product = { id: string; title: string; blurb: string; price: string; url: string }
+
+export type Currency = 'USD' | 'EUR' | 'GBP' | 'NGN'
+
+export const CURRENCIES: { code: Currency; symbol: string; label: string }[] = [
+  { code: 'USD', symbol: '$', label: 'USD ($)' },
+  { code: 'EUR', symbol: '€', label: 'EUR (€)' },
+  { code: 'GBP', symbol: '£', label: 'GBP (£)' },
+  { code: 'NGN', symbol: '₦', label: 'NGN (₦)' },
+]
+
+export const PRODUCT_CATEGORIES = [
+  'Design Assets',
+  'Templates',
+  'Ebooks',
+  'Courses',
+  'Presets',
+  'Plugins',
+  'Other',
+]
+
+export type Product = {
+  id: string
+  title: string
+  category: string
+  price: number
+  currency: Currency
+  isFree: boolean
+  ctaText: string
+  url: string
+  description: string
+  image: string | null
+}
+
+export function priceLabel(product: Product) {
+  if (product.isFree) return 'Free'
+  const symbol = CURRENCIES.find((currency) => currency.code === product.currency)?.symbol ?? '$'
+  const amount = Number.isFinite(product.price) ? product.price : 0
+  return `${symbol}${amount % 1 === 0 ? amount : amount.toFixed(2)}`
+}
+
 export type LinkItem = { id: string; title: string; url: string }
 export type ConnectKind = 'email' | 'call' | 'newsletter' | 'collab'
 export type ConnectItem = { id: string; kind: ConnectKind; label: string; value: string }
@@ -82,23 +121,38 @@ const seed: Profile = {
     {
       id: 'p1',
       title: 'Creator OS Kit',
-      blurb: 'A Notion system for planning launches without the chaos.',
-      price: '$29',
+      category: 'Templates',
+      price: 29,
+      currency: 'USD',
+      isFree: false,
+      ctaText: 'Get the kit',
       url: 'https://example.com/creator-os',
+      description: 'A Notion system for planning launches without the chaos.',
+      image: null,
     },
     {
       id: 'p2',
       title: 'Type Pairings Vol. 1',
-      blurb: '42 heading and body combos that actually hold up.',
-      price: '$12',
+      category: 'Design Assets',
+      price: 12,
+      currency: 'USD',
+      isFree: false,
+      ctaText: 'Download',
       url: 'https://example.com/type-pairings',
+      description: '42 heading and body combos that actually hold up.',
+      image: null,
     },
     {
       id: 'p3',
       title: 'Portfolio Teardown',
-      blurb: 'A 40-minute video walkthrough of six real portfolios.',
-      price: '$18',
+      category: 'Courses',
+      price: 0,
+      currency: 'USD',
+      isFree: true,
+      ctaText: 'Watch free',
       url: 'https://example.com/teardown',
+      description: 'A 40-minute video walkthrough of six real portfolios.',
+      image: null,
     },
   ],
   links: [
@@ -118,12 +172,54 @@ const seed: Profile = {
 
 const STORAGE_KEY = 'leenkr.profile.v1'
 
+// Products saved before the editor existed had a plain price string and a
+// `blurb`; bring them into the current shape instead of showing blanks.
+function toProduct(raw: Record<string, unknown>, index: number): Product {
+  const legacyPrice = raw.price
+  const numeric =
+    typeof legacyPrice === 'number'
+      ? legacyPrice
+      : Number(String(legacyPrice ?? '').replace(/[^0-9.]/g, ''))
+  const currency = CURRENCIES.some((c) => c.code === raw.currency)
+    ? (raw.currency as Currency)
+    : 'USD'
+
+  return {
+    id: typeof raw.id === 'string' ? raw.id : `p-legacy-${index}`,
+    title: typeof raw.title === 'string' ? raw.title : 'Untitled product',
+    category: PRODUCT_CATEGORIES.includes(String(raw.category))
+      ? String(raw.category)
+      : 'Design Assets',
+    price: Number.isFinite(numeric) ? numeric : 0,
+    currency,
+    isFree:
+      typeof raw.isFree === 'boolean'
+        ? raw.isFree
+        : String(legacyPrice ?? '').toLowerCase() === 'free',
+    ctaText: typeof raw.ctaText === 'string' ? raw.ctaText : 'Get it',
+    url: typeof raw.url === 'string' ? raw.url : 'https://example.com',
+    description:
+      typeof raw.description === 'string'
+        ? raw.description
+        : typeof raw.blurb === 'string'
+          ? raw.blurb
+          : '',
+    image: typeof raw.image === 'string' ? raw.image : null,
+  }
+}
+
 function load(): Profile {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (!raw) return seed
     const parsed = JSON.parse(raw) as Partial<Profile>
-    return { ...seed, ...parsed }
+    const merged = { ...seed, ...parsed } as Profile
+    return {
+      ...merged,
+      products: ((merged.products ?? []) as unknown[]).map((item, index) =>
+        toProduct((item ?? {}) as Record<string, unknown>, index),
+      ),
+    }
   } catch {
     return seed
   }

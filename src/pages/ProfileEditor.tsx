@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, Check, ImagePlus, Plus, Trash2 } from 'lucide-react'
 import Avatar from '../components/Avatar'
+import { downscaleImage } from '../lib/image'
 import { PLATFORMS, uid, useProfile, type PlatformKey, type Profile } from '../store'
 
 type StepKey = 'identity' | 'bio' | 'socials'
@@ -23,34 +24,6 @@ const RESERVED_HANDLES = new Set([
   'links',
   'connect',
 ])
-
-async function downscale(file: File): Promise<string> {
-  const dataUrl = await new Promise<string>((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(String(reader.result))
-    reader.onerror = () => reject(new Error('read'))
-    reader.readAsDataURL(file)
-  })
-
-  const image = await new Promise<HTMLImageElement>((resolve, reject) => {
-    const img = new Image()
-    img.onload = () => resolve(img)
-    img.onerror = () => reject(new Error('image'))
-    img.src = dataUrl
-  })
-
-  const size = 512
-  const canvas = document.createElement('canvas')
-  canvas.width = size
-  canvas.height = size
-  const ctx = canvas.getContext('2d')
-  if (!ctx) return dataUrl
-  const scale = Math.max(size / image.width, size / image.height)
-  const width = image.width * scale
-  const height = image.height * scale
-  ctx.drawImage(image, (size - width) / 2, (size - height) / 2, width, height)
-  return canvas.toDataURL('image/jpeg', 0.86)
-}
 
 export default function ProfileEditor() {
   const { profile, save } = useProfile()
@@ -104,7 +77,7 @@ export default function ProfileEditor() {
       return
     }
     try {
-      const photo = await downscale(file)
+      const photo = await downscaleImage(file)
       setDraft((current) => ({ ...current, photo }))
     } catch {
       setPhotoError('Could not read that image. Try another one.')

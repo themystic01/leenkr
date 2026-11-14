@@ -4,7 +4,7 @@ import { ArrowUpRight, Calendar, LayoutDashboard, Link2, Mail, Package, Send, Sp
 import Avatar from '../components/Avatar'
 import TabSwitch, { ContentPanel, type ContentTab } from '../components/TabSwitch'
 import VerifiedBadge from '../components/VerifiedBadge'
-import { hostOf, socialUrl, useProfile } from '../store'
+import { hostOf, priceLabel, socialUrl, useProfile } from '../store'
 
 export default function PublicProfile() {
   const { username } = useParams()
@@ -94,14 +94,20 @@ export default function PublicProfile() {
                 <div className="product-list">
                   {profile.products.map((product) => (
                     <article className="product-card" key={product.id}>
-                      <div className="product-art">{product.title.charAt(0).toUpperCase()}</div>
+                      <div className="product-art">
+                        {product.image ? (
+                          <img src={product.image} alt="" />
+                        ) : (
+                          product.title.charAt(0).toUpperCase()
+                        )}
+                      </div>
                       <div className="product-info">
                         <h3>{product.title}</h3>
-                        {product.blurb ? <p>{product.blurb}</p> : null}
+                        {product.description ? <p>{product.description}</p> : null}
                         <div className="product-foot">
-                          <span className="price">{product.price}</span>
+                          <span className="price">{priceLabel(product)}</span>
                           <a className="btn sm" href={product.url} target="_blank" rel="noreferrer">
-                            Get it
+                            {product.ctaText || 'Get it'}
                             <ArrowUpRight size={14} />
                           </a>
                         </div>
