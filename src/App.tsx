@@ -17,6 +17,7 @@ import {
   X,
   type LucideIcon,
 } from 'lucide-react'
+import InstallButton from './components/InstallButton'
 import Overview from './pages/Overview'
 import ProfileEditor from './pages/ProfileEditor'
 import PublicProfile from './pages/PublicProfile'
@@ -116,6 +117,7 @@ function Sidebar({
       </nav>
 
       <div className="sidebar-foot">
+        <InstallButton collapsed={collapsed} />
         <button
           type="button"
           className="collapse-btn"

@@ -2,6 +2,7 @@ import { useState, type CSSProperties } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ArrowUpRight, Calendar, ImageOff, LayoutDashboard, Link2, Mail, Package, Send, Sparkles } from 'lucide-react'
 import Avatar from '../components/Avatar'
+import InstallBanner from '../components/InstallBanner'
 import PlatformIcon from '../components/PlatformIcon'
 import TabSwitch, { ContentPanel, type ContentTab } from '../components/TabSwitch'
 import VerifiedBadge from '../components/VerifiedBadge'
@@ -199,6 +200,8 @@ export default function PublicProfile() {
             ) : null}
           </ContentPanel>
         </section>
+
+        <InstallBanner />
 
         <footer className="profile-foot">
           <Link to="/">
