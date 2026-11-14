@@ -339,8 +339,8 @@ function DomainPanel() {
             {records.map((record) => (
               <div className="dns-row" key={record.key}>
                 <span className="dns-type">{record.type}</span>
-                <span className="mono">{record.name}</span>
-                <span className="mono">{record.value}</span>
+                <span className="mono dns-name">{record.name}</span>
+                <span className="mono dns-value">{record.value}</span>
                 <button
                   type="button"
                   className="icon-btn tiny"

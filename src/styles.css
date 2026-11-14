@@ -2365,6 +2365,54 @@ textarea.input {
   .settings-row {
     align-items: flex-start;
   }
+
+  /* A four-column table can't hold a hostname on a phone, so each record
+     becomes two lines: type and name, then the value under it. */
+  .dns-head {
+    display: none;
+  }
+
+  .dns-row {
+    grid-template-columns: auto minmax(0, 1fr) 28px;
+    grid-template-areas:
+      'type name copy'
+      'value value copy';
+    row-gap: 5px;
+    padding: 12px;
+  }
+
+  .dns-type {
+    grid-area: type;
+    font-size: 10.5px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--ink-faint);
+    padding-top: 2px;
+  }
+
+  .dns-name {
+    grid-area: name;
+  }
+
+  .dns-value {
+    grid-area: value;
+    color: var(--ink);
+  }
+
+  .dns-row .icon-btn.tiny {
+    grid-area: copy;
+    align-self: center;
+  }
+
+  .settings-panel .editor-foot {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .settings-panel .editor-foot .btn {
+    width: 100%;
+  }
 }
 
 /* ---------------------- public page appearance ----------------- */
