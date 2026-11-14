@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, Check, ImagePlus, Plus, Trash2 } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Check, ImagePlus, Trash2 } from 'lucide-react'
 import Avatar from '../components/Avatar'
+import PlatformIcon from '../components/PlatformIcon'
 import { downscaleImage } from '../lib/image'
 import { PLATFORMS, uid, useProfile, type PlatformKey, type Profile } from '../store'
 
@@ -222,8 +223,9 @@ export default function ProfileEditor() {
 
               <div className="social-edit">
                 {draft.socials.map((social) => (
-                  <div className="social-row" key={social.id}>
+                  <div className="social-edit-row" key={social.id}>
                     <span className="platform-tag">
+                      <PlatformIcon platform={social.platform} size={14} />
                       {PLATFORMS.find((p) => p.key === social.platform)?.label}
                     </span>
                     <input
@@ -255,7 +257,7 @@ export default function ProfileEditor() {
                         className="chip"
                         onClick={() => addSocial(platform.key)}
                       >
-                        <Plus size={13} />
+                        <PlatformIcon platform={platform.key} size={13} />
                         {platform.label}
                       </button>
                     ))}

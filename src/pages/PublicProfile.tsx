@@ -2,6 +2,7 @@ import { useState, type CSSProperties } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ArrowUpRight, Calendar, ImageOff, LayoutDashboard, Link2, Mail, Package, Send, Sparkles } from 'lucide-react'
 import Avatar from '../components/Avatar'
+import PlatformIcon from '../components/PlatformIcon'
 import TabSwitch, { ContentPanel, type ContentTab } from '../components/TabSwitch'
 import VerifiedBadge from '../components/VerifiedBadge'
 import { PAGE_ACCENTS, hostOf, priceLabel, socialUrl, useProfile, type Product } from '../store'
@@ -113,7 +114,9 @@ export default function PublicProfile() {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  <span className="social-mono">{social.platform.charAt(0).toUpperCase()}</span>
+                  <span className="social-mono">
+                    <PlatformIcon platform={social.platform} size={12} />
+                  </span>
                   {social.handle ? '@' + social.handle.replace(/^@/, '') : 'Profile'}
                 </a>
               ))}

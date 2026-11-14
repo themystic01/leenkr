@@ -908,17 +908,30 @@ textarea.input {
   margin: 16px 0 0;
 }
 
-.social-row {
+.social-edit-row {
   display: flex;
   align-items: center;
   gap: 10px;
 }
 
+.social-edit-row .input {
+  min-width: 0;
+  flex: 1;
+}
+
 .platform-tag {
-  width: 96px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  width: 118px;
   flex: none;
   font-size: 13px;
   font-weight: 600;
+}
+
+.platform-tag svg {
+  flex: none;
+  color: var(--ink-soft);
 }
 
 .add-platforms {
@@ -1552,6 +1565,10 @@ textarea.input {
   place-items: center;
   font-size: 10.5px;
   font-weight: 700;
+}
+
+.social-mono svg {
+  display: block;
 }
 
 .profile-body {
