@@ -289,270 +289,180 @@
   color: #6d675e;
 }
 
-/* --------------------------- page setup card ------------------- */
-/* The studio's profile step, staged under the hero instead of a screenshot. */
-.mk-dash {
+/* --------------------------- hero sign-in ---------------------- */
+/* The login screen at hero size: asphalt brand panel on the left, the
+   studio's sign-in on paper at the right. Reuses the auth shell's parts. */
+.mk-auth {
   position: relative;
   z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr);
   width: min(1000px, 100%);
-  margin: clamp(40px, 5vw, 64px) auto 0;
+  margin: clamp(40px, 5vw, 66px) auto 0;
   overflow: hidden;
-  border: 1px solid rgba(12, 4, 4, 0.09);
-  border-radius: 18px;
+  border-radius: 20px;
   background: #ffffff;
-  box-shadow: 0 50px 90px -50px rgba(12, 4, 4, 0.45), 0 2px 6px rgba(12, 4, 4, 0.05);
   color: #0c0404;
   text-align: left;
+  box-shadow: 0 60px 110px -60px rgba(12, 4, 4, 0.55), 0 2px 8px rgba(12, 4, 4, 0.06);
 }
 
-.mk-dash-bar {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 11px 16px;
-  border-bottom: 1px solid rgba(12, 4, 4, 0.08);
-  background: #fcfcfa;
-  font-size: 12px;
+.mk-auth .mk-auth-brand {
+  min-height: 540px;
+  gap: 22px;
+  padding: clamp(26px, 3vw, 40px);
 }
 
-.mk-dash-brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-family: 'Boogaloo', 'Geist', sans-serif;
-  font-size: 15px;
+.mk-auth .auth-brand-mark {
+  width: 42px;
+  height: 42px;
+  border-radius: 13px;
 }
 
-.mk-dash-brand .mk-mark {
-  width: 22px;
-  height: 22px;
-  border-radius: 7px;
-  font-size: 14px;
+.mk-auth .auth-quote {
+  font-size: clamp(26px, 2.7vw, 36px);
+  max-width: 13ch;
 }
 
-.mk-dash-crumb {
-  padding-left: 12px;
-  border-left: 1px solid rgba(12, 4, 4, 0.12);
-  color: rgba(12, 4, 4, 0.58);
-}
-
-.mk-dash-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-left: auto;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: rgba(34, 197, 94, 0.12);
-  color: #166534;
-  font-size: 11.5px;
-  font-weight: 600;
-}
-
-.mk-dash-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #22c55e;
-}
-
-.mk-dash-people {
-  display: flex;
-  align-items: center;
-}
-
-.mk-dash-people span {
-  display: grid;
-  place-items: center;
-  width: 24px;
-  height: 24px;
-  margin-left: -6px;
-  border: 2px solid #ffffff;
-  border-radius: 50%;
-  background: #efeae2;
-  color: #3a332c;
-  font-size: 10.5px;
-  font-weight: 700;
-}
-
-.mk-dash-body {
-  display: grid;
-  grid-template-columns: minmax(0, 1.02fr) minmax(0, 0.98fr);
-}
-
-.mk-dash-form {
-  display: grid;
-  align-content: start;
-  gap: 13px;
-  padding: 22px;
-  border-right: 1px solid rgba(12, 4, 4, 0.08);
-}
-
-.mk-dash-form h2 {
-  font-family: 'Boogaloo', 'Geist', sans-serif;
-  font-size: 23px;
-  line-height: 1.1;
-}
-
-.mk-dash-field {
-  display: grid;
-  gap: 6px;
-}
-
-.mk-dash-field > span {
-  font-size: 10.5px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: rgba(12, 4, 4, 0.5);
-}
-
-.mk-dash-input {
-  padding: 10px 12px;
-  border: 1px solid rgba(12, 4, 4, 0.14);
-  border-radius: 9px;
-  background: #ffffff;
+.mk-auth .auth-quote-sub {
   font-size: 13px;
-  line-height: 1.4;
+  color: rgba(253, 250, 243, 0.62);
+}
+
+.mk-auth .auth-list {
+  font-size: 12.5px;
+  color: rgba(253, 250, 243, 0.78);
+}
+
+.mk-auth .mk-auth-main {
+  min-height: 540px;
+  gap: 14px;
+  padding: clamp(28px, 3.4vw, 46px);
+}
+
+.mk-auth .mk-auth-card {
+  max-width: 396px;
+}
+
+.mk-auth .auth-title {
+  font-size: clamp(27px, 2.5vw, 34px);
+  max-width: 12ch;
+}
+
+.mk-auth .auth-sub {
+  font-size: 13.5px;
+}
+
+.mk-auth .mk-auth-form {
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.mk-auth-label {
+  font-size: 12.5px;
+  font-weight: 600;
   color: #0c0404;
 }
 
-.mk-dash-input.muted {
-  color: rgba(12, 4, 4, 0.68);
-}
-
-.mk-dash-accent {
+.mk-auth-static {
   display: flex;
   align-items: center;
-  gap: 9px;
-  font-size: 12px;
-  color: rgba(12, 4, 4, 0.62);
+  height: 46px;
+  padding: 0 14px;
+  font-size: 14px;
+  color: #0c0404;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
-.mk-dash-swatch {
-  width: 20px;
-  height: 20px;
-  border: 2px solid transparent;
-  border-radius: 50%;
-  box-shadow: inset 0 0 0 1px rgba(12, 4, 4, 0.12);
+.mk-auth-static.muted {
+  color: rgba(12, 4, 4, 0.42);
 }
 
-.mk-dash-swatch.on {
-  border-color: #0c0404;
-}
-
-.mk-dash-preview {
-  display: grid;
-  align-content: start;
-  gap: 9px;
-  padding: 22px;
-  background: #fbfaf5;
-}
-
-.mk-dash-preview-head {
-  text-align: center;
-  margin-bottom: 4px;
-}
-
-.mk-dash-avatar {
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  margin: 0 auto 8px;
-  border-radius: 50%;
+/* the hero darkens every .btn, so the studio's yellow submit is restored */
+.mk-auth .mk-auth-submit {
+  width: 100%;
+  height: 48px;
+  margin-top: 4px;
   background: var(--yellow);
   color: #0c0404;
-  font-family: 'Boogaloo', 'Geist', sans-serif;
-  font-size: 20px;
-}
-
-.mk-dash-preview-head h3 {
-  font-size: 16px;
-}
-
-.mk-dash-handle {
-  font-size: 11px;
-  color: rgba(12, 4, 4, 0.52);
-}
-
-.mk-dash-tabs {
-  display: flex;
-  gap: 3px;
-  margin: 6px 0 4px;
-  padding: 3px;
-  border: 1px solid rgba(12, 4, 4, 0.1);
-  border-radius: 999px;
-  background: #ffffff;
-  font-size: 10px;
-  font-weight: 600;
-  color: rgba(12, 4, 4, 0.46);
-}
-
-.mk-dash-tabs span {
-  flex: 1;
-  padding: 5px 0;
-  border-radius: 999px;
-  text-align: center;
-}
-
-.mk-dash-tabs .on {
-  background: #0c0404;
-  color: #fdfaf3;
-}
-
-.mk-dash-product {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px;
-  border: 1px solid rgba(12, 4, 4, 0.1);
-  border-radius: 11px;
-  background: #ffffff;
-}
-
-.mk-dash-thumb {
-  flex: none;
-  width: 34px;
-  height: 34px;
-  border-radius: 9px;
-  background: linear-gradient(135deg, #e9e2d2, #f7f4ec);
-}
-
-.mk-dash-product-body {
-  flex: 1;
-  min-width: 0;
-  display: grid;
-  gap: 1px;
-}
-
-.mk-dash-product-title {
-  font-size: 11.5px;
-  font-weight: 600;
-}
-
-.mk-dash-product-meta {
-  font-size: 10px;
-  color: rgba(12, 4, 4, 0.5);
-}
-
-.mk-dash-price {
-  font-size: 11.5px;
+  border-color: transparent;
   font-weight: 700;
+  cursor: default;
+  box-shadow: 0 16px 30px -20px rgba(140, 165, 0, 0.95);
+}
+
+.mk-auth .mk-auth-submit:hover {
+  background: var(--yellow);
+  transform: none;
+  box-shadow: 0 16px 30px -20px rgba(140, 165, 0, 0.95);
+}
+
+.mk-auth .auth-hint {
+  font-size: 11.5px;
+  line-height: 1.5;
+}
+
+.mk-auth .auth-foot {
+  margin-top: 18px;
+  padding-top: 16px;
+  font-size: 12.5px;
+  color: rgba(12, 4, 4, 0.55);
+}
+
+.mk-auth .auth-foot strong {
+  font-weight: 600;
+  color: #0c0404;
+}
+
+.mk-auth .auth-note {
+  max-width: 396px;
+  font-size: 10.5px;
+  color: rgba(12, 4, 4, 0.4);
+}
+
+@media (max-width: 900px) {
+  .mk-auth {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* the sign-in page drops its brand copy on phones; the hero keeps it */
+  .mk-auth .auth-brand {
+    flex-direction: column;
+    align-items: stretch;
+    min-height: 0;
+    gap: 18px;
+    padding: 26px;
+  }
+
+  .mk-auth .auth-brand-copy {
+    display: block;
+    margin-top: 4px;
+  }
+
+  .mk-auth .auth-list {
+    display: grid;
+  }
+
+  .mk-auth .auth-quote {
+    max-width: 18ch;
+    font-size: 30px;
+  }
+
+  .mk-auth .mk-auth-main {
+    min-height: 0;
+    padding: 28px 24px 32px;
+  }
+
+  .mk-auth .mk-auth-card {
+    max-width: none;
+  }
 }
 
 @media (max-width: 860px) {
   .mk-hero-chip {
     display: none;
-  }
-
-  .mk-dash-body {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .mk-dash-form {
-    border-right: 0;
-    border-bottom: 1px solid rgba(12, 4, 4, 0.08);
   }
 }
 
@@ -1525,14 +1435,6 @@
     gap: 14px;
   }
 
-  .mk-dash-bar {
-    gap: 8px;
-    padding: 10px 12px;
-  }
-
-  .mk-dash-crumb {
-    display: none;
-  }
 }
 
 

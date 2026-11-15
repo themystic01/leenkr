@@ -204,84 +204,65 @@ export default function Marketing() {
             <p className="mk-trust">Free to start · No card · Your handle is yours in under a minute</p>
           </div>
 
-          <div className="mk-dash" aria-hidden="true">
-            <div className="mk-dash-bar">
-              <span className="mk-dash-brand">
-                <span className="mk-mark">L</span>
-                Leenkr
-              </span>
-              <span className="mk-dash-crumb">Page setup</span>
-              <span className="mk-dash-status">
-                <span className="mk-dash-dot" />
-                Published
-              </span>
-              <span className="mk-dash-people">
-                <span>C</span>
-                <span>A</span>
-              </span>
-            </div>
+          {/* The login screen, staged at hero size: brand pitch on asphalt, the
+              studio sign-in on paper. It is a picture of the product, so the
+              real controls stay on /login. */}
+          <div className="mk-auth" aria-hidden="true">
+            <aside className="auth-brand mk-auth-brand">
+              <span className="auth-brand-mark">L</span>
+              <div className="auth-brand-copy">
+                <p className="auth-quote">Your page, products and inbox.</p>
+                <p className="auth-quote-sub">
+                  Products, links and your inbox on a page people can actually buy from.
+                </p>
+              </div>
+              <ul className="auth-list">
+                <li>Sell digital products without a storefront</li>
+                <li>One switch instead of four competing links</li>
+                <li>Email, bookings and collabs in the same place</li>
+              </ul>
+            </aside>
 
-            <div className="mk-dash-body">
-              <div className="mk-dash-form">
-                <h2>Set your page up</h2>
+            <div className="auth-main mk-auth-main">
+              <div className="auth-card mk-auth-card">
+                <p className="eyebrow">Welcome back</p>
+                <h2 className="auth-title">Sign in to your studio</h2>
+                <p className="auth-sub">
+                  Pick up where you left off — your page, products and settings are where you left
+                  them.
+                </p>
 
-                <label className="mk-dash-field">
-                  <span>Display name</span>
-                  <span className="mk-dash-input">{DEMO_PROFILE.name}</span>
-                </label>
+                <div className="auth-form mk-auth-form">
+                  <div className="field">
+                    <span className="mk-auth-label">Email</span>
+                    <span className="input mk-auth-static">you@leenkr.com</span>
+                  </div>
 
-                <label className="mk-dash-field">
-                  <span>Handle</span>
-                  <span className="mk-dash-input muted">leenkr.com/{DEMO_PROFILE.username}</span>
-                </label>
+                  <div className="field">
+                    <span className="mk-auth-label">Password</span>
+                    <span className="input mk-auth-static muted">At least 6 characters</span>
+                  </div>
 
-                <label className="mk-dash-field">
-                  <span>Bio</span>
-                  <span className="mk-dash-input muted">
-                    Designer and builder. I sell the kits that come out of the work.
+                  <span className="btn mk-auth-submit">
+                    Sign in
+                    <ArrowRight size={16} />
                   </span>
-                </label>
 
-                <div className="mk-dash-accent">
-                  Accent
-                  <span className="mk-dash-swatch on" style={{ background: '#dfff00' }} />
-                  <span className="mk-dash-swatch" style={{ background: '#8fb4ff' }} />
-                  <span className="mk-dash-swatch" style={{ background: '#f7b2a0' }} />
-                  <span className="mk-dash-swatch" style={{ background: '#0c0404' }} />
+                  <p className="auth-hint">
+                    Any email and any 6-character password signs you in — this demo runs on the{' '}
+                    {DEMO_PROFILE.name} profile.
+                  </p>
+                </div>
+
+                <div className="auth-foot">
+                  New to Leenkr? <strong>Create an account</strong>
                 </div>
               </div>
 
-              <div className="mk-dash-preview">
-                <div className="mk-dash-preview-head">
-                  <span className="mk-dash-avatar">C</span>
-                  <h3>{DEMO_PROFILE.name}</h3>
-                  <p className="mk-dash-handle">leenkr.com/{DEMO_PROFILE.username}</p>
-                </div>
-
-                <div className="mk-dash-tabs">
-                  <span className="on">Products</span>
-                  <span>Links</span>
-                  <span>Connect</span>
-                </div>
-
-                <div className="mk-dash-product">
-                  <span className="mk-dash-thumb" />
-                  <span className="mk-dash-product-body">
-                    <span className="mk-dash-product-title">Creator OS Kit</span>
-                    <span className="mk-dash-product-meta">Templates · 42 sales</span>
-                  </span>
-                  <span className="mk-dash-price">$29</span>
-                </div>
-
-                <div className="mk-dash-product">
-                  <span className="mk-dash-thumb" />
-                  <span className="mk-dash-product-body">
-                    <span className="mk-dash-product-title">Type Pairings Vol. 1</span>
-                    <span className="mk-dash-product-meta">Design assets · 18 sales</span>
-                  </span>
-                  <span className="mk-dash-price">$12</span>
-                </div>
-              </div>
+              <p className="auth-note">
+                Preview build — accounts aren’t connected to a server yet. Sessions live on this
+                device, and you land on the demo creator profile.
+              </p>
             </div>
           </div>
         </section>
