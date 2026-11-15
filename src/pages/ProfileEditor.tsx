@@ -24,6 +24,13 @@ const RESERVED_HANDLES = new Set([
   'products',
   'links',
   'connect',
+  'dashboard',
+  'login',
+  'signup',
+  'onboarding',
+  'pricing',
+  'home',
+  'p',
 ])
 
 export default function ProfileEditor() {

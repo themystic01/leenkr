@@ -2,15 +2,19 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App'
+import { SessionProvider } from './auth'
 import { ProfileProvider } from './store'
 import './styles.css'
+import './marketing.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <BrowserRouter>
-      <ProfileProvider>
-        <App />
-      </ProfileProvider>
+      <SessionProvider>
+        <ProfileProvider>
+          <App />
+        </ProfileProvider>
+      </SessionProvider>
     </BrowserRouter>
   </StrictMode>,
 )

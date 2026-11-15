@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { Link, Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import { useEffect, useState, type ReactNode } from 'react'
+import { Link, Navigate, Outlet, Route, Routes, useLocation, useParams } from 'react-router-dom'
 import {
   ArrowUpRight,
   BarChart3,
@@ -18,6 +18,9 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import InstallButton from './components/InstallButton'
+import Login from './pages/Login'
+import Marketing from './pages/Marketing'
+import Onboarding from './pages/Onboarding'
 import Overview from './pages/Overview'
 import ProfileEditor from './pages/ProfileEditor'
 import PublicProfile from './pages/PublicProfile'
@@ -27,6 +30,9 @@ import Connect from './pages/Connect'
 import Tools from './pages/Tools'
 import Verify from './pages/Verify'
 import SettingsPage from './pages/Settings'
+import Signup from './pages/Signup'
+import { useSession } from './auth'
+import { usePageTitle } from './lib/title'
 import { useProfile } from './store'
 
 type NavItem = {
@@ -35,6 +41,8 @@ type NavItem = {
   icon: LucideIcon
   badge?: number
 }
+
+const STUDIO = '/dashboard'
 
 const SIDEBAR_KEY = 'leenkr.sidebar.v1'
 // Below this width the 272px sidebar eats too much of the canvas, so it starts
@@ -66,17 +74,17 @@ function Sidebar({
   const location = useLocation()
 
   const primary: NavItem[] = [
-    { label: 'Overview', to: '/', icon: LayoutDashboard },
-    { label: 'Analytics', to: '/analytics', icon: BarChart3 },
-    { label: 'Profile', to: '/profile', icon: User },
-    { label: 'Products', to: '/products', icon: Package, badge: profile.products.length },
-    { label: 'Links', to: '/links', icon: Link2, badge: profile.links.length },
-    { label: 'Connect', to: '/connect', icon: Send, badge: profile.connects.length },
-    { label: 'Tools', to: '/tools', icon: Wrench },
-    { label: 'Verify', to: '/verify', icon: ShieldCheck },
+    { label: 'Overview', to: STUDIO, icon: LayoutDashboard },
+    { label: 'Analytics', to: `${STUDIO}/analytics`, icon: BarChart3 },
+    { label: 'Profile', to: `${STUDIO}/profile`, icon: User },
+    { label: 'Products', to: `${STUDIO}/products`, icon: Package, badge: profile.products.length },
+    { label: 'Links', to: `${STUDIO}/links`, icon: Link2, badge: profile.links.length },
+    { label: 'Connect', to: `${STUDIO}/connect`, icon: Send, badge: profile.connects.length },
+    { label: 'Tools', to: `${STUDIO}/tools`, icon: Wrench },
+    { label: 'Verify', to: `${STUDIO}/verify`, icon: ShieldCheck },
   ]
 
-  const secondary: NavItem[] = [{ label: 'Settings', to: '/settings', icon: Settings }]
+  const secondary: NavItem[] = [{ label: 'Settings', to: `${STUDIO}/settings`, icon: Settings }]
 
   const renderItem = (item: NavItem) => {
     const active = location.pathname === item.to
@@ -102,7 +110,7 @@ function Sidebar({
 
   return (
     <aside className="sidebar">
-      <Link to="/" className="brand" onClick={onNavigate} title={collapsed ? 'Leenkr' : undefined}>
+      <Link to={STUDIO} className="brand" onClick={onNavigate} title={collapsed ? 'Leenkr' : undefined}>
         <span className="brand-mark">L</span>
         <span className="brand-text">
           <span className="brand-name">Leenkr</span>
@@ -143,9 +151,11 @@ function Sidebar({
 }
 
 function Shell() {
+  usePageTitle('Creator Studio · Leenkr')
   const [open, setOpen] = useState(false)
   const [collapsed, setCollapsed] = useState(() => (isNarrowWindow() ? true : savedSidebarPreference()))
   const { profile } = useProfile()
+  const { session } = useSession()
   const publicPath = `/${profile.username}`
 
   useEffect(() => {
@@ -178,7 +188,7 @@ function Shell() {
   return (
     <div className={collapsed ? 'shell collapsed' : 'shell'}>
       <div className="mobile-bar">
-        <Link to="/" className="brand compact">
+        <Link to={STUDIO} className="brand compact">
           <span className="brand-mark">L</span>
           <span className="brand-name">Leenkr</span>
         </Link>
@@ -204,32 +214,27 @@ function Shell() {
       {open ? <div className="scrim" onClick={() => setOpen(false)} /> : null}
 
       <main className="main">
-        <div className="topbar">{viewPage}</div>
+        <div className="topbar">
+          <span className="topbar-plan">
+            {session?.plan === 'pro' ? 'Pro plan' : session?.plan === 'creator' ? 'Creator plan' : 'Free plan'}
+          </span>
+          {viewPage}
+        </div>
 
-        <Routes>
-          <Route path="/" element={<Overview />} />
-          <Route path="/profile" element={<ProfileEditor />} />
-          <Route path="/products" element={<Products />} />
-          <Route path="/links" element={<Links />} />
-          <Route path="/connect" element={<Connect />} />
-          <Route path="/tools" element={<Tools />} />
-          <Route path="/analytics" element={<Stub title="Analytics" />} />
-          <Route path="/verify" element={<Verify />} />
-          <Route path="/settings" element={<SettingsPage />} />
-          <Route
-            path="*"
-            element={
-              <div className="page">
-                <h1 className="page-title">Nothing here</h1>
-                <p className="page-sub">That page doesn’t exist. Head back to your overview.</p>
-                <Link className="btn" to="/">
-                  Back to overview
-                </Link>
-              </div>
-            }
-          />
-        </Routes>
+        <Outlet />
       </main>
+    </div>
+  )
+}
+
+function DashboardFallback() {
+  return (
+    <div className="page">
+      <h1 className="page-title">Nothing here</h1>
+      <p className="page-sub">That page doesn’t exist. Head back to your overview.</p>
+      <Link className="btn" to={STUDIO}>
+        Back to overview
+      </Link>
     </div>
   )
 }
@@ -250,7 +255,7 @@ function Stub({ title }: { title: string }) {
       <div className="card empty-card">
         <span className="empty-mark">L</span>
         <p>{STUB_COPY[title]}</p>
-        <Link className="btn ghost" to="/profile">
+        <Link className="btn ghost" to={`${STUDIO}/profile`}>
           Work on your page
         </Link>
       </div>
@@ -258,36 +263,50 @@ function Stub({ title }: { title: string }) {
   )
 }
 
-// One-segment paths are public profile handles, except the studio's own routes.
-const STUDIO_ROUTES = new Set([
-  'profile',
-  'analytics',
-  'tools',
-  'verify',
-  'settings',
-  'products',
-  'links',
-  'connect',
-])
+function RequireSession({ children }: { children: ReactNode }) {
+  const { session } = useSession()
+  if (!session) return <Navigate to="/login" replace />
+  if (!session.onboarded) return <Navigate to="/onboarding" replace />
+  return <>{children}</>
+}
+
+// Older /p/handle links keep working.
+function LegacyProfileRedirect() {
+  const { username } = useParams()
+  return <Navigate to={`/${username ?? ''}`} replace />
+}
 
 export default function App() {
-  const location = useLocation()
-  const segments = location.pathname.split('/').filter(Boolean)
+  return (
+    <Routes>
+      <Route path="/" element={<Marketing />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route path="/onboarding" element={<Onboarding />} />
 
-  // Older /p/handle links keep working.
-  if (segments[0] === 'p' && segments.length > 1) {
-    return <Navigate to={`/${segments.slice(1).join('/')}`} replace />
-  }
+      <Route
+        path={STUDIO}
+        element={
+          <RequireSession>
+            <Shell />
+          </RequireSession>
+        }
+      >
+        <Route index element={<Overview />} />
+        <Route path="profile" element={<ProfileEditor />} />
+        <Route path="products" element={<Products />} />
+        <Route path="links" element={<Links />} />
+        <Route path="connect" element={<Connect />} />
+        <Route path="tools" element={<Tools />} />
+        <Route path="analytics" element={<Stub title="Analytics" />} />
+        <Route path="verify" element={<Verify />} />
+        <Route path="settings" element={<SettingsPage />} />
+        <Route path="*" element={<DashboardFallback />} />
+      </Route>
 
-  const isPublicPage = segments.length === 1 && !STUDIO_ROUTES.has(segments[0])
-
-  if (isPublicPage) {
-    return (
-      <Routes>
-        <Route path="/:username" element={<PublicProfile />} />
-      </Routes>
-    )
-  }
-
-  return <Shell />
+      <Route path="/p/:username" element={<LegacyProfileRedirect />} />
+      <Route path="/:username" element={<PublicProfile />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  )
 }

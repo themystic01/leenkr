@@ -9,13 +9,13 @@ export default function Overview() {
   const firstName = profile.name.trim().split(/\s+/)[0] || 'there'
 
   const checklist = [
-    { label: 'Add a profile photo', done: Boolean(profile.photo), to: '/profile' },
-    { label: 'Write a bio people remember', done: profile.bio.trim().length > 40, to: '/profile' },
-    { label: 'Link at least two socials', done: profile.socials.length >= 2, to: '/profile' },
-    { label: 'Add a product', done: profile.products.length > 0, to: '/products' },
-    { label: 'Add a link', done: profile.links.length > 0, to: '/links' },
-    { label: 'Add a way to connect', done: profile.connects.length > 0, to: '/connect' },
-    { label: 'Publish your page', done: profile.published, to: '/profile' },
+    { label: 'Add a profile photo', done: Boolean(profile.photo), to: '/dashboard/profile' },
+    { label: 'Write a bio people remember', done: profile.bio.trim().length > 40, to: '/dashboard/profile' },
+    { label: 'Link at least two socials', done: profile.socials.length >= 2, to: '/dashboard/profile' },
+    { label: 'Add a product', done: profile.products.length > 0, to: '/dashboard/products' },
+    { label: 'Add a link', done: profile.links.length > 0, to: '/dashboard/links' },
+    { label: 'Add a way to connect', done: profile.connects.length > 0, to: '/dashboard/connect' },
+    { label: 'Publish your page', done: profile.published, to: '/dashboard/profile' },
   ]
   const done = checklist.filter((item) => item.done).length
   const progress = Math.round((done / checklist.length) * 100)
@@ -31,7 +31,7 @@ export default function Overview() {
           </p>
         </div>
         <div className="head-actions">
-          <Link className="btn" to="/profile">
+          <Link className="btn" to="/dashboard/profile">
             Edit page
             <ArrowUpRight size={16} />
           </Link>

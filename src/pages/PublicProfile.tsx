@@ -50,7 +50,7 @@ export default function PublicProfile() {
 
   const dashboardLink = (
     <div className="public-top">
-      <Link className="public-home" to="/">
+      <Link className="public-home" to="/dashboard">
         <LayoutDashboard size={14} />
         Dashboard
       </Link>
@@ -65,7 +65,7 @@ export default function PublicProfile() {
           <span className="empty-mark">L</span>
           <h1 className="page-title">Page not found</h1>
           <p className="page-copy">There’s no Leenkr page at leenkr.com/{username} yet.</p>
-          <Link className="btn" to="/">
+          <Link className="btn" to="/dashboard">
             Go to Creator Studio
           </Link>
         </div>
@@ -81,7 +81,7 @@ export default function PublicProfile() {
           <span className="empty-mark">L</span>
           <h1 className="page-title">This page isn’t live yet</h1>
           <p className="page-copy">Finish the last step and publish it — then this URL is yours.</p>
-          <Link className="btn" to="/profile">
+          <Link className="btn" to="/dashboard/profile">
             Finish setup
           </Link>
         </div>

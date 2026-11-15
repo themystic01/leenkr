@@ -1,4 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   Check,
   Copy,
@@ -11,6 +12,7 @@ import {
   User,
   type LucideIcon,
 } from 'lucide-react'
+import { useSession } from '../auth'
 import {
   PAGE_ACCENTS,
   PAGE_MOTIONS,
@@ -46,6 +48,8 @@ function Saved({ children }: { children: string }) {
 
 function AccountPanel() {
   const { profile, save } = useProfile()
+  const { session, signOut } = useSession()
+  const navigate = useNavigate()
   const [email, setEmail] = useState(profile.email)
   const [username, setUsername] = useState(profile.username)
   const [errors, setErrors] = useState<Record<string, string>>({})
@@ -123,6 +127,23 @@ function AccountPanel() {
         </div>
         <button type="submit" className="btn" disabled={!dirty}>
           Save account
+        </button>
+      </div>
+
+      <div className="session-row">
+        <div>
+          <p className="session-title">Signed in as {session?.email}</p>
+          <p className="session-note">Demo session — accounts aren’t on a server yet.</p>
+        </div>
+        <button
+          type="button"
+          className="btn ghost sm"
+          onClick={() => {
+            signOut()
+            navigate('/login')
+          }}
+        >
+          Sign out
         </button>
       </div>
     </form>
