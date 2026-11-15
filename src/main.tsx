@@ -4,6 +4,7 @@ import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 import { SessionProvider } from './auth'
 import { ProfileProvider } from './store'
+import './tailwind.css'
 import './styles.css'
 import './marketing.css'
 

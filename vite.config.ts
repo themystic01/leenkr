@@ -1,7 +1,8 @@
 import { readFileSync, writeFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { join, resolve } from 'node:path'
 import { defineConfig, type Plugin } from 'vite'
 import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
 
 // Hashed asset names are only known after bundling, so the service worker's
 // precache list is written into dist/sw.js at the end of the build.
@@ -33,7 +34,10 @@ function precacheServiceWorker(): Plugin {
 }
 
 export default defineConfig({
-  plugins: [react(), precacheServiceWorker()],
+  plugins: [react(), tailwindcss(), precacheServiceWorker()],
+  resolve: {
+    alias: { '@': resolve(__dirname, 'src') },
+  },
   server: {
     port: 5173,
     strictPort: true,

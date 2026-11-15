@@ -1,10 +1,11 @@
-import { useEffect, useState, type ReactNode } from 'react'
-import { Link, Navigate, Outlet, Route, Routes, useLocation, useParams } from 'react-router-dom'
+import { lazy, Suspense, useEffect, useState, type ReactNode } from 'react'
+import { Link, Navigate, Outlet, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import {
   ArrowUpRight,
   BarChart3,
   LayoutDashboard,
   Link2,
+  LogOut,
   Menu,
   Package,
   PanelLeftClose,
@@ -19,7 +20,6 @@ import {
 } from 'lucide-react'
 import InstallButton from './components/InstallButton'
 import Login from './pages/Login'
-import Marketing from './pages/Marketing'
 import Onboarding from './pages/Onboarding'
 import Overview from './pages/Overview'
 import ProfileEditor from './pages/ProfileEditor'
@@ -41,6 +41,10 @@ type NavItem = {
   icon: LucideIcon
   badge?: number
 }
+
+// The marketing page carries the animated hero and pricing components, so it
+// loads on demand and leaves the studio bundle alone.
+const Marketing = lazy(() => import('./pages/Marketing'))
 
 const STUDIO = '/dashboard'
 
@@ -71,7 +75,9 @@ function Sidebar({
   onToggleCollapse: () => void
 }) {
   const { profile } = useProfile()
+  const { signOut } = useSession()
   const location = useLocation()
+  const navigate = useNavigate()
 
   const primary: NavItem[] = [
     { label: 'Overview', to: STUDIO, icon: LayoutDashboard },
@@ -137,6 +143,19 @@ function Sidebar({
         >
           {collapsed ? <PanelLeftOpen size={17} /> : <PanelLeftClose size={17} />}
           <span className="collapse-label">Collapse menu</span>
+        </button>
+        <button
+          type="button"
+          className="signout-btn"
+          onClick={() => {
+            signOut()
+            navigate('/login')
+          }}
+          aria-label="Sign out"
+          title={collapsed ? 'Sign out' : undefined}
+        >
+          <LogOut size={17} />
+          <span className="signout-label">Sign out</span>
         </button>
         <div className="status-card">
           <span className={profile.published ? 'dot live' : 'dot'} />
@@ -279,7 +298,14 @@ function LegacyProfileRedirect() {
 export default function App() {
   return (
     <Routes>
-      <Route path="/" element={<Marketing />} />
+      <Route
+        path="/"
+        element={
+          <Suspense fallback={<div className="mk-boot" aria-hidden="true" />}>
+            <Marketing />
+          </Suspense>
+        }
+      />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
       <Route path="/onboarding" element={<Onboarding />} />

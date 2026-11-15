@@ -1,69 +1,26 @@
-import { useRef, useState, type KeyboardEvent } from 'react'
-import { Link } from 'react-router-dom'
-import { ArrowRight, Check, Link2, Mail, Package, Send, Sparkles } from 'lucide-react'
+import { Link, useNavigate } from 'react-router-dom'
+import {
+  AppWindowIcon,
+  ChartBarIcon,
+  ChartLineUpIcon,
+  CloudCheckIcon,
+  CubeIcon,
+  FileArrowDownIcon,
+  FlaskIcon,
+  GlobeIcon,
+  LifebuoyIcon,
+  LinkIcon,
+  SignatureIcon,
+  SparkleIcon,
+  SquaresFourIcon,
+  UserIcon,
+} from '@phosphor-icons/react'
+import { ArrowRight, Check, Link2, Mail, Package, Send } from 'lucide-react'
+import { AnimatedRays } from '@/components/ui/animated-rays'
+import PricingTiers, { type PricingTier } from '@/components/ui/pricing-tiers'
 import { DEMO_PROFILE, useSession } from '../auth'
 import { usePageTitle } from '../lib/title'
 import { useProfile } from '../store'
-
-type TierKey = 'free' | 'pro' | 'creator'
-
-const TIERS: {
-  key: TierKey
-  label: string
-  price: string
-  cadence: string
-  pitch: string
-  features: string[]
-  cta: string
-}[] = [
-  {
-    key: 'free',
-    label: 'Free',
-    price: '$0',
-    cadence: 'forever',
-    pitch: 'One page with everything you make on it. Enough to find out whether people bite.',
-    features: [
-      'Your own leenkr.com handle',
-      'Unlimited links and social handles',
-      'Up to 3 products',
-      'Connect section for email and bookings',
-      'Basic page views',
-    ],
-    cta: 'Start free',
-  },
-  {
-    key: 'pro',
-    label: 'Pro',
-    price: '$9',
-    cadence: 'per month',
-    pitch: 'For creators selling every week, who want the page to look like their own work.',
-    features: [
-      'Everything in Free',
-      'Unlimited products',
-      'Custom domain',
-      'Every theme, accent and motion setting',
-      'Click tracking on products and links',
-      'Verified badge review',
-    ],
-    cta: 'Choose Pro',
-  },
-  {
-    key: 'creator',
-    label: 'Creator',
-    price: '$24',
-    cadence: 'per month',
-    pitch: 'For studios and small businesses running several pages under one brand.',
-    features: [
-      'Everything in Pro',
-      'Up to 5 pages on one login',
-      'Shared brand appearance presets',
-      'Lead export to CSV',
-      'Priority support',
-      'Early access to new tools',
-    ],
-    cta: 'Choose Creator',
-  },
-]
 
 const BENEFITS = [
   {
@@ -97,25 +54,58 @@ const BUSINESS_POINTS = [
 
 export default function Marketing() {
   usePageTitle('Leenkr — one link for everything you make')
-  const [tier, setTier] = useState<TierKey>('pro')
-  const tabRefs = useRef<Array<HTMLButtonElement | null>>([])
   const { session } = useSession()
   const { profile } = useProfile()
-  const active = TIERS.find((item) => item.key === tier) ?? TIERS[0]
+  const navigate = useNavigate()
 
-  const onTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
-    const last = TIERS.length - 1
-    let next = -1
-    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') next = index === last ? 0 : index + 1
-    else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') next = index === 0 ? last : index - 1
-    else if (event.key === 'Home') next = 0
-    else if (event.key === 'End') next = last
-    if (next === -1) return
-
-    event.preventDefault()
-    setTier(TIERS[next].key)
-    tabRefs.current[next]?.focus()
-  }
+  const tiers: PricingTier[] = [
+    {
+      id: 'free',
+      name: 'Free',
+      description: 'One page with everything you make on it.',
+      price: { monthly: 0, yearly: 0 },
+      cta: { label: 'Start free', onClick: () => navigate('/signup') },
+      featuresLabel: 'What you get',
+      features: [
+        { label: 'Your own leenkr.com handle', icon: <UserIcon weight="fill" /> },
+        { label: 'Unlimited links and social handles', icon: <LinkIcon weight="fill" /> },
+        { label: 'Up to 3 products', icon: <CubeIcon weight="fill" /> },
+        { label: 'Connect section for email and bookings', icon: <SignatureIcon weight="fill" /> },
+        { label: 'Basic page views', icon: <ChartBarIcon weight="fill" /> },
+      ],
+    },
+    {
+      id: 'pro',
+      name: 'Pro',
+      description: 'For creators selling every week, who want the page to look like their own work.',
+      price: { monthly: 9, yearly: 7 },
+      featured: true,
+      cta: { label: 'Choose Pro', onClick: () => navigate('/signup') },
+      featuresLabel: 'Everything in Free, plus:',
+      features: [
+        { label: 'Unlimited products', icon: <CubeIcon weight="fill" /> },
+        { label: 'Custom domain', icon: <GlobeIcon weight="fill" /> },
+        { label: 'Every theme, accent and motion setting', icon: <SquaresFourIcon weight="fill" /> },
+        { label: 'Click tracking on products and links', icon: <ChartLineUpIcon weight="fill" /> },
+        { label: 'Verified badge review', icon: <CloudCheckIcon weight="fill" /> },
+      ],
+    },
+    {
+      id: 'creator',
+      name: 'Creator',
+      description: 'For studios and small businesses running several pages under one brand.',
+      price: { monthly: 24, yearly: 19 },
+      cta: { label: 'Choose Creator', onClick: () => navigate('/signup') },
+      featuresLabel: 'Everything in Pro, plus:',
+      features: [
+        { label: 'Up to 5 pages on one login', icon: <AppWindowIcon weight="fill" /> },
+        { label: 'Shared brand appearance presets', icon: <SquaresFourIcon weight="fill" /> },
+        { label: 'Lead export to CSV', icon: <FileArrowDownIcon weight="fill" /> },
+        { label: 'Priority support', icon: <LifebuoyIcon weight="fill" /> },
+        { label: 'Early access to new tools', icon: <FlaskIcon weight="fill" /> },
+      ],
+    },
+  ]
 
   return (
     <div className="mk">
@@ -149,15 +139,15 @@ export default function Marketing() {
 
       <main>
         <section className="mk-hero">
-          <div className="mk-hero-copy">
-            <p className="mk-eyebrow">
-              <Sparkles size={13} />
-              Link in bio, for people who sell things
-            </p>
+          <div className="mk-rays" aria-hidden="true">
+            <AnimatedRays />
+          </div>
+
+          <div className="mk-hero-inner">
             <h1 className="mk-h1">
               Everything you make,
               <br />
-              behind <span className="mk-hl">one link</span>.
+              behind <span className="mk-hl">one link</span>
             </h1>
             <p className="mk-lede">
               Leenkr turns a long bio link into a page that sells: your products with real prices, your
@@ -174,7 +164,9 @@ export default function Marketing() {
             </div>
             <p className="mk-trust">Free to start · No card · Your handle is yours in under a minute</p>
           </div>
+        </section>
 
+        <section className="mk-showcase" aria-label="Page preview">
           <div className="mk-stage" aria-hidden="true">
             <div className="mk-phone">
               <div className="mk-phone-top">
@@ -209,27 +201,29 @@ export default function Marketing() {
           </div>
         </section>
 
-        <section className="mk-section" id="what">
-          <p className="mk-kicker">What Leenkr is</p>
-          <h2 className="mk-h2">A page that answers “what do you sell?”</h2>
-          <p className="mk-section-lede">
-            Most link pages are a stack of buttons that all leave the page. Leenkr keeps the work itself on
-            the page, sorted into the three things visitors actually came for.
-          </p>
+        <section className="mk-section mk-yellow" id="what">
+          <div className="mk-yellow-inner">
+            <p className="mk-kicker">What Leenkr is</p>
+            <h2 className="mk-h2">A page that answers “what do you sell?”</h2>
+            <p className="mk-section-lede">
+              Most link pages are a stack of buttons that all leave the page. Leenkr keeps the work itself
+              on the page, sorted into the three things visitors actually came for.
+            </p>
 
-          <div className="mk-benefits">
-            {BENEFITS.map((item) => {
-              const Icon = item.icon
-              return (
-                <article className="mk-benefit" key={item.title}>
-                  <span className="mk-benefit-icon">
-                    <Icon size={18} />
-                  </span>
-                  <h3 className="mk-h3">{item.title}</h3>
-                  <p className="mk-copy">{item.copy}</p>
-                </article>
-              )
-            })}
+            <div className="mk-benefits">
+              {BENEFITS.map((item) => {
+                const Icon = item.icon
+                return (
+                  <article className="mk-benefit" key={item.title}>
+                    <span className="mk-benefit-icon">
+                      <Icon size={18} />
+                    </span>
+                    <h3 className="mk-h3">{item.title}</h3>
+                    <p className="mk-copy">{item.copy}</p>
+                  </article>
+                )
+              })}
+            </div>
           </div>
         </section>
 
@@ -293,74 +287,22 @@ export default function Marketing() {
           </ol>
         </section>
 
-        <section className="mk-section mk-pricing" id="pricing">
-          <p className="mk-kicker">Pricing</p>
-          <h2 className="mk-h2">Pick the size that fits</h2>
-          <p className="mk-section-lede">
-            Start free. Upgrade when the page starts earning. Cancel or switch at any time.
-          </p>
-
-          <div className="mk-switch" role="tablist" aria-label="Pricing plans">
-            {TIERS.map((item, index) => (
-              <button
-                key={item.key}
-                type="button"
-                role="tab"
-                id={`plan-tab-${item.key}`}
-                ref={(node) => {
-                  tabRefs.current[index] = node
-                }}
-                aria-selected={tier === item.key}
-                aria-controls="plan-panel"
-                tabIndex={tier === item.key ? 0 : -1}
-                className={tier === item.key ? 'mk-switch-item on' : 'mk-switch-item'}
-                onClick={() => setTier(item.key)}
-                onKeyDown={(event) => onTabKeyDown(event, index)}
-              >
-                {item.label}
-              </button>
-            ))}
-          </div>
-
-          <article
-            className="mk-plan"
-            role="tabpanel"
-            id="plan-panel"
-            aria-labelledby={`plan-tab-${active.key}`}
-            key={active.key}
-          >
-            <div className="mk-plan-head">
-              <div>
-                <h3 className="mk-plan-name">{active.label}</h3>
-                <p className="mk-copy">{active.pitch}</p>
-              </div>
-              <p className="mk-plan-price">
-                {active.price}
-                <span>{active.cadence}</span>
-              </p>
-            </div>
-
-            <ul className="mk-plan-features">
-              {active.features.map((feature) => (
-                <li key={feature}>
-                  <Check size={14} strokeWidth={3} />
-                  {feature}
-                </li>
-              ))}
-            </ul>
-
-            <div className="mk-plan-foot">
-              <Link className="btn" to="/signup">
-                {active.cta}
-                <ArrowRight size={16} />
-              </Link>
-              <p className="mk-plan-note">
-                {active.key === 'free' ? 'No card needed.' : 'Billing arrives when the backend does.'}
-              </p>
-            </div>
-          </article>
-
-          <p className="mk-plan-hint">One plan shown at a time — switch above to compare.</p>
+        <section className="mk-pricing" id="pricing">
+          <PricingTiers
+            badge="Pricing"
+            title="Pick the size that fits"
+            description={
+              <>
+                Start free. Upgrade when the page starts earning — <b>cancel or switch any time</b>.
+              </>
+            }
+            tiers={tiers}
+            enterprise={null}
+            defaultBilling="monthly"
+            billingLabels={{ monthly: 'Monthly', yearly: 'Yearly' }}
+            yearlyDiscountLabel="-20%"
+            className="mk-pricing-inner"
+          />
         </section>
 
         <section className="mk-close">

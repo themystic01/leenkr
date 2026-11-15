@@ -243,6 +243,38 @@ select {
   flex: none;
 }
 
+.signout-btn {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  height: 34px;
+  padding: 0 11px;
+  margin-bottom: 8px;
+  border-radius: 11px;
+  border: 1px solid transparent;
+  background: transparent;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.55);
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.signout-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.signout-btn:focus-visible {
+  outline: 2px solid var(--yellow);
+  outline-offset: 2px;
+}
+
+.signout-btn svg {
+  flex: none;
+}
+
 .install-btn {
   display: flex;
   align-items: center;
@@ -310,7 +342,8 @@ select {
   box-shadow: 0 0 0 3px rgba(223, 255, 0, 0.18);
 }
 
-.close-btn {
+/* Needs to out-weigh `.icon-btn`'s display. */
+.icon-btn.close-btn {
   display: none;
 }
 
@@ -2098,7 +2131,7 @@ textarea.input {
     position: static;
   }
 
-  .close-btn {
+  .icon-btn.close-btn {
     display: grid;
     position: absolute;
     top: 18px;
@@ -2822,11 +2855,13 @@ textarea.input {
   .shell.collapsed .badge,
   .shell.collapsed .status-text,
   .shell.collapsed .install-label,
+  .shell.collapsed .signout-label,
   .shell.collapsed .collapse-label {
     display: none;
   }
 
-  .shell.collapsed .install-btn {
+  .shell.collapsed .install-btn,
+  .shell.collapsed .signout-btn {
     justify-content: center;
     padding: 0;
   }
