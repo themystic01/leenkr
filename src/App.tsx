@@ -45,6 +45,16 @@ type NavItem = {
 // The marketing page carries the animated hero and pricing components, so it
 // loads on demand and leaves the studio bundle alone.
 const Marketing = lazy(() => import('./pages/Marketing'))
+const About = lazy(() => import('./pages/marketing/About'))
+const Features = lazy(() => import('./pages/marketing/Features'))
+const VibeUniversity = lazy(() => import('./pages/marketing/VibeUniversity'))
+const Earn = lazy(() => import('./pages/marketing/Earn'))
+const Career = lazy(() => import('./pages/marketing/Career'))
+const Business = lazy(() => import('./pages/marketing/Business'))
+
+function MarketingRoute({ children }: { children: ReactNode }) {
+  return <Suspense fallback={<div className="mk-boot" aria-hidden="true" />}>{children}</Suspense>
+}
 
 const STUDIO = '/dashboard'
 
@@ -301,9 +311,57 @@ export default function App() {
       <Route
         path="/"
         element={
-          <Suspense fallback={<div className="mk-boot" aria-hidden="true" />}>
+          <MarketingRoute>
             <Marketing />
-          </Suspense>
+          </MarketingRoute>
+        }
+      />
+      <Route
+        path="/about"
+        element={
+          <MarketingRoute>
+            <About />
+          </MarketingRoute>
+        }
+      />
+      <Route
+        path="/features"
+        element={
+          <MarketingRoute>
+            <Features />
+          </MarketingRoute>
+        }
+      />
+      <Route
+        path="/vibe-university"
+        element={
+          <MarketingRoute>
+            <VibeUniversity />
+          </MarketingRoute>
+        }
+      />
+      <Route
+        path="/earn"
+        element={
+          <MarketingRoute>
+            <Earn />
+          </MarketingRoute>
+        }
+      />
+      <Route
+        path="/career"
+        element={
+          <MarketingRoute>
+            <Career />
+          </MarketingRoute>
+        }
+      />
+      <Route
+        path="/business"
+        element={
+          <MarketingRoute>
+            <Business />
+          </MarketingRoute>
         }
       />
       <Route path="/login" element={<Login />} />

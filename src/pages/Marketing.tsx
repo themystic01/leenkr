@@ -16,10 +16,11 @@ import {
   SquaresFourIcon,
   UserIcon,
 } from '@phosphor-icons/react'
-import { ArrowRight, Check, Link2, Mail, Package, Send } from 'lucide-react'
+import { ArrowRight, Check, Link2, Package, Send } from 'lucide-react'
 import { AnimatedRays } from '@/components/ui/animated-rays'
 import PricingTiers, { type PricingTier } from '@/components/ui/pricing-tiers'
-import { DEMO_PROFILE, useSession } from '../auth'
+import { DEMO_PROFILE } from '../auth'
+import { MarketingLayout } from '../components/marketing/SiteChrome'
 import { usePageTitle } from '../lib/title'
 import { useProfile } from '../store'
 
@@ -90,7 +91,6 @@ const PLAN_LABELS: Record<PlanKey, string> = {
 
 export default function Marketing() {
   usePageTitle('Leenkr — one link for everything you make')
-  const { session } = useSession()
   const { profile } = useProfile()
   const navigate = useNavigate()
 
@@ -167,36 +167,7 @@ export default function Marketing() {
   ]
 
   return (
-    <div className="mk">
-      <header className="mk-head">
-        <Link to="/" className="mk-brand">
-          <span className="mk-mark">L</span>
-          Leenkr
-        </Link>
-        <nav className="mk-nav" aria-label="Site">
-          <a href="#what">What it is</a>
-          <a href="#why">Why Leenkr</a>
-          <a href="#pricing">Pricing</a>
-        </nav>
-        <div className="mk-head-actions">
-          {session ? (
-            <Link className="btn sm" to="/dashboard">
-              Open studio
-            </Link>
-          ) : (
-            <>
-              <Link className="mk-login" to="/login">
-                Log in
-              </Link>
-              <Link className="btn sm" to="/signup">
-                Start free
-              </Link>
-            </>
-          )}
-        </div>
-      </header>
-
-      <main>
+    <MarketingLayout>
         <section className="mk-hero">
           <div className="mk-rays" aria-hidden="true">
             <AnimatedRays />
@@ -405,27 +376,6 @@ export default function Marketing() {
             </Link>
           </div>
         </section>
-      </main>
-
-      <footer className="mk-foot">
-        <div className="mk-foot-brand">
-          <span className="mk-mark">L</span>
-          <span>
-            Leenkr
-            <span className="mk-foot-sub">One link for everything you make.</span>
-          </span>
-        </div>
-        <nav className="mk-foot-links" aria-label="Footer">
-          <a href="#what">What it is</a>
-          <a href="#pricing">Pricing</a>
-          <Link to="/login">Log in</Link>
-          <a href="mailto:hey@leenkr.com">
-            <Mail size={13} />
-            hey@leenkr.com
-          </a>
-        </nav>
-        <p className="mk-foot-copy">© {new Date().getFullYear()} Leenkr</p>
-      </footer>
-    </div>
+    </MarketingLayout>
   )
 }
