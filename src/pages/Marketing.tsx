@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState, type KeyboardEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import {
   AppWindowIcon,
@@ -52,18 +53,75 @@ const BUSINESS_POINTS = [
   'Run a handful of creator pages under one brand',
 ]
 
+// Side by side needs roughly three 300px cards plus gutters; below that the
+// plans collapse into the one-at-a-time switch.
+const WIDE_PRICING = '(min-width: 1024px)'
+
+function useMediaQuery(query: string) {
+  const [matches, setMatches] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia(query).matches,
+  )
+
+  useEffect(() => {
+    const list = window.matchMedia(query)
+    const onChange = () => setMatches(list.matches)
+    onChange()
+    list.addEventListener('change', onChange)
+    // Older Safari only supports the deprecated listener, so resize covers it.
+    window.addEventListener('resize', onChange)
+    return () => {
+      list.removeEventListener('change', onChange)
+      window.removeEventListener('resize', onChange)
+    }
+  }, [query])
+
+  return matches
+}
+
+type PlanKey = 'free' | 'pro' | 'creator'
+
+const PLAN_ORDER: PlanKey[] = ['free', 'pro', 'creator']
+
+const PLAN_LABELS: Record<PlanKey, string> = {
+  free: 'Free',
+  pro: 'Pro',
+  creator: 'Creator',
+}
+
 export default function Marketing() {
   usePageTitle('Leenkr — one link for everything you make')
   const { session } = useSession()
   const { profile } = useProfile()
   const navigate = useNavigate()
 
+  // Wide screens show all three plans; narrow ones show the selected plan.
+  const widePricing = useMediaQuery(WIDE_PRICING)
+  const [plan, setPlan] = useState<PlanKey>('pro')
+  const planRefs = useRef<Array<HTMLButtonElement | null>>([])
+
+  const onPlanKeyDown = (event: KeyboardEvent<HTMLButtonElement>, index: number) => {
+    const last = PLAN_ORDER.length - 1
+    let next = -1
+    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') next = index === last ? 0 : index + 1
+    else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') next = index === 0 ? last : index - 1
+    else if (event.key === 'Home') next = 0
+    else if (event.key === 'End') next = last
+    if (next === -1) return
+
+    event.preventDefault()
+    setPlan(PLAN_ORDER[next])
+    planRefs.current[next]?.focus()
+  }
+
+  // Every plan gets the component's highlighted treatment — lifted dark card,
+  // yellow primary CTA — so the cards match whether one or all three show.
   const tiers: PricingTier[] = [
     {
       id: 'free',
       name: 'Free',
       description: 'One page with everything you make on it.',
       price: { monthly: 0, yearly: 0 },
+      featured: true,
       cta: { label: 'Start free', onClick: () => navigate('/signup') },
       featuresLabel: 'What you get',
       features: [
@@ -95,6 +153,7 @@ export default function Marketing() {
       name: 'Creator',
       description: 'For studios and small businesses running several pages under one brand.',
       price: { monthly: 24, yearly: 19 },
+      featured: true,
       cta: { label: 'Choose Creator', onClick: () => navigate('/signup') },
       featuresLabel: 'Everything in Pro, plus:',
       features: [
@@ -288,20 +347,49 @@ export default function Marketing() {
         </section>
 
         <section className="mk-pricing" id="pricing">
+          <div className="mk-pricing-head">
+            <p className="mk-kicker">Pricing</p>
+            <h2 className="mk-h2">Pick the size that fits</h2>
+            <p className="mk-section-lede">
+              Start free. Upgrade when the page starts earning — cancel or switch any time.
+            </p>
+
+            {widePricing ? null : (
+              <div className="mk-plan-switch" role="tablist" aria-label="Pricing plans">
+                {PLAN_ORDER.map((key, index) => (
+                  <button
+                    key={key}
+                    type="button"
+                    role="tab"
+                    id={`plan-tab-${key}`}
+                    ref={(node) => {
+                      planRefs.current[index] = node
+                    }}
+                    aria-selected={plan === key}
+                    aria-controls="plan-panel"
+                    tabIndex={plan === key ? 0 : -1}
+                    onClick={() => setPlan(key)}
+                    onKeyDown={(event) => onPlanKeyDown(event, index)}
+                  >
+                    {PLAN_LABELS[key]}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
           <PricingTiers
-            badge="Pricing"
-            title="Pick the size that fits"
-            description={
-              <>
-                Start free. Upgrade when the page starts earning — <b>cancel or switch any time</b>.
-              </>
-            }
-            tiers={tiers}
+            key={widePricing ? 'all-plans' : plan}
+            badge={null}
+            title={null}
+            description={null}
+            tiers={widePricing ? tiers : [tiers[PLAN_ORDER.indexOf(plan)]]}
             enterprise={null}
-            defaultBilling="monthly"
-            billingLabels={{ monthly: 'Monthly', yearly: 'Yearly' }}
-            yearlyDiscountLabel="-20%"
+            billing="monthly"
             className="mk-pricing-inner"
+            role={widePricing ? undefined : 'tabpanel'}
+            id={widePricing ? undefined : 'plan-panel'}
+            aria-labelledby={widePricing ? undefined : `plan-tab-${plan}`}
           />
         </section>
 

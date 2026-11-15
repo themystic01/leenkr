@@ -533,13 +533,67 @@
 }
 
 /* ----------------------------- pricing ------------------------- */
-/* PricingTiers brings its own layout and spacing; this only sets the canvas. */
+/* PricingTiers supplies the card; this section supplies the plan switch. */
 .mk-pricing {
-  padding: clamp(20px, 4vw, 44px) clamp(12px, 2vw, 20px);
+  padding: clamp(48px, 6vw, 88px) clamp(20px, 4vw, 40px);
+  border-top: 1px solid var(--line-soft);
+}
+
+.mk-pricing-head {
+  display: grid;
+  justify-items: center;
+  text-align: center;
+}
+
+.mk-pricing-head .mk-section-lede {
+  text-align: center;
+}
+
+.mk-plan-switch {
+  display: inline-flex;
+  gap: 3px;
+  margin-top: 26px;
+  padding: 4px;
+  border: 1px solid rgba(253, 250, 243, 0.16);
+  border-radius: 999px;
+  background: rgba(253, 250, 243, 0.04);
+}
+
+.mk-plan-switch button {
+  height: 34px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(253, 250, 243, 0.6);
+  font-size: 13px;
+  font-weight: 600;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.mk-plan-switch button:hover {
+  color: #fdfaf3;
+}
+
+.mk-plan-switch button[aria-selected='true'] {
+  background: var(--yellow);
+  color: #0c0404;
+}
+
+.mk-plan-switch button:focus-visible {
+  outline: 2px solid var(--yellow);
+  outline-offset: 2px;
 }
 
 .mk-pricing-inner {
   background: transparent;
+  padding-block: 0;
+  margin-top: 12px;
+}
+
+/* The plan switch replaces the component's monthly/yearly toggle. */
+.mk-pricing-inner > div:has([role='radiogroup']) {
+  display: none;
 }
 
 /* The featured plan's pill is brand yellow, so its label has to be asphalt ink. */
