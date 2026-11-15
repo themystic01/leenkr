@@ -7,30 +7,3 @@
 @source './';
 
 @custom-variant dark (&:where(.dark, .dark *));
-
-:root {
-  /* Reads the light stripe the rays ribbon is built from. */
-  --stripe-color: #ffffff;
-}
-
-@theme {
-  --animate-aurora-bg: aurora-bg 90s linear infinite;
-}
-
-@keyframes aurora-bg {
-  0% {
-    background-position: 50% 50%, 50% 50%;
-  }
-  50% {
-    background-position: 130% 30%, 130% 30%;
-  }
-  100% {
-    background-position: 50% 50%, 50% 50%;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .animate-aurora-bg {
-    animation: none !important;
-  }
-}

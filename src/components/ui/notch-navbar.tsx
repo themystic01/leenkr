@@ -57,7 +57,7 @@ export function NotchNavbar({ links, actions, logo, className }: NotchNavbarProp
 
   return (
     <>
-      <header className={cn('fixed inset-x-0 top-0 z-50 flex h-16 px-0', className)}>
+      <header className={cn('mk-notch fixed inset-x-0 top-0 z-50 flex h-16 px-0', className)}>
         {/* Left Side Bar - Flexible width */}
         <div className="relative z-20 h-10 flex-1 min-w-0 bg-[#0c0404]">
           <svg className="absolute inset-0 h-full w-full" preserveAspectRatio="none">
@@ -147,7 +147,7 @@ export function NotchNavbar({ links, actions, logo, className }: NotchNavbarProp
 
         {/* Account actions and the mobile menu button, pinned top right */}
         <div className="absolute inset-y-0 right-4 z-30 flex items-center gap-4">
-          <div className="hidden items-center gap-4 xl:flex">{actions}</div>
+          <div className="mk-nav-actions hidden items-center gap-4 xl:flex">{actions}</div>
           <button
             type="button"
             className="p-1 text-[#fdfaf3]/70 transition-colors hover:text-[#fdfaf3] xl:hidden"

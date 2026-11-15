@@ -17,7 +17,6 @@ import {
   UserIcon,
 } from '@phosphor-icons/react'
 import { ArrowRight, Check, Link2, Package, Send } from 'lucide-react'
-import { AnimatedRays } from '@/components/ui/animated-rays'
 import PricingTiers, { type PricingTier } from '@/components/ui/pricing-tiers'
 import { DEMO_PROFILE } from '../auth'
 import { MarketingLayout } from '../components/marketing/SiteChrome'
@@ -169,20 +168,29 @@ export default function Marketing() {
   return (
     <MarketingLayout>
         <section className="mk-hero">
-          <div className="mk-rays" aria-hidden="true">
-            <AnimatedRays />
-          </div>
-
           <div className="mk-hero-inner">
-            <h1 className="mk-h1">
-              Everything you make,
-              <br />
-              behind <span className="mk-hl">one link</span>
-            </h1>
+            <div className="mk-hero-title">
+              <span className="mk-hero-chip mk-hero-chip--one" aria-hidden="true">
+                Amara
+              </span>
+              <h1 className="mk-h1">
+                Everything you make,
+                <br />
+                behind <span className="mk-hl">one link</span>
+              </h1>
+              <span className="mk-hero-chip mk-hero-chip--two" aria-hidden="true">
+                Collins
+              </span>
+              <span className="mk-hero-chip mk-hero-chip--three" aria-hidden="true">
+                Tobi
+              </span>
+            </div>
+
             <p className="mk-lede">
               Leenkr turns a long bio link into a page that sells: your products with real prices, your
               writing and videos, and a way to reach you — one section at a time.
             </p>
+
             <div className="mk-cta-row">
               <Link className="btn" to="/signup">
                 Create your page — free
@@ -192,42 +200,89 @@ export default function Marketing() {
                 See a live page
               </Link>
             </div>
+
             <p className="mk-trust">Free to start · No card · Your handle is yours in under a minute</p>
           </div>
-        </section>
 
-        <section className="mk-showcase" aria-label="Page preview">
-          <div className="mk-stage" aria-hidden="true">
-            <div className="mk-phone">
-              <div className="mk-phone-top">
-                <span className="mk-avatar">C</span>
-                <p className="mk-phone-name">{DEMO_PROFILE.name}</p>
-                <p className="mk-phone-handle">@{DEMO_PROFILE.username}</p>
-                <p className="mk-phone-bio">Designer and builder. I sell the kits that come out of the work.</p>
+          <div className="mk-dash" aria-hidden="true">
+            <div className="mk-dash-bar">
+              <span className="mk-dash-brand">
+                <span className="mk-mark">L</span>
+                Leenkr
+              </span>
+              <span className="mk-dash-crumb">Page setup</span>
+              <span className="mk-dash-status">
+                <span className="mk-dash-dot" />
+                Published
+              </span>
+              <span className="mk-dash-people">
+                <span>C</span>
+                <span>A</span>
+              </span>
+            </div>
+
+            <div className="mk-dash-body">
+              <div className="mk-dash-form">
+                <h2>Set your page up</h2>
+
+                <label className="mk-dash-field">
+                  <span>Display name</span>
+                  <span className="mk-dash-input">{DEMO_PROFILE.name}</span>
+                </label>
+
+                <label className="mk-dash-field">
+                  <span>Handle</span>
+                  <span className="mk-dash-input muted">leenkr.com/{DEMO_PROFILE.username}</span>
+                </label>
+
+                <label className="mk-dash-field">
+                  <span>Bio</span>
+                  <span className="mk-dash-input muted">
+                    Designer and builder. I sell the kits that come out of the work.
+                  </span>
+                </label>
+
+                <div className="mk-dash-accent">
+                  Accent
+                  <span className="mk-dash-swatch on" style={{ background: '#dfff00' }} />
+                  <span className="mk-dash-swatch" style={{ background: '#8fb4ff' }} />
+                  <span className="mk-dash-swatch" style={{ background: '#f7b2a0' }} />
+                  <span className="mk-dash-swatch" style={{ background: '#0c0404' }} />
+                </div>
               </div>
-              <div className="mk-phone-tabs">
-                <span className="on">Products</span>
-                <span>Links</span>
-                <span>Connect</span>
-              </div>
-              <div className="mk-phone-card">
-                <span className="mk-phone-thumb" />
-                <span className="mk-phone-body">
-                  <span className="mk-phone-title">Creator OS Kit</span>
-                  <span className="mk-phone-meta">Templates · $29</span>
-                </span>
-                <span className="mk-phone-price">$29</span>
-              </div>
-              <div className="mk-phone-card">
-                <span className="mk-phone-thumb" />
-                <span className="mk-phone-body">
-                  <span className="mk-phone-title">Type Pairings Vol. 1</span>
-                  <span className="mk-phone-meta">Design assets · $12</span>
-                </span>
-                <span className="mk-phone-price">$12</span>
+
+              <div className="mk-dash-preview">
+                <div className="mk-dash-preview-head">
+                  <span className="mk-dash-avatar">C</span>
+                  <h3>{DEMO_PROFILE.name}</h3>
+                  <p className="mk-dash-handle">leenkr.com/{DEMO_PROFILE.username}</p>
+                </div>
+
+                <div className="mk-dash-tabs">
+                  <span className="on">Products</span>
+                  <span>Links</span>
+                  <span>Connect</span>
+                </div>
+
+                <div className="mk-dash-product">
+                  <span className="mk-dash-thumb" />
+                  <span className="mk-dash-product-body">
+                    <span className="mk-dash-product-title">Creator OS Kit</span>
+                    <span className="mk-dash-product-meta">Templates · 42 sales</span>
+                  </span>
+                  <span className="mk-dash-price">$29</span>
+                </div>
+
+                <div className="mk-dash-product">
+                  <span className="mk-dash-thumb" />
+                  <span className="mk-dash-product-body">
+                    <span className="mk-dash-product-title">Type Pairings Vol. 1</span>
+                    <span className="mk-dash-product-meta">Design assets · 18 sales</span>
+                  </span>
+                  <span className="mk-dash-price">$12</span>
+                </div>
               </div>
             </div>
-            <div className="mk-stage-chip">leenkr.com/{DEMO_PROFILE.username}</div>
           </div>
         </section>
 
