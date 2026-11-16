@@ -20,7 +20,6 @@ import { ArrowRight, Check, Link2, Package, Send } from 'lucide-react'
 import PricingTiers, { type PricingTier } from '@/components/ui/pricing-tiers'
 import { MarketingLayout } from '../components/marketing/SiteChrome'
 import { usePageTitle } from '../lib/title'
-import { useProfile } from '../store'
 
 const BENEFITS = [
   {
@@ -89,8 +88,8 @@ const PLAN_LABELS: Record<PlanKey, string> = {
 
 export default function Marketing() {
   usePageTitle('Leenkr — one link for everything you make')
-  const { profile } = useProfile()
   const navigate = useNavigate()
+  const [handle, setHandle] = useState('')
 
   // Wide screens show all three plans; narrow ones show the selected plan.
   const widePricing = useMediaQuery(WIDE_PRICING)
@@ -196,15 +195,29 @@ export default function Marketing() {
               writing and videos, and a way to reach you — one section at a time.
             </p>
 
-            <div className="mk-cta-row">
-              <Link className="btn" to="/signup">
-                Create your page — free
-                <ArrowRight size={16} />
-              </Link>
-              <Link className="btn ghost" to={`/${profile.username}`}>
-                See a live page
-              </Link>
-            </div>
+            <form
+              className="mk-claim"
+              onSubmit={(event) => {
+                event.preventDefault()
+                navigate('/signup')
+              }}
+            >
+              <input
+                className="mk-claim-input"
+                type="text"
+                name="handle"
+                placeholder="enter your username"
+                aria-label="Your username"
+                autoComplete="off"
+                autoCapitalize="none"
+                spellCheck={false}
+                value={handle}
+                onChange={(event) => setHandle(event.target.value)}
+              />
+              <button className="mk-claim-btn" type="submit">
+                Claim your link
+              </button>
+            </form>
 
             <p className="mk-trust">Free to start · No card · Your handle is yours in under a minute</p>
           </div>

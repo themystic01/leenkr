@@ -263,7 +263,7 @@
 .mk-h1 {
   margin-top: 8px;
   font-family: 'Clash Grotesk', 'Geist', sans-serif;
-  font-size: clamp(44px, 6.6vw, 84px);
+  font-size: 70px;
   font-weight: 500;
   line-height: 1;
   letter-spacing: -0.032em;
@@ -275,7 +275,7 @@
 .mk-hl {
   position: relative;
   white-space: nowrap;
-  background: linear-gradient(transparent 84%, rgba(223, 255, 0, 0.95) 84%, rgba(223, 255, 0, 0.95) 97%, transparent 97%);
+  background: linear-gradient(transparent 80%, rgba(223, 255, 0, 0.95) 80%, rgba(223, 255, 0, 0.95) 93%, transparent 93%);
   padding: 0 0.06em;
 }
 
@@ -288,36 +288,66 @@
   text-wrap: pretty;
 }
 
-.mk-cta-row {
+/* claim a handle: one field, the button sitting inside its right edge */
+.mk-claim {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-start;
-  gap: 10px;
-  margin-top: 28px;
+  align-items: center;
+  gap: 6px;
+  width: min(100%, 470px);
+  min-width: 0;
+  margin-top: 30px;
+  padding: 6px 6px 6px 8px;
+  border: 1px solid rgba(253, 250, 243, 0.26);
+  border-radius: 16px;
+  background: rgba(12, 4, 4, 0.42);
+  box-shadow: 0 26px 50px -30px rgba(0, 0, 0, 0.85);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.mk-hero .btn {
-  height: 46px;
-  padding: 0 22px;
+.mk-claim:focus-within {
+  border-color: rgba(223, 255, 0, 0.6);
+  box-shadow: 0 0 0 3px rgba(223, 255, 0, 0.16), 0 26px 50px -30px rgba(0, 0, 0, 0.85);
+}
+
+.mk-claim-input {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  height: 44px;
+  padding: 0 4px 0 8px;
+  border: 0;
+  background: transparent;
+  color: #fdfaf3;
+  font-family: inherit;
+  font-size: 15px;
+}
+
+.mk-claim-input::placeholder {
+  color: rgba(253, 250, 243, 0.42);
+}
+
+.mk-claim-input:focus {
+  outline: none;
+}
+
+.mk-claim-btn {
+  flex: none;
+  height: 44px;
+  padding: 0 20px;
+  border: 0;
+  border-radius: 11px;
   background: var(--yellow);
   color: #0c0404;
-  border-color: transparent;
-  box-shadow: 0 20px 34px -22px rgba(223, 255, 0, 0.8);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background 0.12s ease;
 }
 
-.mk-hero .btn:hover {
+.mk-claim-btn:hover {
   background: #e9ff43;
-}
-
-.mk-hero .btn.ghost {
-  background: rgba(253, 250, 243, 0.06);
-  color: #fdfaf3;
-  border: 1px solid rgba(253, 250, 243, 0.32);
-  box-shadow: none;
-}
-
-.mk-hero .btn.ghost:hover {
-  background: rgba(253, 250, 243, 0.14);
 }
 
 .mk-trust {
@@ -327,6 +357,10 @@
 }
 
 @media (max-width: 860px) {
+  .mk-h1 {
+    font-size: 52px;
+  }
+
   .mk-hero-chip {
     display: none;
   }
