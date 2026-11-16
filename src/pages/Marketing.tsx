@@ -18,7 +18,6 @@ import {
 } from '@phosphor-icons/react'
 import { ArrowRight, Check, Link2, Package, Send } from 'lucide-react'
 import PricingTiers, { type PricingTier } from '@/components/ui/pricing-tiers'
-import { DEMO_PROFILE } from '../auth'
 import { MarketingLayout } from '../components/marketing/SiteChrome'
 import { usePageTitle } from '../lib/title'
 import { useProfile } from '../store'
@@ -168,6 +167,12 @@ export default function Marketing() {
   return (
     <MarketingLayout>
         <section className="mk-hero">
+          {/* WebP where it is supported, the heavier JPEG otherwise */}
+          <picture className="mk-hero-media" aria-hidden="true">
+            <source srcSet="/hero-bg.webp" type="image/webp" />
+            <img src="/hero-bg.jpg" alt="" />
+          </picture>
+
           <div className="mk-hero-inner">
             <div className="mk-hero-title">
               <span className="mk-hero-chip mk-hero-chip--one" aria-hidden="true">
@@ -204,68 +209,7 @@ export default function Marketing() {
             <p className="mk-trust">Free to start · No card · Your handle is yours in under a minute</p>
           </div>
 
-          {/* The login screen, staged at hero size: brand pitch on asphalt, the
-              studio sign-in on paper. It is a picture of the product, so the
-              real controls stay on /login. */}
-          <div className="mk-auth" aria-hidden="true">
-            <aside className="auth-brand mk-auth-brand">
-              <span className="auth-brand-mark">L</span>
-              <div className="auth-brand-copy">
-                <p className="auth-quote">Your page, products and inbox.</p>
-                <p className="auth-quote-sub">
-                  Products, links and your inbox on a page people can actually buy from.
-                </p>
-              </div>
-              <ul className="auth-list">
-                <li>Sell digital products without a storefront</li>
-                <li>One switch instead of four competing links</li>
-                <li>Email, bookings and collabs in the same place</li>
-              </ul>
-            </aside>
-
-            <div className="auth-main mk-auth-main">
-              <div className="auth-card mk-auth-card">
-                <p className="eyebrow">Welcome back</p>
-                <h2 className="auth-title">Sign in to your studio</h2>
-                <p className="auth-sub">
-                  Pick up where you left off — your page, products and settings are where you left
-                  them.
-                </p>
-
-                <div className="auth-form mk-auth-form">
-                  <div className="field">
-                    <span className="mk-auth-label">Email</span>
-                    <span className="input mk-auth-static">you@leenkr.com</span>
-                  </div>
-
-                  <div className="field">
-                    <span className="mk-auth-label">Password</span>
-                    <span className="input mk-auth-static muted">At least 6 characters</span>
-                  </div>
-
-                  <span className="btn mk-auth-submit">
-                    Sign in
-                    <ArrowRight size={16} />
-                  </span>
-
-                  <p className="auth-hint">
-                    Any email and any 6-character password signs you in — this demo runs on the{' '}
-                    {DEMO_PROFILE.name} profile.
-                  </p>
-                </div>
-
-                <div className="auth-foot">
-                  New to Leenkr? <strong>Create an account</strong>
-                </div>
-              </div>
-
-              <p className="auth-note">
-                Preview build — accounts aren’t connected to a server yet. Sessions live on this
-                device, and you land on the demo creator profile.
-              </p>
-            </div>
-          </div>
-        </section>
+                  </section>
 
         <section className="mk-section mk-yellow" id="what">
           <div className="mk-yellow-inner">

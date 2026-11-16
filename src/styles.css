@@ -1,7 +1,7 @@
 /* ---------------------------------------------------------------
    Leenkr — design tokens
    Electric yellow #DFFF00 · Asphalt black #0C0404 · white
-   Headings: Boogaloo · Body: Geist
+   Headings: Clash Grotesk · Body: Geist
 ---------------------------------------------------------------- */
 :root {
   --yellow: #dfff00;
@@ -42,9 +42,9 @@ body {
 h1,
 h2,
 h3 {
-  font-family: 'Boogaloo', 'Geist', sans-serif;
-  font-weight: 400;
-  letter-spacing: 0.01em;
+  font-family: 'Clash Grotesk', 'Geist', sans-serif;
+  font-weight: 500;
+  letter-spacing: -0.012em;
   margin: 0;
   line-height: 1.1;
 }
@@ -129,7 +129,7 @@ select {
   color: var(--ink);
   display: grid;
   place-items: center;
-  font-family: 'Boogaloo', sans-serif;
+  font-family: 'Clash Grotesk', 'Geist', sans-serif;
   font-size: 25px;
   line-height: 1;
   padding-bottom: 2px;
@@ -137,7 +137,7 @@ select {
 
 .brand-name {
   display: block;
-  font-family: 'Boogaloo', sans-serif;
+  font-family: 'Clash Grotesk', 'Geist', sans-serif;
   font-size: 23px;
   line-height: 1.1;
 }
@@ -572,7 +572,7 @@ select {
 }
 
 .stat-value {
-  font-family: 'Boogaloo', sans-serif;
+  font-family: 'Clash Grotesk', 'Geist', sans-serif;
   font-size: 31px;
   margin-top: 8px;
 }
@@ -606,7 +606,7 @@ select {
 }
 
 .mini-name {
-  font-family: 'Boogaloo', sans-serif;
+  font-family: 'Clash Grotesk', 'Geist', sans-serif;
   font-size: 19px;
   line-height: 1.1;
 }
@@ -776,7 +776,7 @@ select {
   place-items: center;
   background: var(--yellow);
   color: var(--ink);
-  font-family: 'Boogaloo', sans-serif;
+  font-family: 'Clash Grotesk', 'Geist', sans-serif;
   flex: none;
   border: 1px solid rgba(12, 4, 4, 0.12);
 }
@@ -1308,7 +1308,7 @@ textarea.input {
   background: var(--panel);
   display: grid;
   place-items: center;
-  font-family: 'Boogaloo', sans-serif;
+  font-family: 'Clash Grotesk', 'Geist', sans-serif;
   font-size: 16px;
 }
 
@@ -1718,7 +1718,7 @@ textarea.input {
   background: linear-gradient(140deg, var(--yellow), #eef3d4);
   display: grid;
   place-items: center;
-  font-family: 'Boogaloo', sans-serif;
+  font-family: 'Clash Grotesk', 'Geist', sans-serif;
   font-size: 25px;
   overflow: hidden;
 }
@@ -1945,7 +1945,7 @@ textarea.input {
   color: var(--yellow);
   display: grid;
   place-items: center;
-  font-family: 'Boogaloo', sans-serif;
+  font-family: 'Clash Grotesk', 'Geist', sans-serif;
   font-size: 22px;
   padding-bottom: 2px;
 }
@@ -2048,7 +2048,7 @@ textarea.input {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-family: 'Boogaloo', sans-serif;
+  font-family: 'Clash Grotesk', 'Geist', sans-serif;
   font-size: 24px;
 }
 
@@ -2413,7 +2413,7 @@ textarea.input {
   border: 1px solid var(--line-soft);
   display: grid;
   place-items: center;
-  font-family: 'Boogaloo', sans-serif;
+  font-family: 'Clash Grotesk', 'Geist', sans-serif;
   font-size: 19px;
 }
 

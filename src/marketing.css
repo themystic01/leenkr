@@ -48,7 +48,7 @@
 }
 
 .mk-notch-word {
-  font-family: 'Boogaloo', 'Geist', sans-serif;
+  font-family: 'Clash Grotesk', 'Geist', sans-serif;
   font-size: 19px;
   line-height: 1;
   color: #fdfaf3;
@@ -102,7 +102,7 @@
   display: inline-flex;
   align-items: center;
   gap: 9px;
-  font-family: 'Boogaloo', 'Geist', sans-serif;
+  font-family: 'Clash Grotesk', 'Geist', sans-serif;
   font-size: 23px;
   line-height: 1;
   color: #fdfaf3;
@@ -116,7 +116,7 @@
   background: var(--yellow);
   display: grid;
   place-items: center;
-  font-family: 'Boogaloo', 'Geist', sans-serif;
+  font-family: 'Clash Grotesk', 'Geist', sans-serif;
   font-size: 19px;
   color: #0c0404;
 }
@@ -132,50 +132,86 @@
 }
 
 /* ------------------------------- hero -------------------------- */
-/* A light room: white paper, a faint grid, two soft washes of colour, ink
-   type and a dark primary button. */
+/* A neon render behind the headline, dimmed enough for cream type and faded
+   into the asphalt page at the bottom. Without the file the asphalt stands. */
 .mk-hero {
   position: relative;
   isolation: isolate;
   overflow: clip;
-  padding: clamp(64px, 8vw, 116px) clamp(20px, 4vw, 40px) clamp(48px, 6vw, 84px);
-  text-align: center;
-  color: #0c0404;
-  background:
-    radial-gradient(880px 520px at 16% -8%, rgba(223, 255, 0, 0.3), transparent 62%),
-    radial-gradient(760px 460px at 88% 2%, rgba(174, 208, 255, 0.32), transparent 62%),
-    radial-gradient(720px 420px at 50% 104%, rgba(255, 222, 176, 0.26), transparent 66%),
-    linear-gradient(180deg, #ffffff 0%, #fdfcf8 100%);
+  padding: clamp(72px, 9vw, 132px) clamp(20px, 5vw, 64px) clamp(72px, 8vw, 116px);
+  text-align: left;
+  color: #fdfaf3;
+  background: #0c0404;
+}
+
+/* the render itself — the picture element picks WebP, keeps the JPEG for
+   anything that cannot decode it */
+.mk-hero-media {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: block;
+  pointer-events: none;
+}
+
+.mk-hero-media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 26%;
 }
 
 .mk-hero::before {
   content: '';
   position: absolute;
   inset: 0;
-  z-index: 0;
+  z-index: 1;
   pointer-events: none;
   background-image:
-    linear-gradient(to right, rgba(12, 4, 4, 0.05) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(12, 4, 4, 0.05) 1px, transparent 1px);
+    linear-gradient(to right, rgba(253, 250, 243, 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(253, 250, 243, 0.06) 1px, transparent 1px);
   background-size: 62px 62px;
-  mask-image: radial-gradient(ellipse 70% 62% at 50% 24%, #000 24%, transparent 78%);
-  -webkit-mask-image: radial-gradient(ellipse 70% 62% at 50% 24%, #000 24%, transparent 78%);
+  mask-image: radial-gradient(ellipse 74% 66% at 34% 30%, #000 24%, transparent 78%);
+  -webkit-mask-image: radial-gradient(ellipse 74% 66% at 34% 30%, #000 24%, transparent 78%);
+}
+
+/* dim, edge vignette, and the fade into the asphalt page */
+.mk-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background-image:
+    radial-gradient(
+      1200px 800px at 28% 26%,
+      rgba(12, 4, 4, 0.2) 0%,
+      rgba(12, 4, 4, 0.44) 55%,
+      rgba(12, 4, 4, 0.7) 100%
+    ),
+    linear-gradient(
+      180deg,
+      rgba(12, 4, 4, 0.46) 0%,
+      rgba(12, 4, 4, 0.44) 46%,
+      rgba(12, 4, 4, 0.88) 86%,
+      #0c0404 100%
+    );
 }
 
 .mk-hero-inner {
   position: relative;
-  z-index: 2;
+  z-index: 3;
   max-width: 1000px;
   margin: 0 auto;
   display: grid;
-  justify-items: center;
+  justify-items: start;
 }
 
 .mk-hero-title {
   position: relative;
   width: 100%;
   display: grid;
-  justify-items: center;
+  justify-items: start;
 }
 
 /* who the page is for — pastel name chips, like visitors landing on it */
@@ -204,33 +240,34 @@
 }
 
 .mk-hero-chip--one {
-  top: 4%;
-  right: 1%;
+  top: -4%;
+  right: 14%;
   background: var(--yellow);
   color: #0c0404;
 }
 
 .mk-hero-chip--two {
-  left: 0;
-  bottom: 30%;
+  top: 38%;
+  right: 0;
   background: #fbe2d2;
   color: #5a2410;
 }
 
 .mk-hero-chip--three {
-  right: 3%;
-  bottom: 6%;
+  right: 18%;
+  bottom: 2%;
   background: #d8f3de;
   color: #10452a;
 }
 
 .mk-h1 {
   margin-top: 8px;
-  font-family: 'Boogaloo', 'Geist', sans-serif;
-  font-size: clamp(46px, 7.2vw, 102px);
-  line-height: 0.94;
-  letter-spacing: 0.005em;
-  color: #0c0404;
+  font-family: 'Clash Grotesk', 'Geist', sans-serif;
+  font-size: clamp(44px, 6.6vw, 84px);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.032em;
+  color: #fdfaf3;
   text-wrap: balance;
 }
 
@@ -238,23 +275,23 @@
 .mk-hl {
   position: relative;
   white-space: nowrap;
-  background: linear-gradient(transparent 68%, rgba(223, 255, 0, 0.75) 68%, rgba(223, 255, 0, 0.75) 94%, transparent 94%);
+  background: linear-gradient(transparent 84%, rgba(223, 255, 0, 0.95) 84%, rgba(223, 255, 0, 0.95) 97%, transparent 97%);
   padding: 0 0.06em;
 }
 
 .mk-lede {
   margin-top: 22px;
-  max-width: 58ch;
+  max-width: 60ch;
   font-size: 16px;
   line-height: 1.65;
-  color: #47413a;
-  text-wrap: balance;
+  color: rgba(253, 250, 243, 0.74);
+  text-wrap: pretty;
 }
 
 .mk-cta-row {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 10px;
   margin-top: 28px;
 }
@@ -262,202 +299,31 @@
 .mk-hero .btn {
   height: 46px;
   padding: 0 22px;
-  background: #0c0404;
-  color: #fdfaf3;
-  border-color: #0c0404;
-  box-shadow: 0 16px 30px -18px rgba(12, 4, 4, 0.7);
+  background: var(--yellow);
+  color: #0c0404;
+  border-color: transparent;
+  box-shadow: 0 20px 34px -22px rgba(223, 255, 0, 0.8);
 }
 
 .mk-hero .btn:hover {
-  background: #241c1c;
+  background: #e9ff43;
 }
 
 .mk-hero .btn.ghost {
-  background: #ffffff;
-  color: #0c0404;
-  border: 1px solid rgba(12, 4, 4, 0.16);
-  box-shadow: 0 12px 24px -18px rgba(12, 4, 4, 0.5);
+  background: rgba(253, 250, 243, 0.06);
+  color: #fdfaf3;
+  border: 1px solid rgba(253, 250, 243, 0.32);
+  box-shadow: none;
 }
 
 .mk-hero .btn.ghost:hover {
-  background: #f6f4ee;
+  background: rgba(253, 250, 243, 0.14);
 }
 
 .mk-trust {
   margin-top: 16px;
   font-size: 12.5px;
-  color: #6d675e;
-}
-
-/* --------------------------- hero sign-in ---------------------- */
-/* The login screen at hero size: asphalt brand panel on the left, the
-   studio's sign-in on paper at the right. Reuses the auth shell's parts. */
-.mk-auth {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: minmax(0, 0.86fr) minmax(0, 1.14fr);
-  width: min(1000px, 100%);
-  margin: clamp(40px, 5vw, 66px) auto 0;
-  overflow: hidden;
-  border-radius: 20px;
-  background: #ffffff;
-  color: #0c0404;
-  text-align: left;
-  box-shadow: 0 60px 110px -60px rgba(12, 4, 4, 0.55), 0 2px 8px rgba(12, 4, 4, 0.06);
-}
-
-.mk-auth .mk-auth-brand {
-  min-height: 540px;
-  gap: 22px;
-  padding: clamp(26px, 3vw, 40px);
-}
-
-.mk-auth .auth-brand-mark {
-  width: 42px;
-  height: 42px;
-  border-radius: 13px;
-}
-
-.mk-auth .auth-quote {
-  font-size: clamp(26px, 2.7vw, 36px);
-  max-width: 13ch;
-}
-
-.mk-auth .auth-quote-sub {
-  font-size: 13px;
-  color: rgba(253, 250, 243, 0.62);
-}
-
-.mk-auth .auth-list {
-  font-size: 12.5px;
-  color: rgba(253, 250, 243, 0.78);
-}
-
-.mk-auth .mk-auth-main {
-  min-height: 540px;
-  gap: 14px;
-  padding: clamp(28px, 3.4vw, 46px);
-}
-
-.mk-auth .mk-auth-card {
-  max-width: 396px;
-}
-
-.mk-auth .auth-title {
-  font-size: clamp(27px, 2.5vw, 34px);
-  max-width: 12ch;
-}
-
-.mk-auth .auth-sub {
-  font-size: 13.5px;
-}
-
-.mk-auth .mk-auth-form {
-  gap: 14px;
-  margin-top: 24px;
-}
-
-.mk-auth-label {
-  font-size: 12.5px;
-  font-weight: 600;
-  color: #0c0404;
-}
-
-.mk-auth-static {
-  display: flex;
-  align-items: center;
-  height: 46px;
-  padding: 0 14px;
-  font-size: 14px;
-  color: #0c0404;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
-.mk-auth-static.muted {
-  color: rgba(12, 4, 4, 0.42);
-}
-
-/* the hero darkens every .btn, so the studio's yellow submit is restored */
-.mk-auth .mk-auth-submit {
-  width: 100%;
-  height: 48px;
-  margin-top: 4px;
-  background: var(--yellow);
-  color: #0c0404;
-  border-color: transparent;
-  font-weight: 700;
-  cursor: default;
-  box-shadow: 0 16px 30px -20px rgba(140, 165, 0, 0.95);
-}
-
-.mk-auth .mk-auth-submit:hover {
-  background: var(--yellow);
-  transform: none;
-  box-shadow: 0 16px 30px -20px rgba(140, 165, 0, 0.95);
-}
-
-.mk-auth .auth-hint {
-  font-size: 11.5px;
-  line-height: 1.5;
-}
-
-.mk-auth .auth-foot {
-  margin-top: 18px;
-  padding-top: 16px;
-  font-size: 12.5px;
-  color: rgba(12, 4, 4, 0.55);
-}
-
-.mk-auth .auth-foot strong {
-  font-weight: 600;
-  color: #0c0404;
-}
-
-.mk-auth .auth-note {
-  max-width: 396px;
-  font-size: 10.5px;
-  color: rgba(12, 4, 4, 0.4);
-}
-
-@media (max-width: 900px) {
-  .mk-auth {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  /* the sign-in page drops its brand copy on phones; the hero keeps it */
-  .mk-auth .auth-brand {
-    flex-direction: column;
-    align-items: stretch;
-    min-height: 0;
-    gap: 18px;
-    padding: 26px;
-  }
-
-  .mk-auth .auth-brand-copy {
-    display: block;
-    margin-top: 4px;
-  }
-
-  .mk-auth .auth-list {
-    display: grid;
-  }
-
-  .mk-auth .auth-quote {
-    max-width: 18ch;
-    font-size: 30px;
-  }
-
-  .mk-auth .mk-auth-main {
-    min-height: 0;
-    padding: 28px 24px 32px;
-  }
-
-  .mk-auth .mk-auth-card {
-    max-width: none;
-  }
+  color: rgba(253, 250, 243, 0.5);
 }
 
 @media (max-width: 860px) {
@@ -655,7 +521,7 @@
 }
 
 .mk-step-num {
-  font-family: 'Boogaloo', 'Geist', sans-serif;
+  font-family: 'Clash Grotesk', 'Geist', sans-serif;
   font-size: 26px;
   line-height: 1;
   color: var(--yellow);
@@ -862,7 +728,7 @@
   border: 1px solid rgba(223, 255, 0, 0.4);
   background: rgba(223, 255, 0, 0.08);
   color: var(--yellow);
-  font-family: 'Boogaloo', 'Geist', sans-serif;
+  font-family: 'Clash Grotesk', 'Geist', sans-serif;
   font-size: 19px;
 }
 
@@ -1016,7 +882,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  font-family: 'Boogaloo', 'Geist', sans-serif;
+  font-family: 'Clash Grotesk', 'Geist', sans-serif;
   font-size: 19px;
   line-height: 1.1;
 }
@@ -1082,7 +948,7 @@
   color: var(--ink);
   display: grid;
   place-items: center;
-  font-family: 'Boogaloo', 'Geist', sans-serif;
+  font-family: 'Clash Grotesk', 'Geist', sans-serif;
   font-size: 25px;
   line-height: 1;
 }
@@ -1093,7 +959,7 @@
 
 .auth-quote {
   max-width: 15ch;
-  font-family: 'Boogaloo', 'Geist', sans-serif;
+  font-family: 'Clash Grotesk', 'Geist', sans-serif;
   font-size: clamp(26px, 2.6vw, 38px);
   line-height: 1.05;
   background: linear-gradient(150deg, #ffffff, rgba(255, 255, 255, 0.42));
