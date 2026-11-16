@@ -1,7 +1,5 @@
-import { useEffect, useState, type ReactNode } from 'react'
-import { Link, useLocation } from 'react-router-dom'
-import { AnimatePresence, motion } from 'framer-motion'
-import { Menu, X } from 'lucide-react'
+import type { ReactNode } from 'react'
+import { Link } from 'react-router-dom'
 import { cn } from '@/lib/utils'
 
 export interface NotchNavItem {
@@ -30,28 +28,6 @@ const NavLink = ({ item }: { item: NotchNavItem }) => (
 )
 
 export function NotchNavbar({ links, actions, logo, className }: NotchNavbarProps) {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
-  const { pathname } = useLocation()
-
-  // Any navigation closes the sheet, including the browser's back button.
-  useEffect(() => setIsMobileMenuOpen(false), [pathname])
-
-  // Widening past the desktop breakpoint drops the sheet, so it cannot come
-  // back open later after the window shrinks again.
-  useEffect(() => {
-    const wide = window.matchMedia('(min-width: 1280px)')
-    const onChange = () => {
-      if (wide.matches) setIsMobileMenuOpen(false)
-    }
-    onChange()
-    wide.addEventListener('change', onChange)
-    window.addEventListener('resize', onChange)
-    return () => {
-      wide.removeEventListener('change', onChange)
-      window.removeEventListener('resize', onChange)
-    }
-  }, [])
-
   const left = links.slice(0, 4)
   const right = links.slice(4)
 
@@ -145,56 +121,11 @@ export function NotchNavbar({ links, actions, logo, className }: NotchNavbarProp
           </svg>
         </div>
 
-        {/* Account actions and the mobile menu button, pinned top right */}
-        <div className="absolute inset-y-0 right-4 z-30 flex items-center gap-4">
-          <div className="mk-nav-actions hidden items-center gap-4 xl:flex">{actions}</div>
-          <button
-            type="button"
-            className="p-1 text-[#fdfaf3]/70 transition-colors hover:text-[#fdfaf3] xl:hidden"
-            onClick={() => setIsMobileMenuOpen((open) => !open)}
-            aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
-            aria-expanded={isMobileMenuOpen}
-            aria-controls="notch-mobile-menu"
-          >
-            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
+        {/* Account actions, pinned top right */}
+        <div className="mk-nav-actions absolute inset-y-0 right-4 z-30 hidden items-center gap-4 xl:flex">
+          {actions}
         </div>
       </header>
-
-      {/* Mobile Menu Overlay */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            id="notch-mobile-menu"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-x-0 top-16 z-40 border-b border-[#fdfaf3]/10 bg-[#0c0404] p-4 shadow-lg xl:hidden"
-          >
-            <nav className="flex flex-col gap-1" aria-label="Site">
-              {links.map((item) => {
-                const Icon = item.icon
-                return (
-                  <Link
-                    key={item.label}
-                    to={item.to}
-                    className="flex items-center gap-3 rounded-lg p-3 text-[#fdfaf3]/90 transition-colors hover:bg-[#fdfaf3]/5"
-                    onClick={() => setIsMobileMenuOpen(false)}
-                  >
-                    <Icon className="h-5 w-5 opacity-70" />
-                    <span className="font-medium">{item.label}</span>
-                  </Link>
-                )
-              })}
-              <div className="my-2 h-px bg-[#fdfaf3]/10" />
-              <div className="flex flex-col gap-2" onClick={() => setIsMobileMenuOpen(false)}>
-                {actions}
-              </div>
-            </nav>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </>
   )
 }

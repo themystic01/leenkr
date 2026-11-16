@@ -16,6 +16,7 @@
   --line-soft: rgba(253, 250, 243, 0.08);
   --bg: #0c0404;
   --panel: #161010;
+  min-height: 100vh;
   background: var(--bg);
   color: var(--ink);
   overflow-x: hidden;
@@ -67,27 +68,6 @@
 
 .mk-notch nav a:hover {
   color: #fdfaf3;
-}
-
-.mk-notch button[aria-controls='notch-mobile-menu'] {
-  color: rgba(253, 250, 243, 0.72);
-}
-
-.mk-notch button[aria-controls='notch-mobile-menu']:hover {
-  color: #fdfaf3;
-}
-
-#notch-mobile-menu a {
-  color: rgba(253, 250, 243, 0.9);
-}
-
-#notch-mobile-menu a:hover {
-  background: rgba(253, 250, 243, 0.06);
-}
-
-/* the yellow button in the sheet keeps its asphalt label */
-.mk #notch-mobile-menu .btn {
-  color: #0c0404;
 }
 
 .mk-nav-actions .mk-login {
@@ -201,7 +181,7 @@
 .mk-hero-inner {
   position: relative;
   z-index: 3;
-  max-width: 1000px;
+  max-width: 1120px;
   margin: 0 auto;
   display: grid;
   justify-items: start;
@@ -263,10 +243,11 @@
 .mk-h1 {
   margin-top: 8px;
   font-family: 'Clash Grotesk', 'Geist', sans-serif;
-  font-size: 70px;
-  font-weight: 500;
-  line-height: 1;
-  letter-spacing: -0.032em;
+  font-size: 84px;
+  font-weight: 700;
+  line-height: 0.95;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
   color: #fdfaf3;
   text-wrap: balance;
 }
@@ -771,8 +752,8 @@
   max-width: none;
   padding-left: 0;
   padding-right: 0;
-  background: var(--yellow);
-  color: #0c0404;
+  background: #0c0404;
+  color: #fdfaf3;
   border-top: 0;
 }
 
@@ -783,22 +764,22 @@
 }
 
 .mk-yellow .mk-kicker {
-  color: rgba(12, 4, 4, 0.55);
+  color: rgba(253, 250, 243, 0.4);
 }
 
 .mk-yellow .mk-copy {
-  color: rgba(12, 4, 4, 0.72);
+  color: rgba(253, 250, 243, 0.6);
 }
 
 .mk-yellow .mk-benefit {
-  border-color: rgba(12, 4, 4, 0.18);
-  background: rgba(255, 255, 255, 0.38);
+  border-color: rgba(253, 250, 243, 0.1);
+  background: rgba(253, 250, 243, 0.03);
 }
 
 .mk-yellow .mk-benefit-icon {
-  background: #0c0404;
-  border-color: #0c0404;
-  color: var(--yellow);
+  background: var(--yellow);
+  border-color: var(--yellow);
+  color: #0c0404;
 }
 
 /* ----------------------------- pricing ------------------------- */
