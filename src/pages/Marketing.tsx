@@ -221,7 +221,7 @@ export default function Marketing() {
               </button>
             </form>
 
-            <p className="mk-trust">Free to start · No card · Your handle is yours in under a minute</p>
+            <p className="mk-trust">Start free. Takes one minute to set up.</p>
           </div>
 
                   </section>
