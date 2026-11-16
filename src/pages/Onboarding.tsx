@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, Check, Link2, Package, Send } from 'lucide-react'
 import { DEMO_PROFILE, useSession } from '../auth'
+import { cleanHandle } from '../lib/handle'
 import { usePageTitle } from '../lib/title'
 import { useProfile } from '../store'
 
@@ -43,9 +44,11 @@ export default function Onboarding() {
   const { session, finishOnboarding } = useSession()
   const { profile, save } = useProfile()
   const navigate = useNavigate()
+  // a handle claimed before signing up arrives here and is prefilled
+  const [params] = useSearchParams()
 
   const [step, setStep] = useState(0)
-  const [username, setUsername] = useState(DEMO_PROFILE.username)
+  const [username, setUsername] = useState(() => cleanHandle(params.get('handle')) || DEMO_PROFILE.username)
   const [name, setName] = useState(DEMO_PROFILE.name)
   const [bio, setBio] = useState(DEMO_PROFILE.bio)
   const [sections, setSections] = useState<string[]>(['products', 'links', 'connect'])
@@ -132,7 +135,7 @@ export default function Onboarding() {
                     spellCheck={false}
                     onChange={(event) => {
                       setError('')
-                      setUsername(event.target.value.toLowerCase().replace(/[^a-z0-9-_]/g, '').slice(0, 24))
+                      setUsername(cleanHandle(event.target.value))
                     }}
                   />
                 </div>

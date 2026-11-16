@@ -19,6 +19,7 @@ import {
 import { ArrowRight, Check, Link2, Package, Send } from 'lucide-react'
 import PricingTiers, { type PricingTier } from '@/components/ui/pricing-tiers'
 import { MarketingLayout } from '../components/marketing/SiteChrome'
+import { cleanHandle } from '../lib/handle'
 import { usePageTitle } from '../lib/title'
 
 const BENEFITS = [
@@ -199,7 +200,8 @@ export default function Marketing() {
               className="mk-claim"
               onSubmit={(event) => {
                 event.preventDefault()
-                navigate('/signup')
+                // the handle is picked up again on the onboarding step
+                navigate(handle ? `/signup?handle=${encodeURIComponent(handle)}` : '/signup')
               }}
             >
               <input
@@ -212,7 +214,7 @@ export default function Marketing() {
                 autoCapitalize="none"
                 spellCheck={false}
                 value={handle}
-                onChange={(event) => setHandle(event.target.value)}
+                onChange={(event) => setHandle(cleanHandle(event.target.value))}
               />
               <button className="mk-claim-btn" type="submit">
                 Claim your link

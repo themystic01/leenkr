@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import AuthShell from '../components/AuthShell'
 import { DEMO_PROFILE, useSession } from '../auth'
@@ -11,6 +11,9 @@ export default function Signup() {
   usePageTitle('Create your page · Leenkr')
   const { signUp } = useSession()
   const navigate = useNavigate()
+  // a handle claimed on the marketing hero rides along to the onboarding step
+  const [params] = useSearchParams()
+  const handle = params.get('handle') ?? ''
   const [name, setName] = useState(DEMO_PROFILE.name)
   const [email, setEmail] = useState(DEMO_PROFILE.email)
   const [password, setPassword] = useState('')
@@ -26,7 +29,7 @@ export default function Signup() {
     if (Object.keys(found).length > 0) return
 
     signUp(email)
-    navigate('/onboarding')
+    navigate(handle ? `/onboarding?handle=${encodeURIComponent(handle)}` : '/onboarding')
   }
 
   return (
