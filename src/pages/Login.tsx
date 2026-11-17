@@ -12,7 +12,7 @@ export default function Login() {
   usePageTitle('Sign in · Leenkr')
   const { signIn } = useSession()
   const navigate = useNavigate()
-  const [email, setEmail] = useState(DEMO_PROFILE.email)
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [busy, setBusy] = useState(false)
@@ -54,6 +54,7 @@ export default function Login() {
             className="input"
             type="email"
             autoComplete="email"
+            placeholder="you@studio.com"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
           />

@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
+import { hasBackend } from '../lib/supabase'
 
 // Shared frame for sign in and sign up: brand panel on the left, form on the right.
 export default function AuthShell({
@@ -43,8 +44,9 @@ export default function AuthShell({
           <div className="auth-foot">{footer}</div>
         </div>
         <p className="auth-note">
-          Preview build — accounts aren’t connected to a server yet. Sessions live on this device, and
-          you land on the demo creator profile.
+          {hasBackend
+            ? 'Accounts are handled by Supabase. Your page is saved to your account and only you can edit it.'
+            : 'Preview build — accounts aren’t connected to a server yet. Sessions live on this device, and you land on the demo creator profile.'}
         </p>
       </main>
     </div>

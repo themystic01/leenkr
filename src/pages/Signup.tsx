@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowRight, MailCheck } from 'lucide-react'
 import AuthShell from '../components/AuthShell'
-import { DEMO_PROFILE, useSession } from '../auth'
+import { useSession } from '../auth'
 import { usePageTitle } from '../lib/title'
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -14,8 +14,8 @@ export default function Signup() {
   // a handle claimed on the marketing hero rides along to the onboarding step
   const [params] = useSearchParams()
   const handle = params.get('handle') ?? ''
-  const [name, setName] = useState(DEMO_PROFILE.name)
-  const [email, setEmail] = useState(DEMO_PROFILE.email)
+  const [name, setName] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [busy, setBusy] = useState(false)
@@ -87,6 +87,7 @@ export default function Signup() {
             id="signup-name"
             className="input"
             autoComplete="name"
+            placeholder="Collins Nzagha"
             value={name}
             onChange={(event) => setName(event.target.value)}
           />
@@ -100,6 +101,7 @@ export default function Signup() {
             className="input"
             type="email"
             autoComplete="email"
+            placeholder="you@studio.com"
             value={email}
             onChange={(event) => setEmail(event.target.value)}
           />
