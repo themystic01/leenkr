@@ -116,8 +116,16 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
     const { data: subscription } = backend.auth.onAuthStateChange((event, next) => {
       // Signing in and out is handled by the actions themselves; this keeps a
-      // refreshed or revoked token in step with the UI.
-      if (event === 'TOKEN_REFRESHED' || event === 'SIGNED_OUT') apply(next?.user ?? null)
+      // refreshed or revoked token in step with the UI. INITIAL_SESSION and
+      // SIGNED_IN are what a confirmation link produces on the way back in.
+      if (
+        event === 'INITIAL_SESSION' ||
+        event === 'SIGNED_IN' ||
+        event === 'TOKEN_REFRESHED' ||
+        event === 'SIGNED_OUT'
+      ) {
+        apply(next?.user ?? null)
+      }
     })
 
     return () => {
@@ -162,7 +170,13 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         return { ok: true }
       }
 
-      const { data, error } = await backend.auth.signUp({ email: email.trim(), password })
+      const { data, error } = await backend.auth.signUp({
+        email: email.trim(),
+        password,
+        // The confirmation link must come back to the app, not to Supabase's
+        // default page. This path has to be on the project's redirect allowlist.
+        options: { emailRedirectTo: `${window.location.origin}/onboarding` },
+      })
       if (error) return { ok: false, error: error.message }
       // With email confirmation on, there is no session until the link is used.
       if (!data.session || !data.user) return { ok: true, needsConfirmation: true }
