@@ -18,6 +18,7 @@ const STEPS: { key: StepKey; label: string; note: string }[] = [
 const RESERVED_HANDLES = new Set([
   'profile',
   'analytics',
+  'insight',
   'tools',
   'verify',
   'settings',

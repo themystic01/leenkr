@@ -29,6 +29,7 @@ const RESERVED = new Set([
   'connect',
   'settings',
   'analytics',
+  'insight',
   'tools',
   'verify',
 ])

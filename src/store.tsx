@@ -337,3 +337,166 @@ export function statsFor(profile: Profile) {
   const clicks = Math.round(views * 0.34)
   return { views, clicks }
 }
+
+/* ------------------------------ insight ------------------------ */
+/* The dashboard has no server, so the numbers are derived from the profile:
+   stable for a given handle, and they move when the page changes. */
+
+export type InsightRange = 7 | 30
+
+export type InsightDay = { key: string; label: string; value: number }
+
+export type InsightSource = { key: string; label: string; clicks: number; share: number }
+
+export type InsightDevice = {
+  key: 'mobile' | 'desktop' | 'tablet'
+  label: string
+  visits: number
+  share: number
+}
+
+export type InsightLink = {
+  id: string
+  title: string
+  host: string
+  clicks: number
+  share: number
+}
+
+export type Insight = {
+  range: InsightRange
+  views: number
+  clicks: number
+  clickRate: number
+  daily: InsightDay[]
+  busiest: InsightDay | null
+  sources: InsightSource[]
+  devices: InsightDevice[]
+  links: InsightLink[]
+}
+
+function hashOf(input: string) {
+  let hash = 0
+  for (const char of input) hash = (hash * 31 + char.charCodeAt(0)) % 100000
+  return hash
+}
+
+// 0…1 from a seed and an index, so a chart is different from a list but the
+// same every time the page renders.
+function noiseAt(seed: number, index: number) {
+  const raw = Math.sin((seed + index * 37) * 12.9898) * 43758.5453
+  return raw - Math.floor(raw)
+}
+
+// Whole numbers that add up to the total, biggest slices first.
+function splitTotal(total: number, weights: number[]) {
+  const sum = weights.reduce((a, b) => a + b, 0) || 1
+  const exact = weights.map((weight) => (total * weight) / sum)
+  const out = exact.map(Math.floor)
+  let remainder = total - out.reduce((a, b) => a + b, 0)
+  const order = exact.map((_, index) => index).sort((a, b) => exact[b] - exact[a])
+  for (let i = 0; remainder > 0; i += 1, remainder -= 1) out[order[i % order.length]] += 1
+  return out
+}
+
+const SOURCE_POOL: { key: string; label: string; weight: number }[] = [
+  { key: 'instagram', label: 'Instagram', weight: 32 },
+  { key: 'x', label: 'X', weight: 21 },
+  { key: 'direct', label: 'Direct or typed', weight: 17 },
+  { key: 'linkedin', label: 'LinkedIn', weight: 12 },
+  { key: 'newsletter', label: 'Newsletter', weight: 10 },
+  { key: 'other', label: 'Other referrers', weight: 8 },
+]
+
+const DEVICE_POOL: { key: InsightDevice['key']; label: string; weight: number }[] = [
+  { key: 'mobile', label: 'Mobile', weight: 68 },
+  { key: 'desktop', label: 'Desktop', weight: 26 },
+  { key: 'tablet', label: 'Tablet', weight: 6 },
+]
+
+const DAY_LABELS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+
+export function insightFor(profile: Profile, range: InsightRange = 7): Insight {
+  const base = statsFor(profile)
+  const scale = range / 7
+  const views = Math.round(base.views * scale)
+  const clicks = Math.round(base.clicks * scale)
+  const seed = hashOf(`${profile.username}:insight:${range}`)
+
+  // Clicks per day, newest last, shaped like a week that builds towards the
+  // weekend — recognisable rather than random-looking.
+  const perDay = clicks / range
+  const daily: InsightDay[] = []
+  const today = new Date()
+  for (let index = 0; index < range; index += 1) {
+    const date = new Date(today)
+    date.setDate(today.getDate() - (range - 1 - index))
+    const weekday = date.getDay()
+    const shape = weekday === 0 || weekday === 6 ? 1.18 : 0.92
+    const value = Math.max(0, Math.round(perDay * shape * (0.62 + noiseAt(seed, index) * 0.76)))
+    daily.push({
+      key: date.toISOString().slice(0, 10),
+      label: range <= 7 ? DAY_LABELS[weekday] : `${date.getDate()}/${date.getMonth() + 1}`,
+      value,
+    })
+  }
+
+  const sources = SOURCE_POOL.map((source, index) => ({
+    key: source.key,
+    label: source.label,
+    weight: Math.max(1, source.weight * (0.82 + noiseAt(seed + 11, index) * 0.36)),
+  }))
+  const sourceClicks = splitTotal(
+    clicks,
+    sources.map((source) => source.weight),
+  )
+  const sourceRows: InsightSource[] = sources
+    .map((source, index) => ({
+      key: source.key,
+      label: source.label,
+      clicks: sourceClicks[index],
+      share: clicks > 0 ? sourceClicks[index] / clicks : 0,
+    }))
+    .sort((a, b) => b.clicks - a.clicks)
+
+  const deviceVisits = splitTotal(
+    views,
+    DEVICE_POOL.map((device, index) => device.weight * (0.9 + noiseAt(seed + 23, index) * 0.2)),
+  )
+  const devices: InsightDevice[] = DEVICE_POOL.map((device, index) => ({
+    key: device.key,
+    label: device.label,
+    visits: deviceVisits[index],
+    share: views > 0 ? deviceVisits[index] / views : 0,
+  }))
+
+  // Links keep their page order but not their traffic; the first one leads.
+  const linkWeights = profile.links.map((_, index) => 100 / (index + 1.35) + noiseAt(seed + 41, index) * 12)
+  const linkClicks = splitTotal(clicks, linkWeights.length > 0 ? linkWeights : [1])
+  const links: InsightLink[] = profile.links
+    .map((link, index) => ({
+      id: link.id,
+      title: link.title,
+      host: hostOf(link.url),
+      clicks: linkClicks[index] ?? 0,
+      share: clicks > 0 ? (linkClicks[index] ?? 0) / clicks : 0,
+    }))
+    .sort((a, b) => b.clicks - a.clicks)
+
+  const busiest = daily.reduce<InsightDay | null>(
+    (best, day) => (best === null || day.value > best.value ? day : best),
+    null,
+  )
+
+  return {
+    range,
+    views,
+    clicks,
+    clickRate: views > 0 ? clicks / views : 0,
+    daily,
+    busiest,
+    sources: sourceRows,
+    devices,
+    links,
+  }
+}

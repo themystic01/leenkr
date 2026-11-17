@@ -21,6 +21,7 @@ import {
 import InstallButton from './components/InstallButton'
 import Login from './pages/Login'
 import Onboarding from './pages/Onboarding'
+import Insight from './pages/Insight'
 import Overview from './pages/Overview'
 import ProfileEditor from './pages/ProfileEditor'
 import PublicProfile from './pages/PublicProfile'
@@ -91,7 +92,7 @@ function Sidebar({
 
   const primary: NavItem[] = [
     { label: 'Overview', to: STUDIO, icon: LayoutDashboard },
-    { label: 'Analytics', to: `${STUDIO}/analytics`, icon: BarChart3 },
+    { label: 'Insight', to: `${STUDIO}/insight`, icon: BarChart3 },
     { label: 'Profile', to: `${STUDIO}/profile`, icon: User },
     { label: 'Products', to: `${STUDIO}/products`, icon: Package, badge: profile.products.length },
     { label: 'Links', to: `${STUDIO}/links`, icon: Link2, badge: profile.links.length },
@@ -268,30 +269,6 @@ function DashboardFallback() {
   )
 }
 
-const STUB_COPY: Record<string, string> = {
-  Analytics: 'Profile views, link clicks and product taps will land here. Your page needs a week of traffic before the numbers mean anything.',
-}
-
-function Stub({ title }: { title: string }) {
-  return (
-    <div className="page">
-      <header className="page-head">
-        <div>
-          <h1 className="page-title">{title}</h1>
-          <p className="page-sub">Not built yet — this round covers your dashboard, page setup and the live page.</p>
-        </div>
-      </header>
-      <div className="card empty-card">
-        <span className="empty-mark">L</span>
-        <p>{STUB_COPY[title]}</p>
-        <Link className="btn ghost" to={`${STUDIO}/profile`}>
-          Work on your page
-        </Link>
-      </div>
-    </div>
-  )
-}
-
 function RequireSession({ children }: { children: ReactNode }) {
   const { session } = useSession()
   if (!session) return <Navigate to="/login" replace />
@@ -382,7 +359,7 @@ export default function App() {
         <Route path="links" element={<Links />} />
         <Route path="connect" element={<Connect />} />
         <Route path="tools" element={<Tools />} />
-        <Route path="analytics" element={<Stub title="Analytics" />} />
+        <Route path="insight" element={<Insight />} />
         <Route path="verify" element={<Verify />} />
         <Route path="settings" element={<SettingsPage />} />
         <Route path="*" element={<DashboardFallback />} />
