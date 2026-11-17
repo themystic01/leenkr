@@ -67,7 +67,9 @@ export default function PublicProfile() {
     }
   }, [username])
 
-  const localMatch = local.profile.username === username ? local.profile : null
+  // The local copy is the demo store. With a backend configured, only published
+  // database pages are shown, never sample content.
+  const localMatch = !hasBackend && local.profile.username === username ? local.profile : null
   const profile = remote.profile ?? localMatch
 
   useEffect(() => {

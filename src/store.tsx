@@ -1,7 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { useSession } from './auth'
 import { createPage, fetchMyPage, savePage } from './lib/api'
-import { backend } from './lib/supabase'
+import { backend, hasBackend } from './lib/supabase'
 
 export type PlatformKey =
   | 'x'
@@ -215,6 +215,30 @@ const seed: Profile = {
   appearance: { theme: 'light', accent: 'electric', motion: 'gentle' },
 }
 
+// A real account starts from nothing. Everything in `seed` above is sample
+// content for the offline demo store, and must never be written to a creator's
+// page in the database.
+function emptyProfile(email = ''): Profile {
+  return {
+    name: '',
+    username: '',
+    email,
+    bio: '',
+    photo: null,
+    socials: [],
+    products: [],
+    links: [],
+    connects: [],
+    tools: [],
+    verified: false,
+    published: false,
+    security: { twoFactor: false },
+    domain: '',
+    domainStatus: 'none',
+    appearance: { theme: 'light', accent: 'electric', motion: 'gentle' },
+  }
+}
+
 const STORAGE_KEY = 'leenkr.profile.v1'
 
 // Products saved before the editor existed had a plain price string and a
@@ -300,11 +324,16 @@ const ProfileContext = createContext<Store | null>(null)
 export function ProfileProvider({ children }: { children: ReactNode }) {
   const { session } = useSession()
   const userId = session && session.userId !== 'demo' ? session.userId : null
-  const [profile, setProfile] = useState<Profile>(() => load())
+  const email = session?.email ?? ''
+  // With a backend configured the studio starts blank; the demo profile is only
+  // for the offline store.
+  const [profile, setProfile] = useState<Profile>(() => (hasBackend ? emptyProfile() : load()))
   const [pageId, setPageId] = useState<string | null>(null)
   const pending = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  // The browser copy is the demo store's storage. Real profiles live in Postgres.
   useEffect(() => {
+    if (hasBackend) return
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(profile))
     } catch {
@@ -312,12 +341,16 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     }
   }, [profile])
 
-  // A signed-in creator reads their stored page; a new account starts from the
-  // seed and writes it on the first save.
+  // A signed-in creator reads their stored page; a new account starts empty and
+  // writes only what its owner fills in.
   useEffect(() => {
     setPageId(null)
-    if (!backend || !userId) return
+    if (!backend || !userId) {
+      setProfile(hasBackend ? emptyProfile() : load())
+      return
+    }
     let alive = true
+    setProfile(emptyProfile(email))
     fetchMyPage(userId).then((page) => {
       if (!alive || !page) return
       setPageId(page.id)
@@ -326,7 +359,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     return () => {
       alive = false
     }
-  }, [userId])
+  }, [userId, email])
 
   const save = useCallback(
     (next: Profile) => {
@@ -339,6 +372,9 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
           void savePage(pageId, next)
           return
         }
+        // A handle is the one thing a page cannot exist without, so a blank
+        // studio never creates a row.
+        if (!next.username.trim()) return
         void createPage(next, userId).then(({ id }) => {
           if (id) setPageId(id)
         })
@@ -347,7 +383,10 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     [pageId, userId],
   )
 
-  const reset = useCallback(() => setProfile(seed), [])
+  const reset = useCallback(
+    () => setProfile(hasBackend ? emptyProfile(email) : seed),
+    [email],
+  )
 
   const value = useMemo(() => ({ profile, save, reset }), [profile, save, reset])
   return <ProfileContext.Provider value={value}>{children}</ProfileContext.Provider>

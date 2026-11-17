@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, Check, Link2, Package, Send } from 'lucide-react'
-import { DEMO_PROFILE, useSession } from '../auth'
+import { useSession } from '../auth'
 import { isHandleAvailable } from '../lib/api'
 import { cleanHandle } from '../lib/handle'
 import { usePageTitle } from '../lib/title'
@@ -50,9 +50,10 @@ export default function Onboarding() {
   const [params] = useSearchParams()
 
   const [step, setStep] = useState(0)
-  const [username, setUsername] = useState(() => cleanHandle(params.get('handle')) || DEMO_PROFILE.username)
-  const [name, setName] = useState(DEMO_PROFILE.name)
-  const [bio, setBio] = useState(DEMO_PROFILE.bio)
+  const [username, setUsername] = useState(() => cleanHandle(params.get('handle')))
+  // Nothing is prefilled: a new page holds only what its owner types.
+  const [name, setName] = useState('')
+  const [bio, setBio] = useState('')
   const [sections, setSections] = useState<string[]>(['products', 'links', 'connect'])
   const [error, setError] = useState('')
   const [checking, setChecking] = useState(false)
@@ -167,6 +168,7 @@ export default function Onboarding() {
                   id="onb-name"
                   className="input"
                   autoFocus
+                  placeholder="Collins Nzagha"
                   value={name}
                   onChange={(event) => {
                     setError('')
@@ -181,6 +183,7 @@ export default function Onboarding() {
                   id="onb-bio"
                   className="input"
                   maxLength={240}
+                  placeholder="Designer and builder. I make calm interfaces for loud ideas."
                   value={bio}
                   onChange={(event) => setBio(event.target.value)}
                 />
