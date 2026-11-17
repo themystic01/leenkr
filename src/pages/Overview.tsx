@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom'
 import { ArrowUpRight, Check, MousePointerClick, Package, Link2 } from 'lucide-react'
 import Avatar from '../components/Avatar'
-import { statsFor, useProfile } from '../store'
+import { insightFor, useProfile } from '../store'
 
 export default function Overview() {
   const { profile } = useProfile()
-  const stats = statsFor(profile)
+  // The same numbers the Insight screen shows for a week, so the two agree.
+  const stats = insightFor(profile, 7)
   const firstName = profile.name.trim().split(/\s+/)[0] || 'there'
 
   const checklist = [
@@ -39,16 +40,20 @@ export default function Overview() {
       </header>
 
       <section className="stat-grid" aria-label="Page numbers">
-        <div className="stat">
+        <Link className="stat stat--link" to="/dashboard/insight">
           <p className="stat-label">Profile views</p>
           <p className="stat-value">{stats.views.toLocaleString()}</p>
           <p className="stat-hint">Last 7 days</p>
-        </div>
-        <div className="stat">
+          <ArrowUpRight className="stat-go" size={15} />
+        </Link>
+        <Link className="stat stat--link" to="/dashboard/insight">
           <p className="stat-label">Link clicks</p>
           <p className="stat-value">{stats.clicks.toLocaleString()}</p>
-          <p className="stat-hint">{stats.views > 0 ? '34% of visitors' : 'Waiting on traffic'}</p>
-        </div>
+          <p className="stat-hint">
+            {stats.views > 0 ? `${Math.round(stats.clickRate * 100)}% of visitors` : 'Waiting on traffic'}
+          </p>
+          <ArrowUpRight className="stat-go" size={15} />
+        </Link>
         <div className="stat">
           <p className="stat-label">Products</p>
           <p className="stat-value">{profile.products.length}</p>

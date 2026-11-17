@@ -560,10 +560,42 @@ select {
 }
 
 .stat {
+  position: relative;
   padding: 18px;
   border: 1px solid var(--line);
   border-radius: 16px;
   background: #fff;
+}
+
+/* the two traffic cards open the screen that explains them */
+.stat--link {
+  display: block;
+  color: inherit;
+  transition: border-color 0.14s ease, box-shadow 0.14s ease, transform 0.14s ease;
+}
+
+.stat--link:hover {
+  border-color: rgba(12, 4, 4, 0.26);
+  box-shadow: var(--shadow);
+  transform: translateY(-1px);
+}
+
+.stat--link:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+.stat-go {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  color: var(--ink-faint);
+  transition: color 0.14s ease, transform 0.14s ease;
+}
+
+.stat--link:hover .stat-go {
+  color: var(--ink);
+  transform: translate(1px, -1px);
 }
 
 .stat-label {
