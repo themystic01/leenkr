@@ -73,6 +73,9 @@ export default function Login() {
             onChange={(event) => setPassword(event.target.value)}
           />
           {errors.password ? <p className="field-error">{errors.password}</p> : null}
+          <Link className="auth-forgot" to="/forgot-password">
+            Forgot password?
+          </Link>
         </div>
 
         {errors.form ? <p className="field-error">{errors.form}</p> : null}

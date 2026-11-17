@@ -66,6 +66,8 @@ type Auth = {
   ready: boolean
   signIn: (email: string, password: string) => Promise<AuthResult>
   signUp: (email: string, password: string) => Promise<AuthResult>
+  resetPassword: (email: string) => Promise<AuthResult>
+  updatePassword: (password: string) => Promise<AuthResult>
   finishOnboarding: () => void
   signOut: () => void
 }
@@ -187,6 +189,27 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     [readSession],
   )
 
+  const resetPassword = useCallback(async (email: string): Promise<AuthResult> => {
+    if (!backend) return { ok: false, error: 'Password reset needs the backend configured.' }
+    const { error } = await backend.auth.resetPasswordForEmail(email.trim(), {
+      // The recovery link comes back to a page that can set a new password.
+      redirectTo: `${window.location.origin}/reset-password`,
+    })
+    if (error) return { ok: false, error: error.message }
+    return { ok: true }
+  }, [])
+
+  const updatePassword = useCallback(
+    async (password: string): Promise<AuthResult> => {
+      if (!backend) return { ok: false, error: 'Password reset needs the backend configured.' }
+      const { data, error } = await backend.auth.updateUser({ password })
+      if (error) return { ok: false, error: error.message }
+      if (data.user) setSession(await readSession(data.user))
+      return { ok: true }
+    },
+    [readSession],
+  )
+
   const finishOnboarding = useCallback(() => {
     setSession((current) => {
       if (!current) return current
@@ -201,8 +224,17 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const value = useMemo(
-    () => ({ session, ready, signIn, signUp, finishOnboarding, signOut }),
-    [session, ready, signIn, signUp, finishOnboarding, signOut],
+    () => ({
+      session,
+      ready,
+      signIn,
+      signUp,
+      resetPassword,
+      updatePassword,
+      finishOnboarding,
+      signOut,
+    }),
+    [session, ready, signIn, signUp, resetPassword, updatePassword, finishOnboarding, signOut],
   )
 
   return <SessionContext.Provider value={value}>{children}</SessionContext.Provider>

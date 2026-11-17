@@ -885,6 +885,19 @@
   color: var(--ink-faint);
 }
 
+.auth-forgot {
+  display: inline-block;
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  text-decoration: underline;
+}
+
+.auth-forgot:hover {
+  color: var(--ink);
+}
+
 .auth-foot {
   margin-top: 20px;
   padding-top: 16px;
