@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { ArrowRight, KeyRound } from 'lucide-react'
 import AuthShell from '../components/AuthShell'
 import { useSession } from '../auth'
+import { PASSWORD_MIN, passwordProblem } from '../lib/password'
 import { usePageTitle } from '../lib/title'
 
 export default function ResetPassword() {
@@ -16,8 +17,9 @@ export default function ResetPassword() {
 
   const submit = async (event: FormEvent) => {
     event.preventDefault()
-    if (password.length < 8) {
-      setError('Use at least 8 characters.')
+    const problem = passwordProblem(password)
+    if (problem) {
+      setError(problem)
       return
     }
     if (password !== confirm) {
@@ -83,7 +85,7 @@ export default function ResetPassword() {
             type="password"
             autoComplete="new-password"
             autoFocus
-            placeholder="At least 8 characters"
+            placeholder={`At least ${PASSWORD_MIN} characters`}
             value={password}
             onChange={(event) => {
               setError('')

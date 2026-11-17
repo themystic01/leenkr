@@ -204,6 +204,8 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       if (!backend) return { ok: false, error: 'Password reset needs the backend configured.' }
       const { data, error } = await backend.auth.updateUser({ password })
       if (error) return { ok: false, error: error.message }
+      // A reset should also end any session someone else may still be holding.
+      await backend.auth.signOut({ scope: 'others' })
       if (data.user) setSession(await readSession(data.user))
       return { ok: true }
     },

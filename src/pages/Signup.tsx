@@ -3,6 +3,7 @@ import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowRight, MailCheck } from 'lucide-react'
 import AuthShell from '../components/AuthShell'
 import { useSession } from '../auth'
+import { PASSWORD_MIN, passwordProblem } from '../lib/password'
 import { usePageTitle } from '../lib/title'
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
@@ -26,7 +27,8 @@ export default function Signup() {
     const found: Record<string, string> = {}
     if (name.trim().length < 2) found.name = 'Tell us what to call you.'
     if (!EMAIL_PATTERN.test(email.trim())) found.email = 'Enter a valid email address.'
-    if (password.length < 8) found.password = 'Use at least 8 characters.'
+    const passwordError = passwordProblem(password)
+    if (passwordError) found.password = passwordError
     setErrors(found)
     if (Object.keys(found).length > 0) return
 
@@ -115,7 +117,7 @@ export default function Signup() {
             className="input"
             type="password"
             autoComplete="new-password"
-            placeholder="At least 8 characters"
+            placeholder={`At least ${PASSWORD_MIN} characters`}
             value={password}
             onChange={(event) => setPassword(event.target.value)}
           />
