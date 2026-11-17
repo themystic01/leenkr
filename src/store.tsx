@@ -1,4 +1,7 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useSession } from './auth'
+import { createPage, fetchMyPage, savePage } from './lib/api'
+import { backend } from './lib/supabase'
 
 export type PlatformKey =
   | 'x'
@@ -295,7 +298,11 @@ type Store = {
 const ProfileContext = createContext<Store | null>(null)
 
 export function ProfileProvider({ children }: { children: ReactNode }) {
+  const { session } = useSession()
+  const userId = session && session.userId !== 'demo' ? session.userId : null
   const [profile, setProfile] = useState<Profile>(() => load())
+  const [pageId, setPageId] = useState<string | null>(null)
+  const pending = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
     try {
@@ -305,7 +312,41 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     }
   }, [profile])
 
-  const save = useCallback((next: Profile) => setProfile(next), [])
+  // A signed-in creator reads their stored page; a new account starts from the
+  // seed and writes it on the first save.
+  useEffect(() => {
+    setPageId(null)
+    if (!backend || !userId) return
+    let alive = true
+    fetchMyPage(userId).then((page) => {
+      if (!alive || !page) return
+      setPageId(page.id)
+      setProfile(page.profile)
+    })
+    return () => {
+      alive = false
+    }
+  }, [userId])
+
+  const save = useCallback(
+    (next: Profile) => {
+      setProfile(next)
+      if (!backend || !userId) return
+      // Studio forms save on every keystroke, so writes are batched.
+      if (pending.current) clearTimeout(pending.current)
+      pending.current = setTimeout(() => {
+        if (pageId) {
+          void savePage(pageId, next)
+          return
+        }
+        void createPage(next, userId).then(({ id }) => {
+          if (id) setPageId(id)
+        })
+      }, 600)
+    },
+    [pageId, userId],
+  )
+
   const reset = useCallback(() => setProfile(seed), [])
 
   const value = useMemo(() => ({ profile, save, reset }), [profile, save, reset])

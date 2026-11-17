@@ -1,4 +1,4 @@
-import { useState, type CSSProperties } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ArrowUpRight, Calendar, ImageOff, LayoutDashboard, Link2, Mail, Package, Send, Sparkles } from 'lucide-react'
 import Avatar from '../components/Avatar'
@@ -6,9 +6,11 @@ import InstallBanner from '../components/InstallBanner'
 import PlatformIcon from '../components/PlatformIcon'
 import TabSwitch, { ContentPanel, type ContentTab } from '../components/TabSwitch'
 import VerifiedBadge from '../components/VerifiedBadge'
-import { PAGE_ACCENTS, hostOf, priceLabel, socialUrl, useProfile, type Product } from '../store'
+import { PAGE_ACCENTS, hostOf, priceLabel, socialUrl, useProfile, type Product, type Profile } from '../store'
+import { fetchPublicPage, recordPageEvent, type EventTarget as ClickTarget } from '../lib/api'
+import { hasBackend } from '../lib/supabase'
 
-function ProductCard({ product }: { product: Product }) {
+function ProductCard({ product, onOpen }: { product: Product; onOpen?: () => void }) {
   const [imageFailed, setImageFailed] = useState(false)
   const showImage = product.image && !imageFailed
 
@@ -32,7 +34,7 @@ function ProductCard({ product }: { product: Product }) {
         {product.description ? <p>{product.description}</p> : null}
         <div className="product-foot">
           <span className="price">{priceLabel(product)}</span>
-          <a className="btn sm" href={product.url} target="_blank" rel="noreferrer">
+          <a className="btn sm" href={product.url} target="_blank" rel="noreferrer" onClick={onOpen}>
             {product.ctaText || 'Get it'}
             <ArrowUpRight size={14} />
           </a>
@@ -44,9 +46,41 @@ function ProductCard({ product }: { product: Product }) {
 
 export default function PublicProfile() {
   const { username } = useParams()
-  const { profile } = useProfile()
+  const local = useProfile()
+  const [remote, setRemote] = useState<{ pageId: string | null; profile: Profile | null }>({
+    pageId: null,
+    profile: null,
+  })
+  const counted = useRef(false)
+
+  useEffect(() => {
+    if (!hasBackend || !username) return
+    let alive = true
+    fetchPublicPage(username)
+      .then((page) => {
+        if (!alive) return
+        setRemote({ pageId: page?.id ?? null, profile: page?.profile ?? null })
+      })
+      .catch(() => {})
+    return () => {
+      alive = false
+    }
+  }, [username])
+
+  const localMatch = local.profile.username === username ? local.profile : null
+  const profile = remote.profile ?? localMatch
+
+  useEffect(() => {
+    if (!remote.pageId || counted.current) return
+    counted.current = true
+    recordPageEvent(remote.pageId, 'view')
+  }, [remote.pageId])
+
+  const track = (kind: ClickTarget, id: string) => {
+    if (remote.pageId) recordPageEvent(remote.pageId, 'click', { kind, id })
+  }
   const [tab, setTab] = useState<ContentTab>('products')
-  const accent = PAGE_ACCENTS.find((item) => item.key === profile.appearance.accent)?.color ?? '#dfff00'
+  const accent = PAGE_ACCENTS.find((item) => item.key === profile?.appearance.accent)?.color ?? '#dfff00'
 
   const dashboardLink = (
     <div className="public-top">
@@ -57,7 +91,7 @@ export default function PublicProfile() {
     </div>
   )
 
-  if (profile.username !== username) {
+  if (!profile) {
     return (
       <div className="notice-page">
         {dashboardLink}
@@ -135,7 +169,11 @@ export default function PublicProfile() {
               profile.products.length > 0 ? (
                 <div className="product-list">
                   {profile.products.map((product) => (
-                    <ProductCard key={product.id} product={product} />
+                    <ProductCard
+                      key={product.id}
+                      product={product}
+                      onOpen={() => track('product', product.id)}
+                    />
                   ))}
                 </div>
               ) : (
@@ -147,7 +185,14 @@ export default function PublicProfile() {
               profile.links.length > 0 ? (
                 <div className="link-list">
                   {profile.links.map((link) => (
-                    <a className="link-row" key={link.id} href={link.url} target="_blank" rel="noreferrer">
+                    <a
+                      className="link-row"
+                      key={link.id}
+                      href={link.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={() => track('link', link.id)}
+                    >
                       <span className="link-ico">
                         <Link2 size={15} />
                       </span>
@@ -181,7 +226,14 @@ export default function PublicProfile() {
                             ? Sparkles
                             : Mail
                     return (
-                      <a className="connect-card" key={item.id} href={href} target="_blank" rel="noreferrer">
+                      <a
+                        className="connect-card"
+                        key={item.id}
+                        href={href}
+                        target="_blank"
+                        rel="noreferrer"
+                        onClick={() => track('connect', item.id)}
+                      >
                         <span className="link-ico">
                           <Icon size={16} />
                         </span>

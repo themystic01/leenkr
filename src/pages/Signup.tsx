@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, MailCheck } from 'lucide-react'
 import AuthShell from '../components/AuthShell'
 import { DEMO_PROFILE, useSession } from '../auth'
 import { usePageTitle } from '../lib/title'
@@ -18,8 +18,10 @@ export default function Signup() {
   const [email, setEmail] = useState(DEMO_PROFILE.email)
   const [password, setPassword] = useState('')
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [busy, setBusy] = useState(false)
+  const [confirming, setConfirming] = useState(false)
 
-  const submit = (event: FormEvent) => {
+  const submit = async (event: FormEvent) => {
     event.preventDefault()
     const found: Record<string, string> = {}
     if (name.trim().length < 2) found.name = 'Tell us what to call you.'
@@ -28,8 +30,43 @@ export default function Signup() {
     setErrors(found)
     if (Object.keys(found).length > 0) return
 
-    signUp(email)
+    setBusy(true)
+    const result = await signUp(email, password)
+    setBusy(false)
+    if (!result.ok) {
+      setErrors({ form: result.error ?? 'Could not create the account.' })
+      return
+    }
+    if (result.needsConfirmation) {
+      setConfirming(true)
+      return
+    }
     navigate(handle ? `/onboarding?handle=${encodeURIComponent(handle)}` : '/onboarding')
+  }
+
+  if (confirming) {
+    return (
+      <AuthShell
+        eyebrow="One more step"
+        title="Confirm your email"
+        sub={`We sent a link to ${email.trim()}. Open it, then sign in to claim your handle.`}
+        footer={
+          <>
+            Already confirmed? <Link to="/login">Sign in</Link>
+          </>
+        }
+      >
+        <div className="auth-form">
+          <p className="auth-hint">
+            <MailCheck size={15} /> The link expires in an hour. Check spam if it hasn’t arrived.
+          </p>
+          <Link className="btn auth-submit" to="/login">
+            Go to sign in
+            <ArrowRight size={16} />
+          </Link>
+        </div>
+      </AuthShell>
+    )
   }
 
   return (
@@ -83,8 +120,10 @@ export default function Signup() {
           {errors.password ? <p className="field-error">{errors.password}</p> : null}
         </div>
 
-        <button type="submit" className="btn auth-submit">
-          Create account
+        {errors.form ? <p className="field-error">{errors.form}</p> : null}
+
+        <button type="submit" className="btn auth-submit" disabled={busy}>
+          {busy ? 'Creating account…' : 'Create account'}
           <ArrowRight size={16} />
         </button>
 

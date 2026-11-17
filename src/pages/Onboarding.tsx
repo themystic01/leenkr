@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, Navigate, useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, Check, Link2, Package, Send } from 'lucide-react'
 import { DEMO_PROFILE, useSession } from '../auth'
+import { isHandleAvailable } from '../lib/api'
 import { cleanHandle } from '../lib/handle'
 import { usePageTitle } from '../lib/title'
 import { useProfile } from '../store'
@@ -54,6 +55,7 @@ export default function Onboarding() {
   const [bio, setBio] = useState(DEMO_PROFILE.bio)
   const [sections, setSections] = useState<string[]>(['products', 'links', 'connect'])
   const [error, setError] = useState('')
+  const [checking, setChecking] = useState(false)
 
   if (!session) return <Navigate to="/login" replace />
   if (session.onboarded) return <Navigate to="/dashboard" replace />
@@ -67,11 +69,20 @@ export default function Onboarding() {
     setSections((values) => (values.includes(key) ? values.filter((value) => value !== key) : [...values, key]))
   }
 
-  const next = () => {
+  const next = async () => {
     setError('')
     if (current === 'handle' && !handleValid) {
       setError('Pick 3–24 lowercase letters, numbers or dashes. Studio words like dashboard are taken.')
       return
+    }
+    if (current === 'handle') {
+      setChecking(true)
+      const free = await isHandleAvailable(handle)
+      setChecking(false)
+      if (!free) {
+        setError('That handle is already taken. Try another.')
+        return
+      }
     }
     if (current === 'page' && name.trim().length < 2) {
       setError('Your page needs a name on it.')
@@ -223,8 +234,8 @@ export default function Onboarding() {
             ) : (
               <span />
             )}
-            <button type="button" className="btn" onClick={next}>
-              {step === STEPS.length - 1 ? 'Open my studio' : 'Continue'}
+            <button type="button" className="btn" onClick={next} disabled={checking}>
+              {checking ? 'Checking…' : step === STEPS.length - 1 ? 'Open my studio' : 'Continue'}
               <ArrowRight size={16} />
             </button>
           </div>

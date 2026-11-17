@@ -270,7 +270,9 @@ function DashboardFallback() {
 }
 
 function RequireSession({ children }: { children: ReactNode }) {
-  const { session } = useSession()
+  const { session, ready } = useSession()
+  // A stored Supabase session takes a beat to restore; don't bounce to /login.
+  if (!ready) return <div className="mk-boot" aria-hidden="true" />
   if (!session) return <Navigate to="/login" replace />
   if (!session.onboarded) return <Navigate to="/onboarding" replace />
   return <>{children}</>

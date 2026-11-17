@@ -3,21 +3,21 @@ import { Link, useNavigate } from 'react-router-dom'
 import { ArrowRight } from 'lucide-react'
 import AuthShell from '../components/AuthShell'
 import { DEMO_PROFILE, useSession } from '../auth'
+import { hasBackend } from '../lib/supabase'
 import { usePageTitle } from '../lib/title'
-import { useProfile } from '../store'
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export default function Login() {
   usePageTitle('Sign in · Leenkr')
   const { signIn } = useSession()
-  const { profile, save } = useProfile()
   const navigate = useNavigate()
   const [email, setEmail] = useState(DEMO_PROFILE.email)
   const [password, setPassword] = useState('')
   const [errors, setErrors] = useState<Record<string, string>>({})
+  const [busy, setBusy] = useState(false)
 
-  const submit = (event: FormEvent) => {
+  const submit = async (event: FormEvent) => {
     event.preventDefault()
     const found: Record<string, string> = {}
     if (!EMAIL_PATTERN.test(email.trim())) found.email = 'Enter a valid email address.'
@@ -25,18 +25,13 @@ export default function Login() {
     setErrors(found)
     if (Object.keys(found).length > 0) return
 
-    // The page follows the account: a different sign-in loads the demo creator.
-    if (profile.email !== email.trim()) {
-      save({
-        ...profile,
-        name: DEMO_PROFILE.name,
-        username: DEMO_PROFILE.username,
-        email: email.trim(),
-        bio: profile.bio.trim() ? profile.bio : DEMO_PROFILE.bio,
-      })
+    setBusy(true)
+    const result = await signIn(email, password)
+    setBusy(false)
+    if (!result.ok) {
+      setErrors({ form: result.error ?? 'That email and password did not match.' })
+      return
     }
-
-    signIn(email)
     navigate('/dashboard')
   }
 
@@ -79,14 +74,17 @@ export default function Login() {
           {errors.password ? <p className="field-error">{errors.password}</p> : null}
         </div>
 
-        <button type="submit" className="btn auth-submit">
-          Sign in
+        {errors.form ? <p className="field-error">{errors.form}</p> : null}
+
+        <button type="submit" className="btn auth-submit" disabled={busy}>
+          {busy ? 'Signing in…' : 'Sign in'}
           <ArrowRight size={16} />
         </button>
 
         <p className="auth-hint">
-          Any email and any 6-character password signs you in — this demo runs on the {DEMO_PROFILE.name}{' '}
-          profile.
+          {hasBackend
+            ? 'Your page, products and settings are saved to your account.'
+            : `Any email and any 6-character password signs you in — this demo runs on the ${DEMO_PROFILE.name} profile.`}
         </p>
       </form>
     </AuthShell>
