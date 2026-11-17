@@ -654,76 +654,6 @@
   font-weight: 600;
 }
 
-/* anchors land below the fixed navbar */
-#pricing,
-#what,
-#why {
-  scroll-margin-top: 76px;
-}
-
-.mk-benefits {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 16px;
-  margin-top: 32px;
-}
-
-.mk-benefit {
-  padding: 22px;
-  border: 1px solid rgba(253, 250, 243, 0.12);
-  border-radius: 18px;
-  background: rgba(253, 250, 243, 0.03);
-}
-
-.mk-benefit-icon {
-  width: 38px;
-  height: 38px;
-  margin-bottom: 14px;
-  border-radius: 11px;
-  background: rgba(223, 255, 0, 0.1);
-  border: 1px solid rgba(223, 255, 0, 0.28);
-  color: var(--yellow);
-  display: grid;
-  place-items: center;
-}
-
-.mk-split {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-  margin-top: 32px;
-}
-
-.mk-audience {
-  padding: 26px;
-  border: 1px solid rgba(253, 250, 243, 0.12);
-  border-radius: 20px;
-  background: linear-gradient(180deg, rgba(253, 250, 243, 0.05), rgba(253, 250, 243, 0.02));
-}
-
-.mk-points {
-  display: grid;
-  gap: 10px;
-  margin: 18px 0 0;
-  padding: 0;
-  list-style: none;
-}
-
-.mk-points li {
-  display: flex;
-  align-items: flex-start;
-  gap: 9px;
-  font-size: 13.5px;
-  line-height: 1.5;
-  color: rgba(253, 250, 243, 0.64);
-}
-
-.mk-points svg {
-  flex: none;
-  margin-top: 3px;
-  color: var(--yellow);
-}
-
 .mk-steps {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -745,110 +675,6 @@
   color: var(--yellow);
   font-family: 'Clash Grotesk', 'Geist', sans-serif;
   font-size: 19px;
-}
-
-/* ----------------------------- yellow band --------------------- */
-.mk-yellow {
-  max-width: none;
-  padding-left: 0;
-  padding-right: 0;
-  background: #0c0404;
-  color: #fdfaf3;
-  border-top: 0;
-}
-
-.mk-yellow-inner {
-  max-width: 1120px;
-  margin: 0 auto;
-  padding: 0 clamp(20px, 4vw, 40px);
-}
-
-.mk-yellow .mk-kicker {
-  color: rgba(253, 250, 243, 0.4);
-}
-
-.mk-yellow .mk-copy {
-  color: rgba(253, 250, 243, 0.6);
-}
-
-.mk-yellow .mk-benefit {
-  border-color: rgba(253, 250, 243, 0.1);
-  background: rgba(253, 250, 243, 0.03);
-}
-
-.mk-yellow .mk-benefit-icon {
-  background: var(--yellow);
-  border-color: var(--yellow);
-  color: #0c0404;
-}
-
-/* ----------------------------- pricing ------------------------- */
-/* PricingTiers supplies the card; this section supplies the plan switch. */
-.mk-pricing {
-  padding: clamp(48px, 6vw, 88px) clamp(20px, 4vw, 40px);
-  border-top: 1px solid var(--line-soft);
-}
-
-.mk-pricing-head {
-  display: grid;
-  justify-items: center;
-  text-align: center;
-}
-
-.mk-pricing-head .mk-section-lede {
-  text-align: center;
-}
-
-.mk-plan-switch {
-  display: inline-flex;
-  gap: 3px;
-  margin-top: 26px;
-  padding: 4px;
-  border: 1px solid rgba(253, 250, 243, 0.16);
-  border-radius: 999px;
-  background: rgba(253, 250, 243, 0.04);
-}
-
-.mk-plan-switch button {
-  height: 34px;
-  padding: 0 20px;
-  border: 0;
-  border-radius: 999px;
-  background: transparent;
-  color: rgba(253, 250, 243, 0.6);
-  font-size: 13px;
-  font-weight: 600;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-
-.mk-plan-switch button:hover {
-  color: #fdfaf3;
-}
-
-.mk-plan-switch button[aria-selected='true'] {
-  background: var(--yellow);
-  color: #0c0404;
-}
-
-.mk-plan-switch button:focus-visible {
-  outline: 2px solid var(--yellow);
-  outline-offset: 2px;
-}
-
-.mk-pricing-inner {
-  background: transparent;
-  padding-block: 0;
-  margin-top: 12px;
-}
-
-/* The plan switch replaces the component's monthly/yearly toggle. */
-.mk-pricing-inner > div:has([role='radiogroup']) {
-  display: none;
-}
-
-/* The featured plan's pill is brand yellow, so its label has to be asphalt ink. */
-.mk-pricing-inner [class*='bg-[#dfff00]'] {
-  color: #0c0404;
 }
 
 /* ------------------------------ close -------------------------- */
@@ -1279,7 +1105,6 @@
 
 /* --------------------------- responsive ------------------------ */
 @media (max-width: 780px) {
-  .mk-split,
   .mk-steps {
     grid-template-columns: 1fr;
   }
