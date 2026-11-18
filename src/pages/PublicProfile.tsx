@@ -10,7 +10,15 @@ import { PAGE_ACCENTS, hostOf, priceLabel, socialUrl, useProfile, type Product, 
 import { fetchPublicPage, recordPageEvent, type EventTarget as ClickTarget } from '../lib/api'
 import { hasBackend } from '../lib/supabase'
 
-function ProductCard({ product, onOpen }: { product: Product; onOpen?: () => void }) {
+function ProductCard({
+  product,
+  href,
+  onOpen,
+}: {
+  product: Product
+  href: string
+  onOpen?: () => void
+}) {
   const [imageFailed, setImageFailed] = useState(false)
   const showImage = product.image && !imageFailed
 
@@ -34,11 +42,14 @@ function ProductCard({ product, onOpen }: { product: Product; onOpen?: () => voi
         {product.description ? <p>{product.description}</p> : null}
         <div className="product-foot">
           <span className="price">{priceLabel(product)}</span>
-          <a className="btn sm" href={product.url} target="_blank" rel="noreferrer" onClick={onOpen}>
-            {product.ctaText || 'Get it'}
+          <Link className="btn sm" to={href} onClick={onOpen}>
+            {product.ctaText || 'View'}
             <ArrowUpRight size={14} />
-          </a>
+          </Link>
         </div>
+        <p className="product-counts">
+          {product.purchases.toLocaleString()} bought · {product.downloads.toLocaleString()} downloaded
+        </p>
       </div>
     </article>
   )
@@ -174,6 +185,7 @@ export default function PublicProfile() {
                     <ProductCard
                       key={product.id}
                       product={product}
+                      href={`/${profile.username}/p/${product.slug || product.id}`}
                       onOpen={() => track('product', product.id)}
                     />
                   ))}

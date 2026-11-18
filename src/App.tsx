@@ -14,6 +14,7 @@ import {
   Settings,
   ShieldCheck,
   User,
+  Wallet,
   Wrench,
   X,
   type LucideIcon,
@@ -27,6 +28,8 @@ import Insight from './pages/Insight'
 import Overview from './pages/Overview'
 import ProfileEditor from './pages/ProfileEditor'
 import PublicProfile from './pages/PublicProfile'
+import ProductDetail from './pages/ProductDetail'
+import EarningsPage from './pages/Earnings'
 import Products from './pages/Products'
 import Links from './pages/Links'
 import Connect from './pages/Connect'
@@ -95,6 +98,7 @@ function Sidebar({
   const primary: NavItem[] = [
     { label: 'Overview', to: STUDIO, icon: LayoutDashboard },
     { label: 'Insight', to: `${STUDIO}/insight`, icon: BarChart3 },
+    { label: 'Earnings', to: `${STUDIO}/earnings`, icon: Wallet },
     { label: 'Profile', to: `${STUDIO}/profile`, icon: User },
     { label: 'Products', to: `${STUDIO}/products`, icon: Package, badge: profile.products.length },
     { label: 'Links', to: `${STUDIO}/links`, icon: Link2, badge: profile.links.length },
@@ -366,12 +370,14 @@ export default function App() {
         <Route path="connect" element={<Connect />} />
         <Route path="tools" element={<Tools />} />
         <Route path="insight" element={<Insight />} />
+        <Route path="earnings" element={<EarningsPage />} />
         <Route path="verify" element={<Verify />} />
         <Route path="settings" element={<SettingsPage />} />
         <Route path="*" element={<DashboardFallback />} />
       </Route>
 
       <Route path="/p/:username" element={<LegacyProfileRedirect />} />
+      <Route path="/:username/p/:slug" element={<ProductDetail />} />
       <Route path="/:username" element={<PublicProfile />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>

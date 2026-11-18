@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Plus, Trash2 } from 'lucide-react'
 import ProductDialog from '../components/ProductDialog'
-import { priceLabel, useProfile, type Product } from '../store'
+import { formatBytes, priceLabel, useProfile, type Product } from '../store'
 
 export default function Products() {
   const { profile, save } = useProfile()
@@ -82,7 +82,11 @@ export default function Products() {
                 <span className="item-main">
                   <span className="item-title">{product.title}</span>
                   <span className="item-sub">
-                    {product.category} · {priceLabel(product)}
+                    {product.category} · {priceLabel(product)} ·{' '}
+                    {product.fileName
+                      ? `${product.fileName}${product.fileSize ? ` (${formatBytes(product.fileSize)})` : ''}`
+                      : 'No file attached'}
+                    {product.purchases > 0 ? ` · ${product.purchases} sold` : ''}
                   </span>
                 </span>
                 <button type="button" className="btn ghost sm" onClick={() => openEdit(product)}>

@@ -1,6 +1,19 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ArrowUpRight, Eye, Monitor, MousePointerClick, Smartphone, Tablet, TrendingUp } from 'lucide-react'
+import {
+  ArrowUpRight,
+  Eye,
+  Monitor,
+  MousePointerClick,
+  Smartphone,
+  Tablet,
+  TrendingUp,
+  Wallet,
+} from 'lucide-react'
+import { fetchEarnings } from '../lib/api'
+import { money } from '../lib/payments'
+import { useSession } from '../auth'
+import { hasBackend } from '../lib/supabase'
 import { insightFor, useProfile, type InsightRange } from '../store'
 import { usePageTitle } from '../lib/title'
 
@@ -16,8 +29,38 @@ const pct = (value: number) => `${Math.round(value * 100)}%`
 export default function Insight() {
   usePageTitle('Insight · Leenkr')
   const { profile } = useProfile()
+  const { session } = useSession()
   const [range, setRange] = useState<InsightRange>(7)
   const numbers = insightFor(profile, range)
+  const [sales, setSales] = useState<{ revenue: number; orders: number; top: string | null }>({
+    revenue: 0,
+    orders: 0,
+    top: null,
+  })
+
+  // Earnings come from real orders, so the traffic story and the money story
+  // sit on the same screen.
+  useEffect(() => {
+    if (!hasBackend || !session) return
+    let alive = true
+    fetchEarnings(session.userId).then((data) => {
+      if (!alive || !data) return
+      const paid = data.orders.filter((order) => order.status === 'paid')
+      const byProduct = new Map<string, number>()
+      for (const order of paid) {
+        byProduct.set(order.productTitle, (byProduct.get(order.productTitle) ?? 0) + order.creatorNet)
+      }
+      const top = [...byProduct.entries()].sort((a, b) => b[1] - a[1])[0]
+      setSales({
+        revenue: paid.reduce((sum, order) => sum + order.creatorNet, 0),
+        orders: paid.length,
+        top: top ? top[0] : null,
+      })
+    })
+    return () => {
+      alive = false
+    }
+  }, [session])
 
   if (numbers.views === 0) {
     return (
@@ -69,6 +112,24 @@ export default function Insight() {
           </div>
         </div>
       </header>
+
+      <section className="earn-strip" aria-label="Earnings from products">
+        <div className="earn-strip-main">
+          <span className="earn-label">
+            <Wallet size={14} /> Product earnings
+          </span>
+          <p className="earn-strip-value">{money(sales.revenue)}</p>
+          <p className="earn-note">
+            {sales.orders === 0
+              ? 'No paid orders yet'
+              : `${sales.orders} paid ${sales.orders === 1 ? 'order' : 'orders'}${sales.top ? ` · top seller ${sales.top}` : ''}`}
+          </p>
+        </div>
+        <Link className="btn ghost sm" to="/dashboard/earnings">
+          Open earnings
+          <ArrowUpRight size={14} />
+        </Link>
+      </section>
 
       <section className="stat-grid" aria-label="Totals">
         <div className="stat">

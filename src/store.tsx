@@ -33,17 +33,56 @@ export const PRODUCT_CATEGORIES = [
   'Other',
 ]
 
+// A product is a real digital file, not a link to somewhere else. `fileKey` is
+// the private bucket key and is only ever read by the owner, never by visitors.
 export type Product = {
   id: string
+  slug: string
   title: string
   category: string
   price: number
   currency: Currency
   isFree: boolean
   ctaText: string
-  url: string
   description: string
   image: string | null
+  images: string[]
+  fileName: string | null
+  fileSize: number | null
+  fileType: string | null
+  fileKey: string | null
+  downloads: number
+  purchases: number
+}
+
+export function slugify(input: string) {
+  return input
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .slice(0, 48)
+}
+
+/** One stable slug per page: two products called "Kit" become kit and kit-2. */
+export function uniqueSlug(base: string, taken: string[]) {
+  const root = slugify(base) || 'product'
+  if (!taken.includes(root)) return root
+  let index = 2
+  while (taken.includes(`${root}-${index}`)) index += 1
+  return `${root}-${index}`
+}
+
+export function formatBytes(bytes: number | null) {
+  if (!bytes || bytes <= 0) return ''
+  const units = ['B', 'KB', 'MB', 'GB']
+  let value = bytes
+  let unit = 0
+  while (value >= 1024 && unit < units.length - 1) {
+    value /= 1024
+    unit += 1
+  }
+  return `${value >= 10 || unit === 0 ? Math.round(value) : value.toFixed(1)} ${units[unit]}`
 }
 
 const amountFormat = new Intl.NumberFormat('en-US', { maximumFractionDigits: 2 })
@@ -161,39 +200,60 @@ const seed: Profile = {
   products: [
     {
       id: 'p1',
+      slug: 'creator-os-kit',
       title: 'Creator OS Kit',
       category: 'Templates',
-      price: 29,
-      currency: 'USD',
+      price: 18000,
+      currency: 'NGN',
       isFree: false,
-      ctaText: 'Get the kit',
-      url: 'https://example.com/creator-os',
+      ctaText: 'Buy the kit',
       description: 'A Notion system for planning launches without the chaos.',
       image: null,
+      images: [],
+      fileName: 'creator-os-kit.zip',
+      fileSize: 4200000,
+      fileType: 'application/zip',
+      fileKey: null,
+      downloads: 128,
+      purchases: 34,
     },
     {
       id: 'p2',
+      slug: 'type-pairings-vol-1',
       title: 'Type Pairings Vol. 1',
       category: 'Design Assets',
-      price: 12,
-      currency: 'USD',
+      price: 7500,
+      currency: 'NGN',
       isFree: false,
-      ctaText: 'Download',
-      url: 'https://example.com/type-pairings',
+      ctaText: 'Buy now',
       description: '42 heading and body combos that actually hold up.',
       image: null,
+      images: [],
+      fileName: 'type-pairings-vol-1.pdf',
+      fileSize: 8200000,
+      fileType: 'application/pdf',
+      fileKey: null,
+      downloads: 96,
+      purchases: 21,
     },
     {
       id: 'p3',
+      slug: 'portfolio-teardown',
       title: 'Portfolio Teardown',
       category: 'Courses',
       price: 0,
-      currency: 'USD',
+      currency: 'NGN',
       isFree: true,
-      ctaText: 'Watch free',
-      url: 'https://example.com/teardown',
+      ctaText: 'Download free',
       description: 'A 40-minute video walkthrough of six real portfolios.',
       image: null,
+      images: [],
+      fileName: 'portfolio-teardown.mp4',
+      fileSize: 142000000,
+      fileType: 'video/mp4',
+      fileKey: null,
+      downloads: 244,
+      purchases: 0,
     },
   ],
   links: [
@@ -265,8 +325,7 @@ function toProduct(raw: Record<string, unknown>, index: number): Product {
       typeof raw.isFree === 'boolean'
         ? raw.isFree
         : String(legacyPrice ?? '').toLowerCase() === 'free',
-    ctaText: typeof raw.ctaText === 'string' ? raw.ctaText : 'Get it',
-    url: typeof raw.url === 'string' ? raw.url : 'https://example.com',
+    ctaText: typeof raw.ctaText === 'string' ? raw.ctaText : 'Download',
     description:
       typeof raw.description === 'string'
         ? raw.description
@@ -274,6 +333,17 @@ function toProduct(raw: Record<string, unknown>, index: number): Product {
           ? raw.blurb
           : '',
     image: typeof raw.image === 'string' ? raw.image : null,
+    slug:
+      typeof raw.slug === 'string' && raw.slug
+        ? raw.slug
+        : slugify(typeof raw.title === 'string' ? raw.title : `product-${index}`),
+    images: Array.isArray(raw.images) ? (raw.images.filter((v) => typeof v === 'string') as string[]) : [],
+    fileName: typeof raw.fileName === 'string' ? raw.fileName : null,
+    fileSize: typeof raw.fileSize === 'number' ? raw.fileSize : null,
+    fileType: typeof raw.fileType === 'string' ? raw.fileType : null,
+    fileKey: typeof raw.fileKey === 'string' ? raw.fileKey : null,
+    downloads: typeof raw.downloads === 'number' ? raw.downloads : 0,
+    purchases: typeof raw.purchases === 'number' ? raw.purchases : 0,
   }
 }
 
@@ -315,6 +385,8 @@ function load(): Profile {
 
 type Store = {
   profile: Profile
+  /** The database id of this creator's page, once it exists. */
+  pageId: string | null
   save: (next: Profile) => void
   reset: () => void
 }
@@ -388,7 +460,7 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     [email],
   )
 
-  const value = useMemo(() => ({ profile, save, reset }), [profile, save, reset])
+  const value = useMemo(() => ({ profile, pageId, save, reset }), [profile, pageId, save, reset])
   return <ProfileContext.Provider value={value}>{children}</ProfileContext.Provider>
 }
 

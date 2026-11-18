@@ -1,27 +1,49 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react'
-import { Check, ImagePlus, Package, Trash2, X } from 'lucide-react'
+import {
+  Check,
+  FileArchive,
+  ImagePlus,
+  Loader2,
+  Package,
+  Trash2,
+  Upload,
+  X,
+} from 'lucide-react'
 import { downscaleImage } from '../lib/image'
+import { MAX_FILE_BYTES, StorageUnavailable, uploadProductFile } from '../lib/storage'
 import {
   CURRENCIES,
   PRODUCT_CATEGORIES,
   formatAmount,
-  uid,
+  formatBytes,
+  slugify,
+  uniqueSlug,
+  useProfile,
   type Currency,
   type Product,
 } from '../store'
 
-function blankProduct(): Product {
+const MAX_GALLERY = 4
+
+function blankProduct(currency: Currency): Product {
   return {
-    id: '',
+    id: crypto.randomUUID(),
+    slug: '',
     title: '',
     category: 'Design Assets',
     price: 0,
-    currency: 'USD',
+    currency,
     isFree: false,
     ctaText: 'Download',
-    url: '',
     description: '',
     image: null,
+    images: [],
+    fileName: null,
+    fileSize: null,
+    fileType: null,
+    fileKey: null,
+    downloads: 0,
+    purchases: 0,
   }
 }
 
@@ -37,12 +59,6 @@ function formatPriceInput(raw: string) {
   return `${grouped || '0'}.${fraction}`
 }
 
-function withProtocol(url: string) {
-  const trimmed = url.trim()
-  if (!trimmed) return ''
-  return /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`
-}
-
 type Props = {
   open: boolean
   product: Product | null
@@ -51,20 +67,25 @@ type Props = {
 }
 
 export default function ProductDialog({ open, product, onClose, onSave }: Props) {
-  const [draft, setDraft] = useState<Product>(() => product ?? blankProduct())
+  const { profile, pageId } = useProfile()
+  const [draft, setDraft] = useState<Product>(() => product ?? blankProduct('NGN'))
   const [priceText, setPriceText] = useState('')
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [photoError, setPhotoError] = useState('')
+  const [fileError, setFileError] = useState('')
+  const [uploading, setUploading] = useState(false)
   const fileRef = useRef<HTMLInputElement>(null)
+  const galleryRef = useRef<HTMLInputElement>(null)
   const titleRef = useRef<HTMLInputElement>(null)
-  const dialogRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     if (!open) return
-    setDraft(product ?? blankProduct())
+    setDraft(product ?? blankProduct('NGN'))
     setPriceText(product && !product.isFree && product.price ? formatAmount(product.price) : '')
     setErrors({})
     setPhotoError('')
+    setFileError('')
+    setUploading(false)
     const timer = window.setTimeout(() => titleRef.current?.focus(), 30)
     return () => window.clearTimeout(timer)
   }, [open, product])
@@ -72,7 +93,7 @@ export default function ProductDialog({ open, product, onClose, onSave }: Props)
   useEffect(() => {
     if (!open) return
     const onKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose()
+      if (event.key === 'Escape' && !uploading) onClose()
     }
     const previousOverflow = document.body.style.overflow
     document.body.style.overflow = 'hidden'
@@ -81,14 +102,14 @@ export default function ProductDialog({ open, product, onClose, onSave }: Props)
       document.body.style.overflow = previousOverflow
       document.removeEventListener('keydown', onKey)
     }
-  }, [open, onClose])
+  }, [open, onClose, uploading])
 
   if (!open) return null
 
   const patch = <K extends keyof Product>(key: K, value: Product[K]) =>
     setDraft((current) => ({ ...current, [key]: value }))
 
-  const onImage = async (event: ChangeEvent<HTMLInputElement>) => {
+  const readCover = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0]
     if (!file) return
     setPhotoError('')
@@ -97,34 +118,94 @@ export default function ProductDialog({ open, product, onClose, onSave }: Props)
       return
     }
     try {
-      const image = await downscaleImage(file)
-      patch('image', image)
-      setErrors((current) => ({ ...current, image: '' }))
+      patch('image', await downscaleImage(file, 768))
     } catch {
       setPhotoError('Could not read that image. Try another one.')
     }
   }
 
+  const readGallery = async (event: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(event.target.files ?? []).slice(0, MAX_GALLERY - draft.images.length)
+    if (files.length === 0) return
+    setPhotoError('')
+    const next: string[] = []
+    for (const file of files) {
+      if (!file.type.startsWith('image/')) {
+        setPhotoError('One of those files is not an image.')
+        continue
+      }
+      try {
+        next.push(await downscaleImage(file, 768))
+      } catch {
+        setPhotoError('One image could not be read.')
+      }
+    }
+    patch('images', [...draft.images, ...next].slice(0, MAX_GALLERY))
+    if (galleryRef.current) galleryRef.current.value = ''
+  }
+
+  const onFile = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+    setFileError('')
+    if (file.size > MAX_FILE_BYTES) {
+      setFileError('That file is larger than 512 MB.')
+      return
+    }
+
+    // Without a backend (or a saved page) there is nowhere to upload yet, so the
+    // demo store keeps the details only.
+    if (!pageId) {
+      patch('fileName', file.name)
+      patch('fileSize', file.size)
+      patch('fileType', file.type || 'application/octet-stream')
+      patch('fileKey', null)
+      return
+    }
+
+    setUploading(true)
+    try {
+      const uploaded = await uploadProductFile(file, pageId)
+      patch('fileName', uploaded.name)
+      patch('fileSize', uploaded.size)
+      patch('fileType', uploaded.type)
+      patch('fileKey', uploaded.key)
+    } catch (error) {
+      setFileError(
+        error instanceof StorageUnavailable
+          ? 'File storage is not connected yet. Add the Cloudflare R2 credentials to the deployment and this upload will go straight to the private bucket.'
+          : error instanceof Error
+            ? error.message
+            : 'The upload failed.',
+      )
+    } finally {
+      setUploading(false)
+      if (fileRef.current) fileRef.current.value = ''
+    }
+  }
+
   const submit = (event: FormEvent) => {
     event.preventDefault()
+    const taken = profile.products
+      .filter((item) => item.id !== draft.id)
+      .map((item) => item.slug)
     const next: Product = {
       ...draft,
-      id: draft.id || uid('p'),
       title: draft.title.trim(),
-      ctaText: draft.ctaText.trim(),
-      url: withProtocol(draft.url),
+      ctaText: draft.ctaText.trim() || 'Download',
       description: draft.description.trim(),
+      slug: draft.slug.trim() || uniqueSlug(draft.title, taken),
     }
 
     const found: Record<string, string> = {}
     if (!next.image) found.image = 'Add a product image.'
     if (!next.title) found.title = 'Give the product a title.'
     if (!next.category) found.category = 'Pick a category.'
-    if (!next.isFree && (!Number.isFinite(next.price) || next.price < 0)) {
+    if (!next.isFree && (!Number.isFinite(next.price) || next.price <= 0)) {
       found.price = 'Enter a price, or mark the product free.'
     }
     if (!next.ctaText) found.ctaText = 'Add button text.'
-    if (!next.url) found.url = 'Add a destination URL.'
+    if (!next.fileName) found.file = 'Upload the digital file buyers get.'
 
     setErrors(found)
     if (Object.keys(found).length > 0) return
@@ -138,21 +219,15 @@ export default function ProductDialog({ open, product, onClose, onSave }: Props)
         if (event.target === event.currentTarget) onClose()
       }}
     >
-      <div
-        className="dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="product-dialog-title"
-        ref={dialogRef}
-      >
+      <div className="dialog" role="dialog" aria-modal="true" aria-labelledby="product-dialog-title">
         <header className="dialog-head">
           <span className="dialog-mark">
             <Package size={18} />
           </span>
           <div>
-            <h2 id="product-dialog-title">{product ? 'Edit product' : 'New product'}</h2>
+            <h2 id="product-dialog-title">{product ? 'Edit product' : 'New digital product'}</h2>
             <p className="dialog-sub">
-              {product ? 'Update digital product details in your showcase.' : 'Add a digital product to your showcase.'}
+              Upload the file itself. Buyers pay here or download free — no external links.
             </p>
           </div>
           <button type="button" className="icon-btn" onClick={onClose} aria-label="Close dialog">
@@ -163,16 +238,16 @@ export default function ProductDialog({ open, product, onClose, onSave }: Props)
         <form className="dialog-form" onSubmit={submit} noValidate>
           <div className="dialog-body">
             <div className="field">
-              <label htmlFor="product-image">
-                Product image
+              <label>
+                Cover image
                 <span className="req" aria-hidden="true" />
               </label>
               <div className="image-picker">
                 <button
                   type="button"
                   className="image-drop"
-                  onClick={() => fileRef.current?.click()}
-                  aria-label={draft.image ? 'Replace product image' : 'Upload product image'}
+                  onClick={() => fileRef.current !== null && document.getElementById('product-cover')?.click()}
+                  aria-label={draft.image ? 'Replace cover image' : 'Upload cover image'}
                 >
                   {draft.image ? (
                     <img src={draft.image} alt="" />
@@ -184,7 +259,18 @@ export default function ProductDialog({ open, product, onClose, onSave }: Props)
                   )}
                 </button>
                 <div className="image-actions">
-                  <button type="button" className="btn ghost sm" onClick={() => fileRef.current?.click()}>
+                  <input
+                    id="product-cover"
+                    type="file"
+                    accept="image/*"
+                    hidden
+                    onChange={readCover}
+                  />
+                  <button
+                    type="button"
+                    className="btn ghost sm"
+                    onClick={() => document.getElementById('product-cover')?.click()}
+                  >
                     {draft.image ? 'Replace' : 'Upload'}
                   </button>
                   {draft.image ? (
@@ -194,11 +280,47 @@ export default function ProductDialog({ open, product, onClose, onSave }: Props)
                     </button>
                   ) : null}
                   <span className="hint">Square works best.</span>
-                  <input ref={fileRef} type="file" accept="image/*" hidden onChange={onImage} />
                 </div>
               </div>
               {errors.image ? <p className="field-error">{errors.image}</p> : null}
               {photoError ? <p className="field-error">{photoError}</p> : null}
+            </div>
+
+            <div className="field">
+              <label>Gallery (optional)</label>
+              <div className="gallery-picker">
+                {draft.images.map((image, index) => (
+                  <span className="gallery-thumb" key={image.slice(-12) + index}>
+                    <img src={image} alt="" />
+                    <button
+                      type="button"
+                      onClick={() => patch('images', draft.images.filter((_, i) => i !== index))}
+                      aria-label="Remove gallery image"
+                    >
+                      <X size={12} />
+                    </button>
+                  </span>
+                ))}
+                {draft.images.length < MAX_GALLERY ? (
+                  <button
+                    type="button"
+                    className="gallery-add"
+                    onClick={() => galleryRef.current?.click()}
+                    aria-label="Add gallery images"
+                  >
+                    <ImagePlus size={16} />
+                  </button>
+                ) : null}
+                <input
+                  ref={galleryRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  hidden
+                  onChange={readGallery}
+                />
+              </div>
+              <span className="hint">Up to {MAX_GALLERY} extra shots of what is inside.</span>
             </div>
 
             <div className="field-grid">
@@ -213,7 +335,14 @@ export default function ProductDialog({ open, product, onClose, onSave }: Props)
                   className="input"
                   value={draft.title}
                   placeholder="Carousel Bundle"
-                  onChange={(e) => patch('title', e.target.value)}
+                  onChange={(event) => {
+                    const value = event.target.value
+                    patch('title', value)
+                    if (!draft.slug) {
+                      // The slug is only suggested, never forced.
+                      patch('slug', slugify(value))
+                    }
+                  }}
                 />
                 {errors.title ? <p className="field-error">{errors.title}</p> : null}
               </div>
@@ -227,7 +356,7 @@ export default function ProductDialog({ open, product, onClose, onSave }: Props)
                   id="product-category"
                   className="input"
                   value={draft.category}
-                  onChange={(e) => patch('category', e.target.value)}
+                  onChange={(event) => patch('category', event.target.value)}
                 >
                   {PRODUCT_CATEGORIES.map((category) => (
                     <option key={category} value={category}>
@@ -240,6 +369,51 @@ export default function ProductDialog({ open, product, onClose, onSave }: Props)
             </div>
 
             <div className="field">
+              <label htmlFor="product-file">
+                Digital file
+                <span className="req" aria-hidden="true" />
+              </label>
+              <input
+                id="product-file"
+                ref={fileRef}
+                type="file"
+                hidden
+                onChange={onFile}
+              />
+              {draft.fileName ? (
+                <div className="file-chip">
+                  <FileArchive size={16} />
+                  <span className="file-chip-main">
+                    <strong>{draft.fileName}</strong>
+                    <span className="hint">
+                      {formatBytes(draft.fileSize)}
+                      {draft.fileKey ? ' · stored privately' : ' · not uploaded yet'}
+                    </span>
+                  </span>
+                  <button
+                    type="button"
+                    className="btn ghost sm"
+                    onClick={() => document.getElementById('product-file')?.click()}
+                  >
+                    Replace
+                  </button>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  className="file-drop"
+                  onClick={() => document.getElementById('product-file')?.click()}
+                  disabled={uploading}
+                >
+                  {uploading ? <Loader2 size={18} className="spin" /> : <Upload size={18} />}
+                  {uploading ? 'Uploading to the private bucket…' : 'Choose the file buyers download'}
+                </button>
+              )}
+              {errors.file ? <p className="field-error">{errors.file}</p> : null}
+              {fileError ? <p className="field-error">{fileError}</p> : null}
+            </div>
+
+            <div className="field">
               <label htmlFor="product-price">
                 Price
                 <span className="req" aria-hidden="true" />
@@ -249,7 +423,7 @@ export default function ProductDialog({ open, product, onClose, onSave }: Props)
                   className="input currency"
                   aria-label="Currency"
                   value={draft.currency}
-                  onChange={(e) => patch('currency', e.target.value as Currency)}
+                  onChange={(event) => patch('currency', event.target.value as Currency)}
                 >
                   {CURRENCIES.map((currency) => (
                     <option key={currency.code} value={currency.code}>
@@ -264,10 +438,10 @@ export default function ProductDialog({ open, product, onClose, onSave }: Props)
                   inputMode="decimal"
                   autoComplete="off"
                   disabled={draft.isFree}
-                  placeholder={draft.isFree ? 'Free' : '1,000'}
+                  placeholder={draft.isFree ? 'Free' : '5,000'}
                   value={draft.isFree ? '' : priceText}
-                  onChange={(e) => {
-                    const formatted = formatPriceInput(e.target.value)
+                  onChange={(event) => {
+                    const formatted = formatPriceInput(event.target.value)
                     setPriceText(formatted)
                     const numeric = Number(formatted.replace(/,/g, ''))
                     patch('price', Number.isFinite(numeric) ? numeric : 0)
@@ -279,9 +453,9 @@ export default function ProductDialog({ open, product, onClose, onSave }: Props)
                   id="product-free"
                   type="checkbox"
                   checked={draft.isFree}
-                  onChange={(e) => {
-                    patch('isFree', e.target.checked)
-                    if (!e.target.checked) setPriceText(draft.price ? formatAmount(draft.price) : '')
+                  onChange={(event) => {
+                    patch('isFree', event.target.checked)
+                    if (!event.target.checked) setPriceText(draft.price ? formatAmount(draft.price) : '')
                   }}
                 />
                 This product is free
@@ -298,35 +472,20 @@ export default function ProductDialog({ open, product, onClose, onSave }: Props)
                 id="product-cta"
                 className="input"
                 value={draft.ctaText}
-                placeholder="Download"
-                onChange={(e) => patch('ctaText', e.target.value)}
+                placeholder="Buy now"
+                onChange={(event) => patch('ctaText', event.target.value)}
               />
               {errors.ctaText ? <p className="field-error">{errors.ctaText}</p> : null}
             </div>
 
             <div className="field">
-              <label htmlFor="product-url">
-                Destination URL
-                <span className="req" aria-hidden="true" />
-              </label>
-              <input
-                id="product-url"
-                className="input"
-                value={draft.url}
-                placeholder="https://leenkr.vercel.app"
-                onChange={(e) => patch('url', e.target.value)}
-              />
-              {errors.url ? <p className="field-error">{errors.url}</p> : null}
-            </div>
-
-            <div className="field">
-              <label htmlFor="product-description">Product description (optional)</label>
+              <label htmlFor="product-description">Description</label>
               <textarea
                 id="product-description"
                 className="input"
                 value={draft.description}
-                placeholder="Key features, deliverables, tokens or software requirements…"
-                onChange={(e) => patch('description', e.target.value)}
+                placeholder="What is inside, who it is for, what they need to open it…"
+                onChange={(event) => patch('description', event.target.value)}
               />
             </div>
           </div>
@@ -335,9 +494,9 @@ export default function ProductDialog({ open, product, onClose, onSave }: Props)
             <button type="button" className="btn ghost" onClick={onClose}>
               Cancel
             </button>
-            <button type="submit" className="btn">
+            <button type="submit" className="btn" disabled={uploading}>
               <Check size={16} />
-              Save changes
+              Save product
             </button>
           </footer>
         </form>
