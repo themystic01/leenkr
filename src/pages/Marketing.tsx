@@ -30,7 +30,7 @@ export default function Marketing() {
                 behind <span className="mk-hl">one link</span>
               </h1>
               <span className="mk-hero-chip mk-hero-chip--two" aria-hidden="true">
-                Collins
+                Ife
               </span>
               <span className="mk-hero-chip mk-hero-chip--three" aria-hidden="true">
                 Tobi

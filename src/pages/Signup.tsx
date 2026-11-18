@@ -89,7 +89,7 @@ export default function Signup() {
             id="signup-name"
             className="input"
             autoComplete="name"
-            placeholder="Collins Nzagha"
+            placeholder="Ada Obi"
             value={name}
             onChange={(event) => setName(event.target.value)}
           />

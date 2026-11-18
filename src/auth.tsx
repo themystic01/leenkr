@@ -14,9 +14,9 @@ const SESSION_KEY = 'leenkr.session.v1'
 
 // There is no backend configured, so every sign-in lands on the same demo creator.
 export const DEMO_PROFILE = {
-  name: 'Collins Nzagha',
-  username: 'collinsnzagha',
-  email: 'collins@leenkr.com',
+  name: 'Ada Obi',
+  username: 'adaobi',
+  email: 'hello@leenkr.com',
   bio: 'Designer and builder. I make calm interfaces for loud ideas, and sell the kits that come out of the work.',
 }
 

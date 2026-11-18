@@ -168,7 +168,7 @@ export default function Onboarding() {
                   id="onb-name"
                   className="input"
                   autoFocus
-                  placeholder="Collins Nzagha"
+                  placeholder="Ada Obi"
                   value={name}
                   onChange={(event) => {
                     setError('')

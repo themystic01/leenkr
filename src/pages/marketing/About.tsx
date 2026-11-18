@@ -79,10 +79,10 @@ export default function About() {
         <PageSection kicker="Who builds it" title="A small team, shipping weekly">
           <div className="mk-grid">
             <article className="mk-card">
-              <h3>Collins Nzagha</h3>
+              <h3>The studio</h3>
               <p className="mk-copy">
-                Designer and builder. Made the page you are reading, the studio behind it and the themes that
-                come with it.
+                Designers and builders. We made the page you are reading, the studio behind it and the themes
+                that come with it.
               </p>
               <a className="mk-card-link" href="mailto:hey@leenkr.com">
                 hey@leenkr.com
