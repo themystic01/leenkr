@@ -19,14 +19,6 @@ import { money } from '../lib/payments'
 import { formatBytes, hostOf, priceLabel, useProfile, type Product } from '../store'
 
 function FileBadge({ product }: { product: Product }) {
-  if (product.fulfilment === 'external') {
-    return (
-      <span className="detail-file">
-        <ArrowUpRight size={15} />
-        Hosted at {hostOf(product.externalUrl ?? '') || 'an external link'}
-      </span>
-    )
-  }
   if (!product.fileName) {
     return (
       <span className="detail-file off">
@@ -191,22 +183,28 @@ export default function ProductDetail() {
             {product.category} · {external ? 'Hosted elsewhere' : 'Digital download'}
           </p>
           <h1 className="detail-title">{product.title}</h1>
-          <p className="detail-price">{priceLabel(product)}</p>
+          {external ? (
+            <p className="detail-host">{hostOf(product.externalUrl ?? '') || 'Another site'}</p>
+          ) : (
+            <>
+              <p className="detail-price">{priceLabel(product)}</p>
 
-          <div className="detail-counts">
-            <span>
-              <ShoppingBag size={14} /> {product.purchases.toLocaleString()}{' '}
-              {product.purchases === 1 ? 'purchase' : 'purchases'}
-            </span>
-            <span>
-              <Download size={14} /> {product.downloads.toLocaleString()}{' '}
-              {product.downloads === 1 ? 'download' : 'downloads'}
-            </span>
-          </div>
+              <div className="detail-counts">
+                <span>
+                  <ShoppingBag size={14} /> {product.purchases.toLocaleString()}{' '}
+                  {product.purchases === 1 ? 'purchase' : 'purchases'}
+                </span>
+                <span>
+                  <Download size={14} /> {product.downloads.toLocaleString()}{' '}
+                  {product.downloads === 1 ? 'download' : 'downloads'}
+                </span>
+              </div>
+            </>
+          )}
 
           {product.description ? <p className="detail-copy">{product.description}</p> : null}
 
-          <FileBadge product={product} />
+          {external ? null : <FileBadge product={product} />}
 
           <div className="detail-actions">
             {external ? (

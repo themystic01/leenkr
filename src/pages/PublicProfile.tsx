@@ -21,6 +21,9 @@ function ProductCard({
 }) {
   const [imageFailed, setImageFailed] = useState(false)
   const showImage = product.image && !imageFailed
+  // An external product is never sold or downloaded here, so its price and
+  // counts would be a lie; the host tells visitors where it actually lives.
+  const external = product.fulfilment === 'external'
 
   return (
     <article className="product-card">
@@ -41,8 +44,10 @@ function ProductCard({
         ) : null}
         {product.description ? <p>{product.description}</p> : null}
         <div className="product-foot">
-          <span className="price">{priceLabel(product)}</span>
-          {product.fulfilment === 'external' && product.externalUrl ? (
+          <span className="price">
+            {external ? hostOf(product.externalUrl ?? '') || 'External link' : priceLabel(product)}
+          </span>
+          {external && product.externalUrl ? (
             <a
               className="btn sm"
               href={product.externalUrl}
@@ -60,9 +65,13 @@ function ProductCard({
             </Link>
           )}
         </div>
-        <p className="product-counts">
-          {product.purchases.toLocaleString()} bought · {product.downloads.toLocaleString()} downloaded
-        </p>
+        {external ? (
+          <p className="product-counts">Sold and delivered on another site</p>
+        ) : (
+          <p className="product-counts">
+            {product.purchases.toLocaleString()} bought · {product.downloads.toLocaleString()} downloaded
+          </p>
+        )}
       </div>
     </article>
   )

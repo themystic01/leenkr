@@ -3417,6 +3417,20 @@ textarea.input {
   font-weight: 700;
 }
 
+/* An external product has no Leenkr price; its host sits in the same slot. */
+.detail-host {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 5px 11px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--panel);
+  color: var(--ink-soft);
+}
+
 .detail-counts {
   display: flex;
   flex-wrap: wrap;
