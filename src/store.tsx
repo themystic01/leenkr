@@ -416,6 +416,9 @@ type Store = {
   pageId: string | null
   save: (next: Profile) => void
   reset: () => void
+  /** Why the last write to the database failed, if it did. */
+  saveError: string | null
+  dismissSaveError: () => void
 }
 
 const ProfileContext = createContext<Store | null>(null)
@@ -428,7 +431,11 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
   // for the offline store.
   const [profile, setProfile] = useState<Profile>(() => (hasBackend ? emptyProfile() : load()))
   const [pageId, setPageId] = useState<string | null>(null)
+  const [saveError, setSaveError] = useState<string | null>(null)
   const pending = useRef<ReturnType<typeof setTimeout> | null>(null)
+  // Only the newest write may report its result; an older reply landing late
+  // must not clear or replace the state of the page as it is now.
+  const writeSeq = useRef(0)
 
   // The browser copy is the demo store's storage. Real profiles live in Postgres.
   useEffect(() => {
@@ -467,16 +474,27 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
       // Studio forms save on every keystroke, so writes are batched.
       if (pending.current) clearTimeout(pending.current)
       pending.current = setTimeout(() => {
+        const seq = (writeSeq.current += 1)
+        const report = (error: string | null) => {
+          if (seq === writeSeq.current) setSaveError(error)
+        }
         if (pageId) {
-          void savePage(pageId, next)
+          void savePage(pageId, next).then(report, (error: unknown) =>
+            report(error instanceof Error ? error.message : 'Could not save your page.'),
+          )
           return
         }
         // A handle is the one thing a page cannot exist without, so a blank
         // studio never creates a row.
         if (!next.username.trim()) return
-        void createPage(next, userId).then(({ id }) => {
-          if (id) setPageId(id)
-        })
+        void createPage(next, userId).then(
+          ({ id, error }) => {
+            if (id && seq === writeSeq.current) setPageId(id)
+            report(error ?? null)
+          },
+          (error: unknown) =>
+            report(error instanceof Error ? error.message : 'Could not save your page.'),
+        )
       }, 600)
     },
     [pageId, userId],
@@ -487,8 +505,35 @@ export function ProfileProvider({ children }: { children: ReactNode }) {
     [email],
   )
 
-  const value = useMemo(() => ({ profile, pageId, save, reset }), [profile, pageId, save, reset])
-  return <ProfileContext.Provider value={value}>{children}</ProfileContext.Provider>
+  const dismissSaveError = useCallback(() => setSaveError(null), [])
+
+  const value = useMemo(
+    () => ({ profile, pageId, save, reset, saveError, dismissSaveError }),
+    [profile, pageId, save, reset, saveError, dismissSaveError],
+  )
+  return (
+    <ProfileContext.Provider value={value}>
+      {children}
+      {/* A save that fails used to leave the screen unchanged, so a value could
+          look saved and quietly be missing from the database. */}
+      {saveError ? (
+        <div className="save-alert" role="alert">
+          <div className="save-alert-text">
+            <strong>Changes not saved</strong>
+            <span>{saveError}</span>
+          </div>
+          <button
+            type="button"
+            className="save-alert-close"
+            onClick={dismissSaveError}
+            aria-label="Dismiss"
+          >
+            ×
+          </button>
+        </div>
+      ) : null}
+    </ProfileContext.Provider>
+  )
 }
 
 export function useProfile() {

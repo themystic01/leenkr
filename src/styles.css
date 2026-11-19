@@ -1949,6 +1949,69 @@ textarea.input {
   }
 }
 
+/* A write that failed: the studio keeps the edit on screen, but says so. */
+.save-alert {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 80;
+  max-width: 340px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 13px 13px 13px 15px;
+  border: 1px solid #f0c9c9;
+  border-left: 3px solid var(--danger, #c0392b);
+  border-radius: 14px;
+  background: #fff6f5;
+  color: var(--ink);
+  box-shadow: 0 18px 44px rgba(12, 4, 4, 0.16);
+}
+
+.save-alert-text {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+  font-size: 13px;
+  line-height: 1.4;
+}
+
+.save-alert-text strong {
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.save-alert-text span {
+  color: var(--ink-soft);
+  word-break: break-word;
+}
+
+.save-alert-close {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 8px;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--ink-faint);
+}
+
+.save-alert-close:hover {
+  background: rgba(12, 4, 4, 0.06);
+  color: var(--ink);
+}
+
+@media (max-width: 560px) {
+  .save-alert {
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    max-width: none;
+  }
+}
+
 /* ----------------------------- notices ------------------------- */
 .notice-page {
   position: relative;
