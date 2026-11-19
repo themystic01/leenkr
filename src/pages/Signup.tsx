@@ -33,7 +33,7 @@ export default function Signup() {
     if (Object.keys(found).length > 0) return
 
     setBusy(true)
-    const result = await signUp(email, password)
+    const result = await signUp(email, password, name)
     setBusy(false)
     if (!result.ok) {
       setErrors({ form: result.error ?? 'Could not create the account.' })

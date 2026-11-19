@@ -51,8 +51,9 @@ export default function Onboarding() {
 
   const [step, setStep] = useState(0)
   const [username, setUsername] = useState(() => cleanHandle(params.get('handle')))
-  // Nothing is prefilled: a new page holds only what its owner types.
-  const [name, setName] = useState('')
+  // The name typed at sign-up arrives with the account, so this step only has
+  // to confirm it instead of asking for it a second time.
+  const [name, setName] = useState(() => session?.name?.trim() ?? '')
   const [bio, setBio] = useState('')
   const [sections, setSections] = useState<string[]>(['products', 'links', 'connect'])
   const [error, setError] = useState('')
@@ -160,7 +161,10 @@ export default function Onboarding() {
           {current === 'page' ? (
             <div className="panel">
               <h1 className="onb-title">Put a face on it</h1>
-              <p className="onb-sub">Your name and one line about what you make. Both stay editable.</p>
+              <p className="onb-sub">
+                Your name is already set — change it here if you like, and add one line about what you
+                make.
+              </p>
 
               <div className="field">
                 <label htmlFor="onb-name">Display name</label>

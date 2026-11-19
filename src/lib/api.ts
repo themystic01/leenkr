@@ -212,6 +212,7 @@ function pageFields(profile: Profile) {
     bio: profile.bio,
     photo_url: profile.photo,
     published: profile.published,
+    verified: profile.verified,
     domain: profile.domain,
     domain_status: profile.domainStatus,
     theme: profile.appearance.theme,

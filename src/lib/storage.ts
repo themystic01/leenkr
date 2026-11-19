@@ -8,16 +8,26 @@ export const MAX_FILE_BYTES = 512 * 1024 * 1024
 
 export class StorageUnavailable extends Error {}
 
+/** The token the browser sent belongs to a session the auth server has ended. */
+class StaleSession extends Error {}
+
 type Endpoint = { action: 'upload-url'; pageId: string; fileName: string; fileType: string; fileSize: number } | {
   action: 'download-url'
   productId: string
   token: string | null
 }
 
-async function callStorage(body: Endpoint): Promise<{ url: string; key?: string }> {
-  const session = await backend?.auth.getSession()
-  const accessToken = session?.data.session?.access_token
+async function storedToken(): Promise<string | null> {
+  const { data } = (await backend?.auth.getSession()) ?? { data: { session: null } }
+  return data.session?.access_token ?? null
+}
 
+async function refreshedToken(): Promise<string | null> {
+  const { data } = (await backend?.auth.refreshSession()) ?? { data: { session: null } }
+  return data.session?.access_token ?? null
+}
+
+async function send(body: Endpoint, accessToken: string | null): Promise<{ url: string; key?: string }> {
   let response: Response
   try {
     response = await fetch('/api/storage', {
@@ -42,9 +52,29 @@ async function callStorage(body: Endpoint): Promise<{ url: string; key?: string 
   const payload = (await response.json()) as { url?: string; key?: string; error?: string }
   if (!response.ok || !payload.url) {
     if (response.status === 501) throw new StorageUnavailable('FILE_STORAGE_NOT_CONFIGURED')
+    if (response.status === 401) throw new StaleSession(payload.error ?? 'Sign in again.')
     throw new Error(payload.error ?? 'The file service refused the request.')
   }
   return { url: payload.url, key: payload.key }
+}
+
+async function callStorage(body: Endpoint): Promise<{ url: string; key?: string }> {
+  const first = await storedToken()
+  try {
+    return await send(body, first)
+  } catch (error) {
+    if (!(error instanceof StaleSession)) throw error
+  }
+
+  // A tab can outlive its session: signing out or resetting the password in
+  // another tab ends the session while this one still holds its token. Try one
+  // refresh, and if the session is really gone, clear it so the app asks the
+  // creator to sign in again instead of failing at the upload screen.
+  const next = await refreshedToken()
+  if (next) return send(body, next)
+
+  await backend?.auth.signOut({ scope: 'local' })
+  throw new Error('Your session ended, so the upload stopped. Sign in again and retry.')
 }
 
 /** Uploads the product's file straight to R2 through a short-lived presigned URL. */

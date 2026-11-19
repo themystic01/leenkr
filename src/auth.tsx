@@ -5,10 +5,14 @@ export type Plan = 'free' | 'pro' | 'creator'
 
 export type Session = {
   email: string
+  /** The name typed at sign-up, so onboarding does not ask for it twice. */
+  name?: string
   plan: Plan
   onboarded: boolean
   userId: string
 }
+
+type AuthUser = { id: string; email?: string; user_metadata?: { name?: string } }
 
 const SESSION_KEY = 'leenkr.session.v1'
 
@@ -65,7 +69,7 @@ type Auth = {
   /** False while a stored Supabase session is still being restored. */
   ready: boolean
   signIn: (email: string, password: string) => Promise<AuthResult>
-  signUp: (email: string, password: string) => Promise<AuthResult>
+  signUp: (email: string, password: string, name?: string) => Promise<AuthResult>
   resetPassword: (email: string) => Promise<AuthResult>
   updatePassword: (password: string) => Promise<AuthResult>
   finishOnboarding: () => void
@@ -80,13 +84,19 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   // A Supabase user is onboarded once their page exists, or once this browser
   // has already walked them through the setup.
-  const readSession = useCallback(async (user: { id: string; email?: string }): Promise<Session> => {
+  const readSession = useCallback(async (user: AuthUser): Promise<Session> => {
     let onboarded = readOnboarded(user.id)
     if (backend && !onboarded) {
       const { data } = await backend.from('pages').select('id').eq('owner_id', user.id).maybeSingle()
       onboarded = Boolean(data)
     }
-    return { email: user.email ?? '', plan: 'free', onboarded, userId: user.id }
+    return {
+      email: user.email ?? '',
+      name: user.user_metadata?.name ?? '',
+      plan: 'free',
+      onboarded,
+      userId: user.id,
+    }
   }, [])
 
   useEffect(() => {
@@ -96,7 +106,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
     }
 
     let alive = true
-    const apply = (user: { id: string; email?: string } | null) => {
+    const apply = (user: AuthUser | null) => {
       if (!user) {
         if (alive) {
           setSession(null)
@@ -166,9 +176,10 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   )
 
   const signUp = useCallback(
-    async (email: string, password: string): Promise<AuthResult> => {
+    async (email: string, password: string, name?: string): Promise<AuthResult> => {
+      const displayName = name?.trim() || undefined
       if (!backend) {
-        setSession({ email: email.trim(), plan: 'free', onboarded: false, userId: 'demo' })
+        setSession({ email: email.trim(), name: displayName, plan: 'free', onboarded: false, userId: 'demo' })
         return { ok: true }
       }
 
@@ -177,7 +188,11 @@ export function SessionProvider({ children }: { children: ReactNode }) {
         password,
         // The confirmation link must come back to the app, not to Supabase's
         // default page. This path has to be on the project's redirect allowlist.
-        options: { emailRedirectTo: `${window.location.origin}/onboarding` },
+        // The name rides in the user's metadata so onboarding can prefill it.
+        options: {
+          emailRedirectTo: `${window.location.origin}/onboarding`,
+          data: { name: displayName },
+        },
       })
       if (error) return { ok: false, error: error.message }
       // With email confirmation on, there is no session until the link is used.
