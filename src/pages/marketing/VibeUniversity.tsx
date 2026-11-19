@@ -8,7 +8,7 @@ const TUTORIALS = [
     title: 'Set up a page people can buy from',
     summary: 'The 10-minute version: handle, bio, three products, one link each.',
     steps: [
-      'Pick the handle you want on the page — it becomes leenkr.com/yourname.',
+      'Pick the handle you want on the page — it becomes leenkr.app/yourname.',
       'Add products with a price and the URL where checkout already lives.',
       'Publish, then send the link to one person and watch where they tap.',
     ],
@@ -131,8 +131,8 @@ export default function VibeUniversity() {
           </div>
           <p className="mk-note">
             Long-form posts open up as the team writes them. Want one covered? Email{' '}
-            <a className="mk-card-link" href="mailto:hey@leenkr.com">
-              hey@leenkr.com
+            <a className="mk-card-link" href="mailto:hey@leenkr.app">
+              hey@leenkr.app
             </a>
             .
           </p>

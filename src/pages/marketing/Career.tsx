@@ -78,7 +78,7 @@ export default function Career() {
                   <span className="mk-role-tag">{role.team}</span>
                   <a
                     className="btn ghost sm"
-                    href={`mailto:careers@leenkr.com?subject=${encodeURIComponent(role.title)}`}
+                    href={`mailto:careers@leenkr.app?subject=${encodeURIComponent(role.title)}`}
                   >
                     Apply
                     <ArrowUpRight size={14} />
@@ -100,8 +100,8 @@ export default function Career() {
           </div>
           <p className="mk-note">
             Applications go to{' '}
-            <a className="mk-card-link" href="mailto:careers@leenkr.com">
-              careers@leenkr.com
+            <a className="mk-card-link" href="mailto:careers@leenkr.app">
+              careers@leenkr.app
             </a>
             . Send the work you are proudest of and one line on why this product. No take-home longer than an
             hour.

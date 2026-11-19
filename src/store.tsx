@@ -33,6 +33,10 @@ export const PRODUCT_CATEGORIES = [
   'Other',
 ]
 
+// Where a product is delivered. `default` sells the uploaded file on Leenkr;
+// `external` sends buyers to a link the creator already hosts elsewhere.
+export type Fulfilment = 'default' | 'external'
+
 // A product is a real digital file, not a link to somewhere else. `fileKey` is
 // the private bucket key and is only ever read by the owner, never by visitors.
 export type Product = {
@@ -47,6 +51,8 @@ export type Product = {
   description: string
   image: string | null
   images: string[]
+  fulfilment: Fulfilment
+  externalUrl: string | null
   fileName: string | null
   fileSize: number | null
   fileType: string | null
@@ -54,6 +60,19 @@ export type Product = {
   downloads: number
   purchases: number
 }
+
+export const FULFILMENTS: { key: Fulfilment; label: string; note: string }[] = [
+  {
+    key: 'default',
+    label: 'Sell on Leenkr',
+    note: 'Upload the file. Buyers pay here and the download unlocks after payment.',
+  },
+  {
+    key: 'external',
+    label: 'External link',
+    note: 'The product lives somewhere else. Visitors get a button to that link.',
+  },
+]
 
 export function slugify(input: string) {
   return input
@@ -210,6 +229,8 @@ const seed: Profile = {
       description: 'A Notion system for planning launches without the chaos.',
       image: null,
       images: [],
+      fulfilment: 'default',
+      externalUrl: null,
       fileName: 'creator-os-kit.zip',
       fileSize: 4200000,
       fileType: 'application/zip',
@@ -229,6 +250,8 @@ const seed: Profile = {
       description: '42 heading and body combos that actually hold up.',
       image: null,
       images: [],
+      fulfilment: 'default',
+      externalUrl: null,
       fileName: 'type-pairings-vol-1.pdf',
       fileSize: 8200000,
       fileType: 'application/pdf',
@@ -248,6 +271,8 @@ const seed: Profile = {
       description: 'A 40-minute video walkthrough of six real portfolios.',
       image: null,
       images: [],
+      fulfilment: 'default',
+      externalUrl: null,
       fileName: 'portfolio-teardown.mp4',
       fileSize: 142000000,
       fileType: 'video/mp4',
@@ -338,6 +363,8 @@ function toProduct(raw: Record<string, unknown>, index: number): Product {
         ? raw.slug
         : slugify(typeof raw.title === 'string' ? raw.title : `product-${index}`),
     images: Array.isArray(raw.images) ? (raw.images.filter((v) => typeof v === 'string') as string[]) : [],
+    fulfilment: raw.fulfilment === 'external' ? 'external' : 'default',
+    externalUrl: typeof raw.externalUrl === 'string' && raw.externalUrl ? raw.externalUrl : null,
     fileName: typeof raw.fileName === 'string' ? raw.fileName : null,
     fileSize: typeof raw.fileSize === 'number' ? raw.fileSize : null,
     fileType: typeof raw.fileType === 'string' ? raw.fileType : null,

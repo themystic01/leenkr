@@ -78,7 +78,7 @@ export default function Business() {
           lede="Tools and integrations for the people who sell as a company rather than as a person: several pages, shared branding, exported leads and a support line that answers."
         >
           <div className="mk-cta-row">
-            <a className="btn" href="mailto:business@leenkr.com?subject=Leenkr%20for%20Business">
+            <a className="btn" href="mailto:business@leenkr.app?subject=Leenkr%20for%20Business">
               Talk to us
               <ArrowRight size={16} />
             </a>
@@ -131,7 +131,7 @@ export default function Business() {
               accounts ask for them, not by what looks good on a logo wall.
             </p>
             <p>
-              <a className="mk-card-link" href="mailto:business@leenkr.com?subject=Integration%20request">
+              <a className="mk-card-link" href="mailto:business@leenkr.app?subject=Integration%20request">
                 Request an integration →
               </a>
             </p>

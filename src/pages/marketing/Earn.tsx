@@ -59,7 +59,7 @@ export default function Earn() {
           }
           lede="Know creators who sell what they make? Send them to Leenkr. When they subscribe to a paid plan, you earn a cut of every payment they make — for as long as they stay."
         >
-          <a className="btn" href="mailto:affiliates@leenkr.com?subject=Leenkr%20affiliate%20programme">
+          <a className="btn" href="mailto:affiliates@leenkr.app?subject=Leenkr%20affiliate%20programme">
             <BadgePercent size={16} />
             Apply to the programme
           </a>
@@ -125,8 +125,8 @@ export default function Earn() {
           </div>
           <p className="mk-note">
             Applications are reviewed within two working days. Write to{' '}
-            <a className="mk-card-link" href="mailto:affiliates@leenkr.com">
-              affiliates@leenkr.com
+            <a className="mk-card-link" href="mailto:affiliates@leenkr.app">
+              affiliates@leenkr.app
             </a>{' '}
             with the handle you promote from.
           </p>

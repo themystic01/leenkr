@@ -183,7 +183,7 @@ export default function ProfileEditor() {
               <div className="field">
                 <label htmlFor="username">Page handle</label>
                 <div className="field-row">
-                  <span className="prefix">leenkr.com/</span>
+                  <span className="prefix">leenkr.app/</span>
                   <input
                     id="username"
                     className="input"
@@ -196,7 +196,7 @@ export default function ProfileEditor() {
                 </div>
                 <span className="hint">
                   {canPublish
-                    ? 'Lowercase letters, numbers, dashes. This is your URL, straight after leenkr.com.'
+                    ? 'Lowercase letters, numbers, dashes. This is your URL, straight after leenkr.app.'
                     : 'Use 3–24 lowercase characters, and avoid studio words like profile or settings.'}
                 </span>
               </div>

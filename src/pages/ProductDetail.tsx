@@ -16,9 +16,17 @@ import InstallBanner from '../components/InstallBanner'
 import { fetchProduct, recordPageEvent } from '../lib/api'
 import { startDownload, savedOrderToken } from '../lib/download'
 import { money } from '../lib/payments'
-import { formatBytes, priceLabel, useProfile, type Product } from '../store'
+import { formatBytes, hostOf, priceLabel, useProfile, type Product } from '../store'
 
 function FileBadge({ product }: { product: Product }) {
+  if (product.fulfilment === 'external') {
+    return (
+      <span className="detail-file">
+        <ArrowUpRight size={15} />
+        Hosted at {hostOf(product.externalUrl ?? '') || 'an external link'}
+      </span>
+    )
+  }
   if (!product.fileName) {
     return (
       <span className="detail-file off">
@@ -110,7 +118,7 @@ export default function ProductDetail() {
         <span className="empty-mark">L</span>
         <h1 className="page-title">Product not found</h1>
         <p className="page-copy">
-          There is no product at leenkr.com/{username}/p/{slug}.
+          There is no product at leenkr.app/{username}/p/{slug}.
         </p>
         <Link className="btn" to={username ? `/${username}` : '/'}>
           Back to the page
@@ -134,6 +142,7 @@ export default function ProductDetail() {
   const gallery = [product.image, ...product.images].filter(Boolean) as string[]
   const active = gallery[Math.min(shot, gallery.length - 1)]
   const owned = Boolean(token)
+  const external = product.fulfilment === 'external' && Boolean(product.externalUrl)
   const action = product.isFree ? 'Download free' : owned ? 'Download' : `Buy ${priceLabel(product)}`
 
   return (
@@ -178,7 +187,9 @@ export default function ProductDetail() {
         </div>
 
         <div className="detail-body">
-          <p className="eyebrow">{product.category} · Digital download</p>
+          <p className="eyebrow">
+            {product.category} · {external ? 'Hosted elsewhere' : 'Digital download'}
+          </p>
           <h1 className="detail-title">{product.title}</h1>
           <p className="detail-price">{priceLabel(product)}</p>
 
@@ -198,7 +209,12 @@ export default function ProductDetail() {
           <FileBadge product={product} />
 
           <div className="detail-actions">
-            {product.isFree || owned ? (
+            {external ? (
+              <a className="btn" href={product.externalUrl ?? ''} target="_blank" rel="noreferrer">
+                {product.ctaText || 'Get it'}
+                <ArrowUpRight size={16} />
+              </a>
+            ) : product.isFree || owned ? (
               <button type="button" className="btn" onClick={download} disabled={busy}>
                 {busy ? 'Preparing…' : owned && !product.isFree ? 'Download' : product.ctaText || action}
                 <Download size={16} />
@@ -209,7 +225,7 @@ export default function ProductDetail() {
                 <ArrowUpRight size={16} />
               </button>
             )}
-            {!product.isFree && owned ? (
+            {!external && !product.isFree && owned ? (
               <span className="detail-owned">
                 <Check size={14} /> Purchased — download anytime
               </span>
@@ -218,10 +234,17 @@ export default function ProductDetail() {
 
           {notice ? <p className="detail-notice">{notice}</p> : null}
 
-          <p className="detail-guard">
-            <Lock size={13} /> The file is private. It is only handed out after payment, through a link that
-            expires in minutes.
-          </p>
+          {external ? (
+            <p className="detail-guard">
+              <ArrowUpRight size={13} /> This product is delivered on another site. Leenkr does not take
+              payment for it.
+            </p>
+          ) : (
+            <p className="detail-guard">
+              <Lock size={13} /> The file is private. It is only handed out after payment, through a link that
+              expires in minutes.
+            </p>
+          )}
         </div>
       </article>
 

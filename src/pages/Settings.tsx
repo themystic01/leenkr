@@ -105,7 +105,7 @@ function AccountPanel() {
       <div className="field">
         <label htmlFor="account-username">Username</label>
         <div className="input-prefix">
-          <span className="prefix">leenkr.com/</span>
+          <span className="prefix">leenkr.app/</span>
           <input
             id="account-username"
             value={username}
@@ -308,7 +308,7 @@ function DomainPanel() {
   }
 
   const records = [
-    { type: 'CNAME', name: 'www', value: 'cname.leenkr.com', key: 'cname' },
+    { type: 'CNAME', name: 'www', value: 'cname.leenkr.app', key: 'cname' },
     { type: 'A', name: '@', value: '76.76.21.21', key: 'a' },
     { type: 'TXT', name: '_leenkr', value: `leenkr-verify=${profile.username || 'username'}`, key: 'txt' },
   ]
@@ -326,7 +326,7 @@ function DomainPanel() {
         )}
       </div>
       <p className="tool-copy">
-        Buy the domain wherever you like, then point it here. Leenkr keeps serving leenkr.com/
+        Buy the domain wherever you like, then point it here. Leenkr keeps serving leenkr.app/
         {profile.username || 'username'} either way.
       </p>
 
@@ -421,7 +421,7 @@ function AppearancePanel() {
       <section className="card settings-card">
         <div className="card-head">
           <h2 className="card-title">Look</h2>
-          <span className="card-note">leenkr.com/{profile.username || 'username'}</span>
+          <span className="card-note">leenkr.app/{profile.username || 'username'}</span>
         </div>
         <p className="tool-copy">The canvas and accent of your public page. Your studio stays as it is.</p>
 

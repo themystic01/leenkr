@@ -16,7 +16,7 @@ const SESSION_KEY = 'leenkr.session.v1'
 export const DEMO_PROFILE = {
   name: 'Ada Obi',
   username: 'adaobi',
-  email: 'hello@leenkr.com',
+  email: 'hello@leenkr.app',
   bio: 'Designer and builder. I make calm interfaces for loud ideas, and sell the kits that come out of the work.',
 }
 

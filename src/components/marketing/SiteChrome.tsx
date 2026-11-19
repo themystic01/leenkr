@@ -99,9 +99,9 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
               {item.label}
             </Link>
           ))}
-          <a href="mailto:hey@leenkr.com">
+          <a href="mailto:hey@leenkr.app">
             <Mail size={13} />
-            hey@leenkr.com
+            hey@leenkr.app
           </a>
         </nav>
         <p className="mk-foot-copy">© {new Date().getFullYear()} Leenkr</p>

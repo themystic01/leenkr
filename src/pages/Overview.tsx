@@ -91,7 +91,7 @@ export default function Overview() {
 
           <div className="mini-foot">
             <span className="link-preview">
-              leenkr.com/<strong>{profile.username || 'username'}</strong>
+              leenkr.app/<strong>{profile.username || 'username'}</strong>
             </span>
           </div>
         </section>

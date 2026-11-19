@@ -84,8 +84,8 @@ export default function About() {
                 Designers and builders. We made the page you are reading, the studio behind it and the themes
                 that come with it.
               </p>
-              <a className="mk-card-link" href="mailto:hey@leenkr.com">
-                hey@leenkr.com
+              <a className="mk-card-link" href="mailto:hey@leenkr.app">
+                hey@leenkr.app
               </a>
             </article>
             <article className="mk-card">

@@ -1516,7 +1516,8 @@ textarea.input {
   color: var(--ink);
 }
 
-.switch-item[aria-selected='true'] {
+.switch-item[aria-selected='true'],
+.switch-item[aria-pressed='true'] {
   background: var(--yellow);
   color: var(--ink);
 }
@@ -3705,6 +3706,12 @@ textarea.input {
 .earn-columns {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+  gap: 14px;
+}
+
+/* One pane per earnings tab, so its cards keep their own rhythm. */
+.earn-panel {
+  display: grid;
   gap: 14px;
 }
 

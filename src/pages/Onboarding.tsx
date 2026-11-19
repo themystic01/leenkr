@@ -138,7 +138,7 @@ export default function Onboarding() {
               <div className="field">
                 <label htmlFor="onb-username">Your handle</label>
                 <div className="field-row">
-                  <span className="prefix">leenkr.com/</span>
+                  <span className="prefix">leenkr.app/</span>
                   <input
                     id="onb-username"
                     className="input"

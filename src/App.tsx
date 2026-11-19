@@ -178,7 +178,7 @@ function Sidebar({
           <span className={profile.published ? 'dot live' : 'dot'} />
           <div className="status-text">
             <p className="status-title">{profile.published ? 'Page is live' : 'Still a draft'}</p>
-            <p className="status-sub">leenkr.com/{profile.username}</p>
+            <p className="status-sub">leenkr.app/{profile.username}</p>
           </div>
         </div>
       </div>

@@ -36,7 +36,7 @@ const FEATURES = [
   {
     icon: Globe,
     title: 'Your own domain',
-    copy: 'Keep leenkr.com/yourname or point a domain you already own at the page. Either way the address is yours.',
+    copy: 'Keep leenkr.app/yourname or point a domain you already own at the page. Either way the address is yours.',
   },
   {
     icon: ChartLine,

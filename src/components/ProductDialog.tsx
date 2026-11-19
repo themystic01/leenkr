@@ -13,6 +13,7 @@ import { downscaleImage } from '../lib/image'
 import { MAX_FILE_BYTES, StorageUnavailable, uploadProductFile } from '../lib/storage'
 import {
   CURRENCIES,
+  FULFILMENTS,
   PRODUCT_CATEGORIES,
   formatAmount,
   formatBytes,
@@ -20,6 +21,7 @@ import {
   uniqueSlug,
   useProfile,
   type Currency,
+  type Fulfilment,
   type Product,
 } from '../store'
 
@@ -38,6 +40,8 @@ function blankProduct(currency: Currency): Product {
     description: '',
     image: null,
     images: [],
+    fulfilment: 'default',
+    externalUrl: null,
     fileName: null,
     fileSize: null,
     fileType: null,
@@ -205,7 +209,15 @@ export default function ProductDialog({ open, product, onClose, onSave }: Props)
       found.price = 'Enter a price, or mark the product free.'
     }
     if (!next.ctaText) found.ctaText = 'Add button text.'
-    if (!next.fileName) found.file = 'Upload the digital file buyers get.'
+    if (next.fulfilment === 'external') {
+      if (!next.externalUrl) {
+        found.externalUrl = 'Add the link buyers should open.'
+      } else if (!/^https?:\/\/[^\s]+$/i.test(next.externalUrl)) {
+        found.externalUrl = 'Use a full link that starts with https://'
+      }
+    } else if (!next.fileName) {
+      found.file = 'Upload the digital file buyers get.'
+    }
 
     setErrors(found)
     if (Object.keys(found).length > 0) return
@@ -227,7 +239,7 @@ export default function ProductDialog({ open, product, onClose, onSave }: Props)
           <div>
             <h2 id="product-dialog-title">{product ? 'Edit product' : 'New digital product'}</h2>
             <p className="dialog-sub">
-              Upload the file itself. Buyers pay here or download free — no external links.
+              Sell the file here with Leenkr payments, or point the product at a link you already host.
             </p>
           </div>
           <button type="button" className="icon-btn" onClick={onClose} aria-label="Close dialog">
@@ -369,49 +381,94 @@ export default function ProductDialog({ open, product, onClose, onSave }: Props)
             </div>
 
             <div className="field">
-              <label htmlFor="product-file">
-                Digital file
-                <span className="req" aria-hidden="true" />
-              </label>
-              <input
-                id="product-file"
-                ref={fileRef}
-                type="file"
-                hidden
-                onChange={onFile}
-              />
-              {draft.fileName ? (
-                <div className="file-chip">
-                  <FileArchive size={16} />
-                  <span className="file-chip-main">
-                    <strong>{draft.fileName}</strong>
-                    <span className="hint">
-                      {formatBytes(draft.fileSize)}
-                      {draft.fileKey ? ' · stored privately' : ' · not uploaded yet'}
+              <label>Where buyers get it</label>
+              <div className="switch" style={{ margin: 0 }} role="group" aria-label="Where buyers get it">
+                {FULFILMENTS.map((option) => (
+                  <button
+                    key={option.key}
+                    type="button"
+                    className="switch-item"
+                    aria-pressed={draft.fulfilment === option.key}
+                    onClick={() => {
+                      patch('fulfilment', option.key as Fulfilment)
+                      setErrors((current) => ({ ...current, file: '', externalUrl: '' }))
+                    }}
+                  >
+                    {option.label}
+                  </button>
+                ))}
+              </div>
+              <span className="hint">
+                {FULFILMENTS.find((option) => option.key === draft.fulfilment)?.note}
+              </span>
+            </div>
+
+            {draft.fulfilment === 'external' ? (
+              <div className="field">
+                <label htmlFor="product-external">
+                  Product link
+                  <span className="req" aria-hidden="true" />
+                </label>
+                <input
+                  id="product-external"
+                  className="input"
+                  type="url"
+                  autoComplete="off"
+                  placeholder="https://gumroad.com/l/your-product"
+                  value={draft.externalUrl ?? ''}
+                  onChange={(event) => patch('externalUrl', event.target.value.trim() || null)}
+                />
+                <span className="hint">
+                  Visitors are sent here. No file is needed and Leenkr takes no payment for this product.
+                </span>
+                {errors.externalUrl ? <p className="field-error">{errors.externalUrl}</p> : null}
+              </div>
+            ) : (
+              <div className="field">
+                <label htmlFor="product-file">
+                  Digital file
+                  <span className="req" aria-hidden="true" />
+                </label>
+                <input
+                  id="product-file"
+                  ref={fileRef}
+                  type="file"
+                  hidden
+                  onChange={onFile}
+                />
+                {draft.fileName ? (
+                  <div className="file-chip">
+                    <FileArchive size={16} />
+                    <span className="file-chip-main">
+                      <strong>{draft.fileName}</strong>
+                      <span className="hint">
+                        {formatBytes(draft.fileSize)}
+                        {draft.fileKey ? ' · stored privately' : ' · not uploaded yet'}
+                      </span>
                     </span>
-                  </span>
+                    <button
+                      type="button"
+                      className="btn ghost sm"
+                      onClick={() => document.getElementById('product-file')?.click()}
+                    >
+                      Replace
+                    </button>
+                  </div>
+                ) : (
                   <button
                     type="button"
-                    className="btn ghost sm"
+                    className="file-drop"
                     onClick={() => document.getElementById('product-file')?.click()}
+                    disabled={uploading}
                   >
-                    Replace
+                    {uploading ? <Loader2 size={18} className="spin" /> : <Upload size={18} />}
+                    {uploading ? 'Uploading to the private bucket…' : 'Choose the file buyers download'}
                   </button>
-                </div>
-              ) : (
-                <button
-                  type="button"
-                  className="file-drop"
-                  onClick={() => document.getElementById('product-file')?.click()}
-                  disabled={uploading}
-                >
-                  {uploading ? <Loader2 size={18} className="spin" /> : <Upload size={18} />}
-                  {uploading ? 'Uploading to the private bucket…' : 'Choose the file buyers download'}
-                </button>
-              )}
-              {errors.file ? <p className="field-error">{errors.file}</p> : null}
-              {fileError ? <p className="field-error">{fileError}</p> : null}
-            </div>
+                )}
+                {errors.file ? <p className="field-error">{errors.file}</p> : null}
+                {fileError ? <p className="field-error">{fileError}</p> : null}
+              </div>
+            )}
 
             <div className="field">
               <label htmlFor="product-price">

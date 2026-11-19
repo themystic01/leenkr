@@ -27,7 +27,7 @@ export default function Verify() {
           <div className="verify-copy">
             <h2 className="card-title">Verified badge</h2>
             <p className="tool-copy">
-              Appears right after {profile.name || 'your name'} on leenkr.com/
+              Appears right after {profile.name || 'your name'} on leenkr.app/
               {profile.username || 'username'}.
             </p>
           </div>

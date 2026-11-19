@@ -42,10 +42,23 @@ function ProductCard({
         {product.description ? <p>{product.description}</p> : null}
         <div className="product-foot">
           <span className="price">{priceLabel(product)}</span>
-          <Link className="btn sm" to={href} onClick={onOpen}>
-            {product.ctaText || 'View'}
-            <ArrowUpRight size={14} />
-          </Link>
+          {product.fulfilment === 'external' && product.externalUrl ? (
+            <a
+              className="btn sm"
+              href={product.externalUrl}
+              target="_blank"
+              rel="noreferrer"
+              onClick={onOpen}
+            >
+              {product.ctaText || 'Get it'}
+              <ArrowUpRight size={14} />
+            </a>
+          ) : (
+            <Link className="btn sm" to={href} onClick={onOpen}>
+              {product.ctaText || 'View'}
+              <ArrowUpRight size={14} />
+            </Link>
+          )}
         </div>
         <p className="product-counts">
           {product.purchases.toLocaleString()} bought · {product.downloads.toLocaleString()} downloaded
@@ -62,17 +75,24 @@ export default function PublicProfile() {
     pageId: null,
     profile: null,
   })
+  // A page has to be read from the database before it can be called missing,
+  // otherwise a slow read flashes "Page not found" over a real profile.
+  const [loaded, setLoaded] = useState(!hasBackend)
   const counted = useRef(false)
 
   useEffect(() => {
     if (!hasBackend || !username) return
     let alive = true
+    setLoaded(false)
     fetchPublicPage(username)
       .then((page) => {
         if (!alive) return
         setRemote({ pageId: page?.id ?? null, profile: page?.profile ?? null })
+        setLoaded(true)
       })
-      .catch(() => {})
+      .catch(() => {
+        if (alive) setLoaded(true)
+      })
     return () => {
       alive = false
     }
@@ -104,6 +124,18 @@ export default function PublicProfile() {
     </div>
   )
 
+  if (!profile && !loaded) {
+    return (
+      <div className="notice-page">
+        {dashboardLink}
+        <div className="notice-card">
+          <span className="empty-mark">L</span>
+          <p className="page-copy">Loading page…</p>
+        </div>
+      </div>
+    )
+  }
+
   if (!profile) {
     return (
       <div className="notice-page">
@@ -111,7 +143,7 @@ export default function PublicProfile() {
         <div className="notice-card">
           <span className="empty-mark">L</span>
           <h1 className="page-title">Page not found</h1>
-          <p className="page-copy">There’s no Leenkr page at leenkr.com/{username} yet.</p>
+          <p className="page-copy">There’s no Leenkr page at leenkr.app/{username} yet.</p>
           <Link className="btn" to="/dashboard">
             Go to Creator Studio
           </Link>
