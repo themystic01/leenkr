@@ -15,7 +15,6 @@ import {
   ShieldCheck,
   User,
   Wallet,
-  Wrench,
   X,
   type LucideIcon,
 } from 'lucide-react'
@@ -33,7 +32,6 @@ import EarningsPage from './pages/Earnings'
 import Products from './pages/Products'
 import Links from './pages/Links'
 import Connect from './pages/Connect'
-import Tools from './pages/Tools'
 import Verify from './pages/Verify'
 import SettingsPage from './pages/Settings'
 import Signup from './pages/Signup'
@@ -102,8 +100,7 @@ function Sidebar({
     { label: 'Profile', to: `${STUDIO}/profile`, icon: User },
     { label: 'Products', to: `${STUDIO}/products`, icon: Package, badge: profile.products.length },
     { label: 'Links', to: `${STUDIO}/links`, icon: Link2, badge: profile.links.length },
-    { label: 'Connect', to: `${STUDIO}/connect`, icon: Send, badge: profile.connects.length },
-    { label: 'Tools', to: `${STUDIO}/tools`, icon: Wrench },
+    { label: 'Connect', to: `${STUDIO}/connect`, icon: Send },
     { label: 'Verify', to: `${STUDIO}/verify`, icon: ShieldCheck },
   ]
 
@@ -368,7 +365,6 @@ export default function App() {
         <Route path="products" element={<Products />} />
         <Route path="links" element={<Links />} />
         <Route path="connect" element={<Connect />} />
-        <Route path="tools" element={<Tools />} />
         <Route path="insight" element={<Insight />} />
         <Route path="earnings" element={<EarningsPage />} />
         <Route path="verify" element={<Verify />} />

@@ -65,9 +65,7 @@ function ProductCard({
             </Link>
           )}
         </div>
-        {external ? (
-          <p className="product-counts">Sold and delivered on another site</p>
-        ) : (
+        {external ? null : (
           <p className="product-counts">
             {product.purchases.toLocaleString()} bought · {product.downloads.toLocaleString()} downloaded
           </p>
