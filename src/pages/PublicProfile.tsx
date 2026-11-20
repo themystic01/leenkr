@@ -66,11 +66,6 @@ function ProductCard({
             </Link>
           )}
         </div>
-        {external ? null : (
-          <p className="product-counts">
-            {product.purchases.toLocaleString()} bought · {product.downloads.toLocaleString()} downloaded
-          </p>
-        )}
       </div>
     </article>
   )

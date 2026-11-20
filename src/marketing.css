@@ -81,6 +81,43 @@
   color: #fdfaf3;
 }
 
+/* The shared stylesheet colours every link cream, so the navbar sets its own. */
+.mk-nav a {
+  color: rgba(253, 250, 243, 0.72);
+}
+
+.mk-nav a:hover {
+  color: #fdfaf3;
+}
+
+.mk-nav a.mk-nav-link {
+  color: rgba(253, 250, 243, 0.72);
+}
+
+.mk-nav a.mk-nav-link:hover {
+  color: #fdfaf3;
+}
+
+.mk-nav a.mk-nav-cta {
+  background: var(--yellow);
+  color: #0c0404;
+}
+
+.mk-nav a.mk-nav-cta:hover {
+  background: #e9ff43;
+  color: #0c0404;
+}
+
+.mk-nav a.mk-nav-ghost {
+  border: 1px solid rgba(253, 250, 243, 0.25);
+  color: #fdfaf3;
+}
+
+.mk-nav a.mk-nav-ghost:hover {
+  border-color: rgba(253, 250, 243, 0.55);
+  color: #fdfaf3;
+}
+
 /* ------------------------------- hero -------------------------- */
 /* Flat electric yellow behind the headline; the page turns asphalt below. */
 .mk-hero {
@@ -113,7 +150,7 @@
   margin-top: 8px;
   font-family: 'Clash Grotesk', 'Geist', sans-serif;
   font-size: 84px;
-  font-weight: 700;
+  font-weight: 500;
   line-height: 0.95;
   letter-spacing: -0.035em;
   text-transform: uppercase;

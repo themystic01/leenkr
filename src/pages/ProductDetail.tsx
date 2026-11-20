@@ -101,7 +101,6 @@ export default function ProductDetail() {
       setNotice(result.error)
       return
     }
-    setProduct((current) => (current ? { ...current, downloads: current.downloads + 1 } : current))
   }
 
   const notFound = (
@@ -193,10 +192,6 @@ export default function ProductDetail() {
                 <span>
                   <ShoppingBag size={14} /> {product.purchases.toLocaleString()}{' '}
                   {product.purchases === 1 ? 'purchase' : 'purchases'}
-                </span>
-                <span>
-                  <Download size={14} /> {product.downloads.toLocaleString()}{' '}
-                  {product.downloads === 1 ? 'download' : 'downloads'}
                 </span>
               </div>
             </>

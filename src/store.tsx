@@ -57,7 +57,6 @@ export type Product = {
   fileSize: number | null
   fileType: string | null
   fileKey: string | null
-  downloads: number
   purchases: number
 }
 
@@ -235,7 +234,6 @@ const seed: Profile = {
       fileSize: 4200000,
       fileType: 'application/zip',
       fileKey: null,
-      downloads: 128,
       purchases: 34,
     },
     {
@@ -256,7 +254,6 @@ const seed: Profile = {
       fileSize: 8200000,
       fileType: 'application/pdf',
       fileKey: null,
-      downloads: 96,
       purchases: 21,
     },
     {
@@ -277,7 +274,6 @@ const seed: Profile = {
       fileSize: 142000000,
       fileType: 'video/mp4',
       fileKey: null,
-      downloads: 244,
       purchases: 0,
     },
   ],
@@ -369,7 +365,6 @@ function toProduct(raw: Record<string, unknown>, index: number): Product {
     fileSize: typeof raw.fileSize === 'number' ? raw.fileSize : null,
     fileType: typeof raw.fileType === 'string' ? raw.fileType : null,
     fileKey: typeof raw.fileKey === 'string' ? raw.fileKey : null,
-    downloads: typeof raw.downloads === 'number' ? raw.downloads : 0,
     purchases: typeof raw.purchases === 'number' ? raw.purchases : 0,
   }
 }

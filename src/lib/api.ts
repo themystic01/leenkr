@@ -46,7 +46,6 @@ type ProductRow = {
   file_name: string | null
   file_size: number | string | null
   file_type: string | null
-  download_count: number
   purchase_count: number
 }
 type FileRow = { product_id: string; file_key: string }
@@ -58,7 +57,7 @@ export type EventTarget = 'link' | 'product' | 'connect' | 'social'
 // Public reads must never ask for the private storage key, so both paths select
 // this list and the owner's key comes from product_files separately.
 const PRODUCT_COLUMNS =
-  'id, slug, title, category, price, currency, is_free, cta_text, description, image_url, images, fulfilment, external_url, file_name, file_size, file_type, download_count, purchase_count'
+  'id, slug, title, category, price, currency, is_free, cta_text, description, image_url, images, fulfilment, external_url, file_name, file_size, file_type, purchase_count'
 
 function toProduct(row: ProductRow, fileKey: string | null = null): Product {
   return {
@@ -79,7 +78,6 @@ function toProduct(row: ProductRow, fileKey: string | null = null): Product {
     fileSize: row.file_size === null ? null : Number(row.file_size),
     fileType: row.file_type,
     fileKey,
-    downloads: row.download_count ?? 0,
     purchases: row.purchase_count ?? 0,
   }
 }

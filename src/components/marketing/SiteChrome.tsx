@@ -1,7 +1,7 @@
 import { useEffect, type ReactNode } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Mail } from 'lucide-react'
-import { NotchNavbar } from '@/components/ui/notch-navbar'
+import { SiteNavbar } from '@/components/ui/site-navbar'
 import { useSession } from '../../auth'
 
 const FOOTER_LINKS: { label: string; to: string }[] = [
@@ -44,7 +44,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
 
   return (
     <div className="mk">
-      <NotchNavbar signedIn={Boolean(session)} />
+      <SiteNavbar signedIn={Boolean(session)} />
 
       <main className="mk-main">{children}</main>
 

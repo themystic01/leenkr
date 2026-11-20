@@ -46,7 +46,6 @@ function blankProduct(currency: Currency): Product {
     fileSize: null,
     fileType: null,
     fileKey: null,
-    downloads: 0,
     purchases: 0,
   }
 }

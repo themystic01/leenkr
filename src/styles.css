@@ -3571,11 +3571,6 @@ textarea.input {
   line-height: 1.5;
 }
 
-.product-counts {
-  font-size: 11px;
-  color: var(--ink-faint);
-}
-
 /* ------------------------------- checkout ------------------------------- */
 .checkout {
   max-width: 560px;
