@@ -162,7 +162,7 @@ export default function EarningsPage() {
         </header>
         <div className="card">
           <div className="empty-panel">
-            Sign in with the backend configured to see real earnings. The demo store has no orders.
+            No sales yet. Orders show up here as soon as someone buys.
           </div>
         </div>
       </div>

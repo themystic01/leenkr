@@ -177,7 +177,7 @@ export default function ProductDialog({ open, product, onClose, onSave }: Props)
     } catch (error) {
       setFileError(
         error instanceof StorageUnavailable
-          ? 'File storage is not connected yet. Add the Cloudflare R2 credentials to the deployment and this upload will go straight to the private bucket.'
+          ? 'Uploads aren’t available right now. Try again in a moment.'
           : error instanceof Error
             ? error.message
             : 'The upload failed.',
@@ -462,7 +462,7 @@ export default function ProductDialog({ open, product, onClose, onSave }: Props)
                     disabled={uploading}
                   >
                     {uploading ? <Loader2 size={18} className="spin" /> : <Upload size={18} />}
-                    {uploading ? 'Uploading to the private bucket…' : 'Choose the file buyers download'}
+                    {uploading ? 'Uploading your file…' : 'Choose the file buyers download'}
                   </button>
                 )}
                 {errors.file ? <p className="field-error">{errors.file}</p> : null}

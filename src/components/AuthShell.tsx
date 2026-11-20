@@ -43,11 +43,11 @@ export default function AuthShell({
           {children}
           <div className="auth-foot">{footer}</div>
         </div>
-        <p className="auth-note">
-          {hasBackend
-            ? 'Accounts are handled by Supabase. Your page is saved to your account and only you can edit it.'
-            : 'Preview build — accounts aren’t connected to a server yet. Sessions live on this device, and you land on the demo creator profile.'}
-        </p>
+        {hasBackend ? null : (
+          <p className="auth-note">
+            Preview build — sessions live on this device, and you land on the demo creator profile.
+          </p>
+        )}
       </main>
     </div>
   )

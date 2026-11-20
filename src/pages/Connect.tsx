@@ -41,7 +41,7 @@ const CARDS: ToolMeta[] = [
       { key: 'heading', label: 'Form heading', placeholder: 'Work with me' },
       { key: 'email', label: 'Send replies to', placeholder: 'you@example.com' },
     ],
-    note: 'Until the form backend ships, messages open in the sender’s mail app.',
+    note: 'Messages open in the sender’s mail app.',
   },
   {
     kind: 'newsletter',

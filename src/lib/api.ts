@@ -333,6 +333,14 @@ async function writeContent(pageId: string, profile: Profile): Promise<string | 
   return null
 }
 
+/** A handle two people want is the one write error worth naming out loud. */
+function writeError(error: { message: string; code?: string }): string {
+  if (error.code === '23505' && /username/i.test(error.message)) {
+    return 'That handle is already taken. Try another.'
+  }
+  return error.message
+}
+
 /** Creates a page for a new creator. Returns its id, or the reason it failed. */
 export async function createPage(
   profile: Profile,
@@ -347,7 +355,7 @@ export async function createPage(
     .select('id')
     .single()
 
-  if (error || !data) return { error: error?.message ?? 'Could not create the page.' }
+  if (error || !data) return { error: error ? writeError(error) : 'Could not create the page.' }
 
   const id = (data as { id: string }).id
   const contentError = await writeContent(id, profile)
@@ -360,7 +368,7 @@ export async function savePage(pageId: string, profile: Profile): Promise<string
   if (!db) return null
 
   const { error } = await db.from('pages').update(pageFields(profile)).eq('id', pageId)
-  if (error) return error.message
+  if (error) return writeError(error)
   return writeContent(pageId, profile)
 }
 

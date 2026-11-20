@@ -13,6 +13,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { useSession } from '../auth'
+import { isHandleAvailable } from '../lib/api'
 import {
   PAGE_ACCENTS,
   PAGE_MOTIONS,
@@ -33,7 +34,8 @@ const SECTIONS: { key: SectionKey; label: string; icon: LucideIcon }[] = [
   { key: 'appearance', label: 'Appearance', icon: Palette },
 ]
 
-const USERNAME_PATTERN = /^[a-z0-9][a-z0-9._-]{2,19}$/
+// Must match the shape the pages table accepts, or the save is rejected outright.
+const USERNAME_PATTERN = /^[a-z0-9-_]{3,24}$/
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const DOMAIN_PATTERN = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?(\.[a-z0-9]([a-z0-9-]*[a-z0-9])?)+$/i
 
@@ -60,18 +62,25 @@ function AccountPanel() {
     setUsername(profile.username)
   }, [profile.email, profile.username])
 
-  const submit = (event: FormEvent) => {
+  const submit = async (event: FormEvent) => {
     event.preventDefault()
     const nextEmail = email.trim()
     const nextUsername = username.trim().toLowerCase().replace(/^@/, '')
     const found: Record<string, string> = {}
     if (!EMAIL_PATTERN.test(nextEmail)) found.email = 'Enter a valid email address.'
     if (!USERNAME_PATTERN.test(nextUsername)) {
-      found.username = 'Use 3–20 lowercase letters, numbers, dots, dashes or underscores.'
+      found.username = 'Use 3–24 lowercase letters, numbers, dashes or underscores.'
     }
     setErrors(found)
     setSaved(false)
     if (Object.keys(found).length > 0) return
+
+    // Someone else may already own this handle.
+    if (nextUsername !== profile.username && !(await isHandleAvailable(nextUsername))) {
+      setErrors({ username: 'That handle is already taken. Try another.' })
+      return
+    }
+
     save({ ...profile, email: nextEmail, username: nextUsername })
     setUsername(nextUsername)
     setSaved(true)
@@ -123,7 +132,7 @@ function AccountPanel() {
 
       <div className="editor-foot">
         <div className="foot-right">
-          {saved ? <Saved>Account updated.</Saved> : <span className="form-note">Both are saved on this device.</span>}
+          {saved ? <Saved>Account updated.</Saved> : null}
         </div>
         <button type="submit" className="btn" disabled={!dirty}>
           Save account
@@ -133,7 +142,6 @@ function AccountPanel() {
       <div className="session-row">
         <div>
           <p className="session-title">Signed in as {session?.email}</p>
-          <p className="session-note">Demo session — accounts aren’t on a server yet.</p>
         </div>
         <button
           type="button"

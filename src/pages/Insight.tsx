@@ -268,7 +268,6 @@ export default function Insight() {
 
       <p className="insight-note">
         Preview build — these figures are generated from your page so the screen behaves like the real one.
-        Live counting starts when the studio is connected to a server.
       </p>
     </div>
   )

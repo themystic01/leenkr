@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowLeft, ArrowRight, Check, ImagePlus, Trash2 } from 'lucide-react'
 import Avatar from '../components/Avatar'
 import PlatformIcon from '../components/PlatformIcon'
+import { isHandleAvailable } from '../lib/api'
 import { downscaleImage } from '../lib/image'
 import { PLATFORMS, uid, useProfile, type PlatformKey, type Profile } from '../store'
 
@@ -41,6 +42,7 @@ export default function ProfileEditor() {
   const [draft, setDraft] = useState<Profile>(profile)
   const [saved, setSaved] = useState(false)
   const [photoError, setPhotoError] = useState('')
+  const [handleState, setHandleState] = useState<'idle' | 'checking' | 'taken'>('idle')
   const fileRef = useRef<HTMLInputElement>(null)
 
   const [step, setStep] = useState<StepKey>(() => {
@@ -53,16 +55,42 @@ export default function ProfileEditor() {
     if (requestedStep && STEPS.some((s) => s.key === requestedStep)) setStep(requestedStep as StepKey)
   }, [params])
 
+  // A handle is a public address, so a new one is checked against the live pages
+  // before the page can be saved or published.
+  useEffect(() => {
+    const handle = draft.username
+    if (handle === profile.username || !/^[a-z0-9-_]{3,24}$/.test(handle)) {
+      setHandleState('idle')
+      return
+    }
+    let alive = true
+    setHandleState('checking')
+    const timer = window.setTimeout(() => {
+      isHandleAvailable(handle).then((free) => {
+        if (alive) setHandleState(free ? 'idle' : 'taken')
+      })
+    }, 400)
+    return () => {
+      alive = false
+      window.clearTimeout(timer)
+    }
+  }, [draft.username, profile.username])
+
   const index = STEPS.findIndex((s) => s.key === step)
   const canPublish =
     draft.name.trim().length > 0 &&
     /^[a-z0-9-_]{3,24}$/.test(draft.username) &&
-    !RESERVED_HANDLES.has(draft.username)
+    !RESERVED_HANDLES.has(draft.username) &&
+    handleState !== 'taken'
 
   const patch = <K extends keyof Profile>(key: K, value: Profile[K]) =>
     setDraft((current) => ({ ...current, [key]: value }))
 
   const saveDraft = () => {
+    if (handleState === 'taken') {
+      setStep('identity')
+      return
+    }
     save(draft)
     setSaved(true)
     window.setTimeout(() => setSaved(false), 2200)
@@ -194,11 +222,17 @@ export default function ProfileEditor() {
                     }
                   />
                 </div>
-                <span className="hint">
-                  {canPublish
-                    ? 'Lowercase letters, numbers, dashes. This is your URL, straight after leenkr.app.'
-                    : 'Use 3–24 lowercase characters, and avoid studio words like profile or settings.'}
-                </span>
+                {handleState === 'taken' ? (
+                  <span className="field-error">That handle is already taken. Try another.</span>
+                ) : (
+                  <span className="hint">
+                    {handleState === 'checking'
+                      ? 'Checking whether that handle is free…'
+                      : canPublish
+                        ? 'Lowercase letters, numbers, dashes. This is your URL, straight after leenkr.app.'
+                        : 'Use 3–24 lowercase characters, and avoid studio words like profile or settings.'}
+                  </span>
+                )}
               </div>
             </div>
           ) : null}

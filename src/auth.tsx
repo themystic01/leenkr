@@ -205,7 +205,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   )
 
   const resetPassword = useCallback(async (email: string): Promise<AuthResult> => {
-    if (!backend) return { ok: false, error: 'Password reset needs the backend configured.' }
+    if (!backend) return { ok: false, error: 'Password reset isn’t available right now.' }
     const { error } = await backend.auth.resetPasswordForEmail(email.trim(), {
       // The recovery link comes back to a page that can set a new password.
       redirectTo: `${window.location.origin}/reset-password`,
@@ -216,7 +216,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
 
   const updatePassword = useCallback(
     async (password: string): Promise<AuthResult> => {
-      if (!backend) return { ok: false, error: 'Password reset needs the backend configured.' }
+      if (!backend) return { ok: false, error: 'Password reset isn’t available right now.' }
       const { data, error } = await backend.auth.updateUser({ password })
       if (error) return { ok: false, error: error.message }
       // A reset should also end any session someone else may still be holding.
