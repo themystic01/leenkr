@@ -13,28 +13,13 @@ export default function Marketing() {
   return (
     <MarketingLayout>
         <section className="mk-hero">
-          {/* WebP where it is supported, the heavier JPEG otherwise */}
-          <picture className="mk-hero-media" aria-hidden="true">
-            <source srcSet="/hero-bg.webp" type="image/webp" />
-            <img src="/hero-bg.jpg" alt="" />
-          </picture>
-
           <div className="mk-hero-inner">
             <div className="mk-hero-title">
-              <span className="mk-hero-chip mk-hero-chip--one" aria-hidden="true">
-                Amara
-              </span>
               <h1 className="mk-h1">
                 Everything you make,
                 <br />
                 behind <span className="mk-hl">one link</span>
               </h1>
-              <span className="mk-hero-chip mk-hero-chip--two" aria-hidden="true">
-                Ife
-              </span>
-              <span className="mk-hero-chip mk-hero-chip--three" aria-hidden="true">
-                Tobi
-              </span>
             </div>
 
             <p className="mk-lede">
