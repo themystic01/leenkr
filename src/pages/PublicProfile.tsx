@@ -9,6 +9,7 @@ import VerifiedBadge from '../components/VerifiedBadge'
 import { PAGE_ACCENTS, hostOf, priceLabel, socialUrl, useProfile, type Product, type Profile } from '../store'
 import { fetchPublicPage, recordPageEvent, type EventTarget as ClickTarget } from '../lib/api'
 import { hasBackend } from '../lib/supabase'
+import { useSession } from '../auth'
 
 function ProductCard({
   product,
@@ -78,6 +79,7 @@ function ProductCard({
 export default function PublicProfile() {
   const { username } = useParams()
   const local = useProfile()
+  const { session } = useSession()
   const [remote, setRemote] = useState<{ pageId: string | null; profile: Profile | null }>({
     pageId: null,
     profile: null,
@@ -122,14 +124,16 @@ export default function PublicProfile() {
   const [tab, setTab] = useState<ContentTab>('products')
   const accent = PAGE_ACCENTS.find((item) => item.key === profile?.appearance.accent)?.color ?? '#dfff00'
 
-  const dashboardLink = (
+  // A visitor has no studio to go back to, so the shortcut belongs to signed-in
+  // creators only.
+  const dashboardLink = session ? (
     <div className="public-top">
       <Link className="public-home" to="/dashboard">
         <LayoutDashboard size={14} />
         Dashboard
       </Link>
     </div>
-  )
+  ) : null
 
   if (!profile && !loaded) {
     return (
@@ -149,10 +153,13 @@ export default function PublicProfile() {
         {dashboardLink}
         <div className="notice-card">
           <span className="empty-mark">L</span>
-          <h1 className="page-title">Page not found</h1>
-          <p className="page-copy">There’s no Leenkr page at leenkr.app/{username} yet.</p>
-          <Link className="btn" to="/dashboard">
-            Go to Creator Studio
+          <h1 className="page-title">This handle is free</h1>
+          <p className="page-copy">
+            Nobody has claimed leenkr.app/{username} yet. Take it, put your products, your links and your
+            inbox on one page.
+          </p>
+          <Link className="btn" to="/signup">
+            Claim @{username} — free
           </Link>
         </div>
       </div>

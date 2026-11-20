@@ -7,3 +7,11 @@
 @source './';
 
 @custom-variant dark (&:where(.dark, .dark *));
+
+/* The VengeanceUI navbar is written against the shadcn foreground/background
+   tokens. Map the two it uses onto the asphalt palette so its utilities resolve
+   to the same colours as the rest of the marketing site. */
+@theme {
+  --color-background: #0c0404;
+  --color-foreground: #fdfaf3;
+}
