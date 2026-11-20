@@ -1,35 +1,23 @@
 import { useEffect, type ReactNode } from 'react'
 import { Link, useLocation } from 'react-router-dom'
+import { Mail } from 'lucide-react'
 import {
-  Briefcase,
-  Building2,
-  CreditCard,
-  GraduationCap,
-  Mail,
-  Sparkles,
-  User,
-  Zap,
-} from 'lucide-react'
-import { NotchNavbar, type NotchNavItem } from '@/components/ui/notch-navbar'
+  AwwwardsNav,
+  type AwwwardsNavColumn,
+  type AwwwardsNavLink,
+} from '@/components/ui/awwwards-nav'
 import { useSession } from '../../auth'
 
-export const NAV_LINKS: NotchNavItem[] = [
-  { label: 'About', to: '/about', icon: User },
-  { label: 'Features', to: '/features', icon: Sparkles },
-  { label: 'VibeUniversity', to: '/vibe-university', icon: GraduationCap },
-  { label: 'Earn', to: '/earn', icon: Zap },
-  { label: 'Career', to: '/career', icon: Briefcase },
-  { label: 'Leenkr for Business', to: '/business', icon: Building2 },
-  { label: 'Pricing', to: '/#pricing', icon: CreditCard },
+export const NAV_ITEMS: AwwwardsNavLink[] = [
+  { label: 'Features', href: '/features' },
+  { label: 'Earn', href: '/earn' },
+  { label: 'Pricing', href: '/#pricing' },
 ]
 
 const FOOTER_LINKS: { label: string; to: string }[] = [
   { label: 'About', to: '/about' },
   { label: 'Features', to: '/features' },
-  { label: 'VibeUniversity', to: '/vibe-university' },
   { label: 'Earn', to: '/earn' },
-  { label: 'Career', to: '/career' },
-  { label: 'Leenkr for Business', to: '/business' },
   { label: 'Pricing', to: '/#pricing' },
 ]
 
@@ -64,24 +52,75 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
     }
   }, [location.pathname, location.hash])
 
+  // Internal links go through the router so the page never reloads; the mail
+  // link stays a plain anchor. `close` folds the mega-menu on the way out.
+  const renderNavLink = (link: AwwwardsNavLink, className: string, close: () => void) => {
+    if (/^(https?:|mailto:)/.test(link.href)) {
+      return (
+        <a className={className} href={link.href}>
+          {link.label}
+        </a>
+      )
+    }
+    return (
+      <Link className={className} to={link.href} onClick={close}>
+        {link.label}
+      </Link>
+    )
+  }
+
+  const account: AwwwardsNavLink[] = session
+    ? [{ label: 'Open studio', href: '/dashboard' }]
+    : [
+        { label: 'Log in', href: '/login' },
+        { label: 'Start free', href: '/signup' },
+      ]
+
+  const columns: AwwwardsNavColumn[] = [
+    {
+      title: 'Product',
+      links: [
+        { label: 'Features', href: '/features' },
+        { label: 'Earn', href: '/earn' },
+        { label: 'Pricing', href: '/#pricing' },
+      ],
+    },
+    { title: 'Account', links: account },
+    {
+      title: 'Company',
+      links: [
+        { label: 'About', href: '/about' },
+        { label: 'hey@leenkr.app', href: 'mailto:hey@leenkr.app' },
+      ],
+    },
+  ]
+
+  // Signing in is the whole point of the bar's right edge, so it lives there
+  // rather than behind "More". On very narrow screens it folds into the panel.
   const actions = session ? (
     <Link className="btn sm" to="/dashboard">
       Open studio
     </Link>
   ) : (
-    <>
+    <div className="hidden items-center gap-1.5 min-[560px]:flex">
       <Link className="mk-login" to="/login">
         Log in
       </Link>
       <Link className="btn sm" to="/signup">
         Start free
       </Link>
-    </>
+    </div>
   )
 
   return (
     <div className="mk">
-      <NotchNavbar links={NAV_LINKS} actions={actions} />
+      <AwwwardsNav
+        className="dark w-[min(800px,94vw)]"
+        items={NAV_ITEMS}
+        columns={columns}
+        actions={actions}
+        renderLink={renderNavLink}
+      />
 
       <main className="mk-main">{children}</main>
 

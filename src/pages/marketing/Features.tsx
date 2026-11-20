@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom'
 import {
   BadgeCheck,
   ChartLine,
@@ -125,13 +124,7 @@ export default function Features() {
         <PageSection kicker="Next up" title="On the bench">
           <div className="mk-prose">
             <p>
-              Lead export to CSV, brand presets and a teams workflow are in review for the Creator plan. The
-              changelog lives in VibeUniversity, where each release gets a short write-up.
-            </p>
-            <p>
-              <Link className="mk-card-link" to="/vibe-university">
-                Read the updates →
-              </Link>
+              Lead export to CSV, brand presets and a teams workflow are in review for the Creator plan.
             </p>
           </div>
         </PageSection>

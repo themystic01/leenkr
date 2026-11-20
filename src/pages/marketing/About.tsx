@@ -1,4 +1,3 @@
-import { Link } from 'react-router-dom'
 import { CircleCheck, Hand, Tag } from 'lucide-react'
 import { CloseBand, MarketingLayout, PageHero, PageSection } from '../../components/marketing/SiteChrome'
 import { usePageTitle } from '../../lib/title'
@@ -91,12 +90,11 @@ export default function About() {
             <article className="mk-card">
               <h3>Work with us</h3>
               <p className="mk-copy">
-                We hire slowly and in the open. Every open role is listed, with what the work actually looks
-                like.
+                We hire slowly and in the open. If you want to build this with us, tell us what you do.
               </p>
-              <Link className="mk-card-link" to="/career">
-                See open positions
-              </Link>
+              <a className="mk-card-link" href="mailto:hey@leenkr.app?subject=Working%20with%20Leenkr">
+                Write to us
+              </a>
             </article>
           </div>
         </PageSection>

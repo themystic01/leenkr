@@ -43,41 +43,6 @@
 }
 
 /* ------------------------------ header ------------------------- */
-/* The notch navbar is fixed, so every page starts below it. */
-.mk-main {
-  padding-top: 64px;
-}
-
-.mk-notch-word {
-  font-family: 'Clash Grotesk', 'Geist', sans-serif;
-  font-size: 19px;
-  line-height: 1;
-  color: #fdfaf3;
-}
-
-/* The navbar stays asphalt with cream type, whatever the page behind it is.
-   Declared here rather than as arbitrary utilities so the contrast cannot
-   depend on Tailwind's scan order. */
-.mk-notch {
-  color: #fdfaf3;
-}
-
-.mk-notch nav a {
-  color: rgba(253, 250, 243, 0.74);
-}
-
-.mk-notch nav a:hover {
-  color: #fdfaf3;
-}
-
-.mk-nav-actions .mk-login {
-  color: rgba(253, 250, 243, 0.78);
-}
-
-.mk-nav-actions .mk-login:hover {
-  color: #fdfaf3;
-}
-
 .mk-brand {
   display: inline-flex;
   align-items: center;
@@ -716,7 +681,9 @@
   gap: 22px;
   max-width: 1120px;
   margin: 0 auto;
-  padding: 30px clamp(20px, 4vw, 40px);
+  /* The nav is a fixed pill at the bottom of the viewport; keep the last row
+     of the footer clear of it. */
+  padding: 30px clamp(20px, 4vw, 40px) 110px;
 }
 
 .mk-foot-brand {

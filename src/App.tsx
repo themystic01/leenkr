@@ -51,10 +51,7 @@ type NavItem = {
 const Marketing = lazy(() => import('./pages/Marketing'))
 const About = lazy(() => import('./pages/marketing/About'))
 const Features = lazy(() => import('./pages/marketing/Features'))
-const VibeUniversity = lazy(() => import('./pages/marketing/VibeUniversity'))
 const Earn = lazy(() => import('./pages/marketing/Earn'))
-const Career = lazy(() => import('./pages/marketing/Career'))
-const Business = lazy(() => import('./pages/marketing/Business'))
 
 function MarketingRoute({ children }: { children: ReactNode }) {
   return <Suspense fallback={<div className="mk-boot" aria-hidden="true" />}>{children}</Suspense>
@@ -315,34 +312,10 @@ export default function App() {
         }
       />
       <Route
-        path="/vibe-university"
-        element={
-          <MarketingRoute>
-            <VibeUniversity />
-          </MarketingRoute>
-        }
-      />
-      <Route
         path="/earn"
         element={
           <MarketingRoute>
             <Earn />
-          </MarketingRoute>
-        }
-      />
-      <Route
-        path="/career"
-        element={
-          <MarketingRoute>
-            <Career />
-          </MarketingRoute>
-        }
-      />
-      <Route
-        path="/business"
-        element={
-          <MarketingRoute>
-            <Business />
           </MarketingRoute>
         }
       />
