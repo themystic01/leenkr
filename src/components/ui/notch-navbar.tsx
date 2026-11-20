@@ -3,7 +3,6 @@ import { useState, type ComponentType, type HTMLAttributes, type ReactNode } fro
 import { Link } from "react-router-dom"
 import { CreditCard, Menu, Sparkles, User, X, Zap } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { motion, AnimatePresence } from "framer-motion"
 
 // Helper component for navigation links
 const NavLink = ({
@@ -163,16 +162,18 @@ export function NotchNavbar({
         </div>
       </header>
 
-      {/* Mobile Menu Overlay */}
-      <AnimatePresence>
-        {isMobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.2 }}
-            className="fixed inset-x-0 top-16 z-40 bg-background border-b border-foreground/5 p-4 md:hidden shadow-lg"
-          >
+      {/* Mobile Menu Overlay. It stays mounted so the closing transition can
+          play; `invisible` keeps its links out of the tab order while shut. */}
+      <div
+        aria-hidden={!isMobileMenuOpen}
+        className={cn(
+          "fixed inset-x-0 top-16 z-40 bg-background border-b border-foreground/5 p-4 md:hidden shadow-lg",
+          "transition-all duration-200 ease-out motion-reduce:transition-none",
+          isMobileMenuOpen
+            ? "visible translate-y-0 opacity-100"
+            : "invisible -translate-y-5 opacity-0",
+        )}
+      >
             <nav className="flex flex-col gap-2">
               {/* Combine all items */}
               {[...ITEMS.left, ...ITEMS.right].map((item) => (
@@ -206,9 +207,7 @@ export function NotchNavbar({
                 )}
               </div>
             </nav>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      </div>
     </>
   )
 }
