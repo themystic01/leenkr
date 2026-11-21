@@ -1,18 +1,16 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { ArrowLeft, ArrowRight, Check, ImagePlus, Trash2 } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Check, ImagePlus } from 'lucide-react'
 import Avatar from '../components/Avatar'
-import PlatformIcon from '../components/PlatformIcon'
 import { isHandleAvailable } from '../lib/api'
 import { downscaleImage } from '../lib/image'
-import { PLATFORMS, uid, useProfile, type PlatformKey, type Profile } from '../store'
+import { useProfile, type Profile } from '../store'
 
-type StepKey = 'identity' | 'bio' | 'socials'
+type StepKey = 'identity' | 'bio'
 
 const STEPS: { key: StepKey; label: string; note: string }[] = [
   { key: 'identity', label: 'Identity', note: 'Photo, name, handle' },
   { key: 'bio', label: 'Bio', note: 'The one paragraph' },
-  { key: 'socials', label: 'Socials', note: 'Where else you live' },
 ]
 
 // Studio routes take priority over a handle at the same path.
@@ -121,24 +119,6 @@ export default function ProfileEditor() {
     }
   }
 
-  const activePlatforms = draft.socials.map((social) => social.platform)
-  const availablePlatforms = PLATFORMS.filter((p) => !activePlatforms.includes(p.key))
-
-  const addSocial = (platform: PlatformKey) =>
-    setDraft((current) => ({
-      ...current,
-      socials: [...current.socials, { id: uid('s'), platform, handle: '' }],
-    }))
-
-  const setSocialHandle = (id: string, handle: string) =>
-    setDraft((current) => ({
-      ...current,
-      socials: current.socials.map((social) => (social.id === id ? { ...social, handle } : social)),
-    }))
-
-  const removeSocial = (id: string) =>
-    setDraft((current) => ({ ...current, socials: current.socials.filter((s) => s.id !== id) }))
-
   return (
     <div className="page">
       <header className="page-head">
@@ -146,7 +126,7 @@ export default function ProfileEditor() {
           <p className="eyebrow">Public page</p>
           <h1 className="page-title">Build your page</h1>
           <p className="page-sub">
-            Photo, bio and socials. Products, links and connect each have their own tab in the sidebar.
+            Photo and bio. Social handles are collected in Verify, with the badge request.
           </p>
         </div>
         <div className="head-actions">
@@ -255,57 +235,6 @@ export default function ProfileEditor() {
                 />
                 <span className="counter">{draft.bio.length}/240</span>
               </div>
-            </div>
-          ) : null}
-
-          {step === 'socials' ? (
-            <div className="panel">
-              <h2 className="card-title">Where else you live</h2>
-              <p className="card-note block-note">Add a platform, drop your handle. The @ is optional.</p>
-
-              <div className="social-edit">
-                {draft.socials.map((social) => (
-                  <div className="social-edit-row" key={social.id}>
-                    <span className="platform-tag">
-                      <PlatformIcon platform={social.platform} size={14} />
-                      {PLATFORMS.find((p) => p.key === social.platform)?.label}
-                    </span>
-                    <input
-                      className="input"
-                      placeholder="handle"
-                      value={social.handle}
-                      onChange={(e) => setSocialHandle(social.id, e.target.value)}
-                    />
-                    <button
-                      type="button"
-                      className="trash"
-                      onClick={() => removeSocial(social.id)}
-                      aria-label="Remove platform"
-                    >
-                      <Trash2 size={15} />
-                    </button>
-                  </div>
-                ))}
-              </div>
-
-              {availablePlatforms.length > 0 ? (
-                <div className="field add-platforms">
-                  <label>Add a platform</label>
-                  <div className="chip-row">
-                    {availablePlatforms.map((platform) => (
-                      <button
-                        key={platform.key}
-                        type="button"
-                        className="chip"
-                        onClick={() => addSocial(platform.key)}
-                      >
-                        <PlatformIcon platform={platform.key} size={13} />
-                        {platform.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
             </div>
           ) : null}
 

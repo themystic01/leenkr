@@ -42,6 +42,7 @@ import AdminOverview from './pages/admin/AdminOverview'
 import AdminCreators from './pages/admin/AdminCreators'
 import AdminOrders from './pages/admin/AdminOrders'
 import AdminPayouts from './pages/admin/AdminPayouts'
+import AdminVerifications from './pages/admin/AdminVerifications'
 import { useSession } from './auth'
 import { useIsAdmin } from './lib/admin'
 import { usePageTitle } from './lib/title'
@@ -306,6 +307,7 @@ function AdminShell() {
   const nav: NavItem[] = [
     { label: 'Overview', to: ADMIN, icon: Shield },
     { label: 'Creators', to: `${ADMIN}/creators`, icon: User },
+    { label: 'Verification', to: `${ADMIN}/verification`, icon: ShieldCheck },
     { label: 'Orders', to: `${ADMIN}/orders`, icon: Wallet },
     { label: 'Payouts', to: `${ADMIN}/payouts`, icon: Banknote },
   ]
@@ -444,6 +446,7 @@ export default function App() {
       >
         <Route index element={<AdminOverview />} />
         <Route path="creators" element={<AdminCreators />} />
+        <Route path="verification" element={<AdminVerifications />} />
         <Route path="orders" element={<AdminOrders />} />
         <Route path="payouts" element={<AdminPayouts />} />
         <Route path="*" element={<Navigate to={ADMIN} replace />} />

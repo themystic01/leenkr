@@ -12,7 +12,7 @@ export default function Overview() {
   const checklist = [
     { label: 'Add a profile photo', done: Boolean(profile.photo), to: '/dashboard/profile' },
     { label: 'Write a bio people remember', done: profile.bio.trim().length > 40, to: '/dashboard/profile' },
-    { label: 'Link at least two socials', done: profile.socials.length >= 2, to: '/dashboard/profile' },
+    { label: 'Add your socials', done: profile.socials.length >= 2, to: '/dashboard/verify' },
     { label: 'Add a product', done: profile.products.length > 0, to: '/dashboard/products' },
     { label: 'Add a link', done: profile.links.length > 0, to: '/dashboard/links' },
     { label: 'Add a way to connect', done: profile.connects.length > 0, to: '/dashboard/connect' },
