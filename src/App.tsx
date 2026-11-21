@@ -1,7 +1,9 @@
 import { lazy, Suspense, useEffect, useState, type ReactNode } from 'react'
 import { Link, Navigate, Outlet, Route, Routes, useLocation, useNavigate, useParams } from 'react-router-dom'
 import {
+  ArrowLeft,
   ArrowUpRight,
+  Banknote,
   BarChart3,
   LayoutDashboard,
   Link2,
@@ -12,6 +14,7 @@ import {
   PanelLeftOpen,
   Send,
   Settings,
+  Shield,
   ShieldCheck,
   User,
   Wallet,
@@ -35,7 +38,12 @@ import Connect from './pages/Connect'
 import Verify from './pages/Verify'
 import SettingsPage from './pages/Settings'
 import Signup from './pages/Signup'
+import AdminOverview from './pages/admin/AdminOverview'
+import AdminCreators from './pages/admin/AdminCreators'
+import AdminOrders from './pages/admin/AdminOrders'
+import AdminPayouts from './pages/admin/AdminPayouts'
 import { useSession } from './auth'
+import { useIsAdmin } from './lib/admin'
 import { usePageTitle } from './lib/title'
 import { useProfile } from './store'
 
@@ -58,6 +66,7 @@ function MarketingRoute({ children }: { children: ReactNode }) {
 }
 
 const STUDIO = '/dashboard'
+const ADMIN = '/admin'
 
 const SIDEBAR_KEY = 'leenkr.sidebar.v1'
 // Below this width the 272px sidebar eats too much of the canvas, so it starts
@@ -76,117 +85,38 @@ function isNarrowWindow() {
   return typeof window !== 'undefined' && window.matchMedia(NARROW_QUERY).matches
 }
 
-function Sidebar({
-  onNavigate,
-  collapsed,
-  onToggleCollapse,
+/**
+ * The studio and the operator console share this chrome: brand, rail, mobile
+ * drawer, topbar and sign-out. Only the nav items and labels differ.
+ */
+function AppShell({
+  nav,
+  secondary = [],
+  home = STUDIO,
+  brandSub,
+  badge,
+  action,
+  footnote,
+  install = true,
+  adminLink = false,
 }: {
-  onNavigate?: () => void
-  collapsed: boolean
-  onToggleCollapse: () => void
+  nav: NavItem[]
+  secondary?: NavItem[]
+  home?: string
+  brandSub: string
+  badge: ReactNode
+  action?: ReactNode
+  footnote?: ReactNode
+  install?: boolean
+  adminLink?: boolean
 }) {
-  const { profile } = useProfile()
   const { signOut } = useSession()
   const location = useLocation()
   const navigate = useNavigate()
-
-  const primary: NavItem[] = [
-    { label: 'Overview', to: STUDIO, icon: LayoutDashboard },
-    { label: 'Insight', to: `${STUDIO}/insight`, icon: BarChart3 },
-    { label: 'Earnings', to: `${STUDIO}/earnings`, icon: Wallet },
-    { label: 'Profile', to: `${STUDIO}/profile`, icon: User },
-    { label: 'Products', to: `${STUDIO}/products`, icon: Package, badge: profile.products.length },
-    { label: 'Links', to: `${STUDIO}/links`, icon: Link2, badge: profile.links.length },
-    { label: 'Connect', to: `${STUDIO}/connect`, icon: Send },
-    { label: 'Verify', to: `${STUDIO}/verify`, icon: ShieldCheck },
-  ]
-
-  const secondary: NavItem[] = [{ label: 'Settings', to: `${STUDIO}/settings`, icon: Settings }]
-
-  const renderItem = (item: NavItem) => {
-    const active = location.pathname === item.to
-    const Icon = item.icon
-    return (
-      <Link
-        key={item.label}
-        to={item.to}
-        onClick={onNavigate}
-        className={active ? 'nav-item active' : 'nav-item'}
-        aria-current={active ? 'page' : undefined}
-        aria-label={item.label}
-        title={collapsed ? item.label : undefined}
-      >
-        <Icon size={19} strokeWidth={1.7} />
-        <span className="nav-label">{item.label}</span>
-        {typeof item.badge === 'number' && item.badge > 0 ? (
-          <span className="badge">{item.badge}</span>
-        ) : null}
-      </Link>
-    )
-  }
-
-  return (
-    <aside className="sidebar">
-      <Link to={STUDIO} className="brand" onClick={onNavigate} title={collapsed ? 'Leenkr' : undefined}>
-        <span className="brand-mark">L</span>
-        <span className="brand-text">
-          <span className="brand-name">Leenkr</span>
-          <span className="brand-sub">Creator Studio</span>
-        </span>
-      </Link>
-
-      <nav className="nav" id="studio-nav" aria-label="Dashboard">
-        {primary.map(renderItem)}
-        <div className="sidebar-divider" />
-        {secondary.map(renderItem)}
-      </nav>
-
-      <div className="sidebar-foot">
-        <InstallButton collapsed={collapsed} />
-        <button
-          type="button"
-          className="collapse-btn"
-          onClick={onToggleCollapse}
-          aria-expanded={!collapsed}
-          aria-controls="studio-nav"
-          aria-label={collapsed ? 'Expand menu' : 'Collapse menu'}
-          title={collapsed ? 'Expand menu' : 'Collapse menu'}
-        >
-          {collapsed ? <PanelLeftOpen size={17} /> : <PanelLeftClose size={17} />}
-          <span className="collapse-label">Collapse menu</span>
-        </button>
-        <button
-          type="button"
-          className="signout-btn"
-          onClick={() => {
-            signOut()
-            navigate('/login')
-          }}
-          aria-label="Sign out"
-          title={collapsed ? 'Sign out' : undefined}
-        >
-          <LogOut size={17} />
-          <span className="signout-label">Sign out</span>
-        </button>
-        <div className="status-card">
-          <span className={profile.published ? 'dot live' : 'dot'} />
-          <div className="status-text">
-            <p className="status-title">{profile.published ? 'Page is live' : 'Still a draft'}</p>
-            <p className="status-sub">leenkr.app/{profile.username}</p>
-          </div>
-        </div>
-      </div>
-    </aside>
-  )
-}
-
-function Shell() {
-  usePageTitle('Creator Studio · Leenkr')
   const [open, setOpen] = useState(false)
-  const [collapsed, setCollapsed] = useState(() => (isNarrowWindow() ? true : savedSidebarPreference()))
-  const { profile } = useProfile()
-  const { session } = useSession()
-  const publicPath = `/${profile.username}`
+  const [collapsed, setCollapsed] = useState(() =>
+    isNarrowWindow() ? true : savedSidebarPreference(),
+  )
 
   useEffect(() => {
     const query = window.matchMedia(NARROW_QUERY)
@@ -208,22 +138,37 @@ function Shell() {
     }
   }
 
-  const viewPage = (
-    <Link className="btn ghost sm" to={publicPath}>
-      View page
-      <ArrowUpRight size={15} />
-    </Link>
-  )
+  const renderItem = (item: NavItem) => {
+    const active = location.pathname === item.to
+    const Icon = item.icon
+    return (
+      <Link
+        key={item.label}
+        to={item.to}
+        onClick={() => setOpen(false)}
+        className={active ? 'nav-item active' : 'nav-item'}
+        aria-current={active ? 'page' : undefined}
+        aria-label={item.label}
+        title={collapsed ? item.label : undefined}
+      >
+        <Icon size={19} strokeWidth={1.7} />
+        <span className="nav-label">{item.label}</span>
+        {typeof item.badge === 'number' && item.badge > 0 ? (
+          <span className="badge">{item.badge}</span>
+        ) : null}
+      </Link>
+    )
+  }
 
   return (
     <div className={collapsed ? 'shell collapsed' : 'shell'}>
       <div className="mobile-bar">
-        <Link to={STUDIO} className="brand compact">
+        <Link to={home} className="brand compact">
           <span className="brand-mark">L</span>
           <span className="brand-name">Leenkr</span>
         </Link>
         <div className="mobile-actions">
-          {viewPage}
+          {action}
           <button className="icon-btn dark" onClick={() => setOpen(true)} aria-label="Open menu">
             <Menu size={20} />
           </button>
@@ -234,26 +179,160 @@ function Shell() {
         <button className="icon-btn close-btn" onClick={() => setOpen(false)} aria-label="Close menu">
           <X size={18} />
         </button>
-        <Sidebar
-          onNavigate={() => setOpen(false)}
-          collapsed={collapsed}
-          onToggleCollapse={toggleCollapse}
-        />
+        <aside className="sidebar">
+          <Link to={home} className="brand" onClick={() => setOpen(false)} title={collapsed ? 'Leenkr' : undefined}>
+            <span className="brand-mark">L</span>
+            <span className="brand-text">
+              <span className="brand-name">Leenkr</span>
+              <span className="brand-sub">{brandSub}</span>
+            </span>
+          </Link>
+
+          <nav className="nav" id="studio-nav" aria-label="Dashboard">
+            {nav.map(renderItem)}
+            {secondary.length > 0 ? <div className="sidebar-divider" /> : null}
+            {secondary.map(renderItem)}
+            {adminLink ? (
+              <>
+                <div className="sidebar-divider" />
+                {renderItem({ label: 'Admin', to: ADMIN, icon: Shield })}
+              </>
+            ) : null}
+          </nav>
+
+          <div className="sidebar-foot">
+            {install ? <InstallButton collapsed={collapsed} /> : null}
+            <button
+              type="button"
+              className="collapse-btn"
+              onClick={toggleCollapse}
+              aria-expanded={!collapsed}
+              aria-controls="studio-nav"
+              aria-label={collapsed ? 'Expand menu' : 'Collapse menu'}
+              title={collapsed ? 'Expand menu' : 'Collapse menu'}
+            >
+              {collapsed ? <PanelLeftOpen size={17} /> : <PanelLeftClose size={17} />}
+              <span className="collapse-label">Collapse menu</span>
+            </button>
+            <button
+              type="button"
+              className="signout-btn"
+              onClick={() => {
+                signOut()
+                navigate('/login')
+              }}
+              aria-label="Sign out"
+              title={collapsed ? 'Sign out' : undefined}
+            >
+              <LogOut size={17} />
+              <span className="signout-label">Sign out</span>
+            </button>
+            {footnote}
+          </div>
+        </aside>
       </div>
 
       {open ? <div className="scrim" onClick={() => setOpen(false)} /> : null}
 
       <main className="main">
         <div className="topbar">
-          <span className="topbar-plan">
-            {session?.plan === 'pro' ? 'Pro plan' : session?.plan === 'creator' ? 'Creator plan' : 'Free plan'}
-          </span>
-          {viewPage}
+          <span className="topbar-plan">{badge}</span>
+          {action}
         </div>
 
         <Outlet />
       </main>
     </div>
+  )
+}
+
+function Shell() {
+  usePageTitle('Creator Studio · Leenkr')
+  const { profile } = useProfile()
+  const { session } = useSession()
+  const { isAdmin } = useIsAdmin()
+
+  const primary: NavItem[] = [
+    { label: 'Overview', to: STUDIO, icon: LayoutDashboard },
+    { label: 'Insight', to: `${STUDIO}/insight`, icon: BarChart3 },
+    { label: 'Earnings', to: `${STUDIO}/earnings`, icon: Wallet },
+    { label: 'Profile', to: `${STUDIO}/profile`, icon: User },
+    { label: 'Products', to: `${STUDIO}/products`, icon: Package, badge: profile.products.length },
+    { label: 'Links', to: `${STUDIO}/links`, icon: Link2, badge: profile.links.length },
+    { label: 'Connect', to: `${STUDIO}/connect`, icon: Send },
+    { label: 'Verify', to: `${STUDIO}/verify`, icon: ShieldCheck },
+  ]
+
+  const secondary: NavItem[] = [{ label: 'Settings', to: `${STUDIO}/settings`, icon: Settings }]
+
+  const viewPage = (
+    <Link className="btn ghost sm" to={`/${profile.username}`}>
+      View page
+      <ArrowUpRight size={15} />
+    </Link>
+  )
+
+  return (
+    <AppShell
+      nav={primary}
+      secondary={secondary}
+      brandSub="Creator Studio"
+      badge={
+        session?.plan === 'pro'
+          ? 'Pro plan'
+          : session?.plan === 'creator'
+            ? 'Creator plan'
+            : 'Free plan'
+      }
+      action={viewPage}
+      adminLink={isAdmin}
+      footnote={
+        <div className="status-card">
+          <span className={profile.published ? 'dot live' : 'dot'} />
+          <div className="status-text">
+            <p className="status-title">{profile.published ? 'Page is live' : 'Still a draft'}</p>
+            <p className="status-sub">leenkr.app/{profile.username}</p>
+          </div>
+        </div>
+      }
+    />
+  )
+}
+
+function AdminShell() {
+  usePageTitle('Admin · Leenkr')
+  const { session } = useSession()
+
+  const nav: NavItem[] = [
+    { label: 'Overview', to: ADMIN, icon: Shield },
+    { label: 'Creators', to: `${ADMIN}/creators`, icon: User },
+    { label: 'Orders', to: `${ADMIN}/orders`, icon: Wallet },
+    { label: 'Payouts', to: `${ADMIN}/payouts`, icon: Banknote },
+  ]
+
+  return (
+    <AppShell
+      nav={nav}
+      home={ADMIN}
+      brandSub="Control panel"
+      badge="Operator"
+      install={false}
+      action={
+        <Link className="btn ghost sm" to={STUDIO}>
+          <ArrowLeft size={15} />
+          Studio
+        </Link>
+      }
+      footnote={
+        <div className="status-card">
+          <span className="dot live" />
+          <div className="status-text">
+            <p className="status-title">Operator access</p>
+            <p className="status-sub">{session?.email || 'Signed in'}</p>
+          </div>
+        </div>
+      }
+    />
   )
 }
 
@@ -275,6 +354,14 @@ function RequireSession({ children }: { children: ReactNode }) {
   if (!ready) return <div className="mk-boot" aria-hidden="true" />
   if (!session) return <Navigate to="/login" replace />
   if (!session.onboarded) return <Navigate to="/onboarding" replace />
+  return <>{children}</>
+}
+
+// The RPCs refuse non-operators anyway; this only keeps the screen out of reach.
+function RequireAdmin({ children }: { children: ReactNode }) {
+  const { ready, isAdmin } = useIsAdmin()
+  if (!ready) return <div className="mk-boot" aria-hidden="true" />
+  if (!isAdmin) return <Navigate to={STUDIO} replace />
   return <>{children}</>
 }
 
@@ -343,6 +430,23 @@ export default function App() {
         <Route path="verify" element={<Verify />} />
         <Route path="settings" element={<SettingsPage />} />
         <Route path="*" element={<DashboardFallback />} />
+      </Route>
+
+      <Route
+        path={ADMIN}
+        element={
+          <RequireSession>
+            <RequireAdmin>
+              <AdminShell />
+            </RequireAdmin>
+          </RequireSession>
+        }
+      >
+        <Route index element={<AdminOverview />} />
+        <Route path="creators" element={<AdminCreators />} />
+        <Route path="orders" element={<AdminOrders />} />
+        <Route path="payouts" element={<AdminPayouts />} />
+        <Route path="*" element={<Navigate to={ADMIN} replace />} />
       </Route>
 
       <Route path="/p/:username" element={<LegacyProfileRedirect />} />

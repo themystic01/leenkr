@@ -42,7 +42,7 @@
   color: #0c0404;
 }
 
-/* The notch navbar is fixed, so every page starts below it. */
+/* The navbar is fixed, so every page starts below it. */
 .mk-main {
   padding-top: 64px;
 }
@@ -71,30 +71,12 @@
   color: #0c0404;
 }
 
-.mk-login {
-  font-size: 13.5px;
-  font-weight: 600;
-  color: rgba(253, 250, 243, 0.78);
-}
-
-.mk-login:hover {
-  color: #fdfaf3;
-}
-
 /* The shared stylesheet colours every link cream, so the navbar sets its own. */
 .mk-nav a {
   color: rgba(253, 250, 243, 0.72);
 }
 
 .mk-nav a:hover {
-  color: #fdfaf3;
-}
-
-.mk-nav a.mk-nav-link {
-  color: rgba(253, 250, 243, 0.72);
-}
-
-.mk-nav a.mk-nav-link:hover {
   color: #fdfaf3;
 }
 

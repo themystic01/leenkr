@@ -2,10 +2,8 @@ import VerifiedBadge from '../components/VerifiedBadge'
 import { useProfile } from '../store'
 
 export default function Verify() {
-  const { profile, save } = useProfile()
+  const { profile } = useProfile()
   const on = profile.verified
-
-  const toggle = () => save({ ...profile, verified: !on })
 
   return (
     <div className="page">
@@ -28,19 +26,10 @@ export default function Verify() {
             <h2 className="card-title">Verified badge</h2>
             <p className="tool-copy">
               Appears right after {profile.name || 'your name'} on leenkr.app/
-              {profile.username || 'username'}.
+              {profile.username || 'username'} once Leenkr approves it.
             </p>
           </div>
-          <button
-            type="button"
-            role="switch"
-            aria-checked={on}
-            aria-label="Show verified badge"
-            className={on ? 'toggle on' : 'toggle'}
-            onClick={toggle}
-          >
-            <span className="toggle-knob" />
-          </button>
+          <span className={on ? 'pill live' : 'pill'}>{on ? 'Verified' : 'Not verified'}</span>
         </div>
 
         <div className="verify-preview">
@@ -54,8 +43,7 @@ export default function Verify() {
         <p className="verify-note">
           {on
             ? 'On — the check shows on your public page.'
-            : 'Off — your name stands on its own.'}{' '}
-          Review is manual in this build, so the switch is yours to flip.
+            : 'Verification is reviewed by the Leenkr team. Until it is approved, no badge appears.'}
         </p>
       </section>
     </div>

@@ -1,15 +1,8 @@
 import { useEffect, type ReactNode } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { Mail } from 'lucide-react'
-import { SiteNavbar } from '@/components/ui/site-navbar'
+import { MARKETING_NAV, SiteNavbar } from '@/components/ui/site-navbar'
 import { useSession } from '../../auth'
-
-const FOOTER_LINKS: { label: string; to: string }[] = [
-  { label: 'About', to: '/about' },
-  { label: 'Features', to: '/features' },
-  { label: 'Earn', to: '/earn' },
-  { label: 'Pricing', to: '/#pricing' },
-]
 
 /** Nav, page and footer shared by every public marketing page. */
 export function MarketingLayout({ children }: { children: ReactNode }) {
@@ -57,7 +50,7 @@ export function MarketingLayout({ children }: { children: ReactNode }) {
           </span>
         </div>
         <nav className="mk-foot-links" aria-label="Footer">
-          {FOOTER_LINKS.map((item) => (
+          {MARKETING_NAV.map((item) => (
             <Link key={item.label} to={item.to}>
               {item.label}
             </Link>

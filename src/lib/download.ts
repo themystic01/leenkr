@@ -1,4 +1,3 @@
-import { recordDownload } from './api'
 import { StorageUnavailable, getDownloadUrl } from './storage'
 
 export type DownloadResult = { ok: true } | { ok: false; error: string }
@@ -22,9 +21,8 @@ export function rememberOrderToken(productId: string, token: string) {
 }
 
 /**
- * Asks the file service for a short-lived link first — it re-checks the paid
- * order there, so the bucket stays private — and only then records the download.
- * Counting after the handoff means a storage outage never inflates the number.
+ * Asks the file service for a short-lived link. It re-checks the paid order (or
+ * that the product is free) before signing anything, so the bucket stays private.
  */
 export async function startDownload(productId: string, token: string | null): Promise<DownloadResult> {
   let url: string
@@ -38,18 +36,11 @@ export async function startDownload(productId: string, token: string | null): Pr
           'File storage is not connected yet. Add the R2 credentials to the deployment to hand out downloads.',
       }
     }
-    return { ok: false, error: error instanceof Error ? error.message : 'Download failed.' }
-  }
-
-  const counted = await recordDownload(productId, token)
-  if (!counted.ok) {
-    return {
-      ok: false,
-      error:
-        counted.error === 'payment_required'
-          ? 'Buy this product to download the file.'
-          : counted.error,
+    const message = error instanceof Error ? error.message : ''
+    if (message === 'payment_required') {
+      return { ok: false, error: 'Buy this product to download the file.' }
     }
+    return { ok: false, error: message || 'Download failed.' }
   }
 
   window.open(url, '_blank', 'noopener')

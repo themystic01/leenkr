@@ -427,24 +427,6 @@ export async function purchaseProduct(
   }
 }
 
-/** Counts a download and confirms the caller is allowed to have the file. */
-export async function recordDownload(
-  productId: string,
-  token: string | null,
-): Promise<{ ok: true } | { ok: false; error: string }> {
-  const db = backend
-  if (!db) return { ok: false, error: 'No backend configured.' }
-
-  const { data, error } = await db.rpc('record_download', {
-    p_product: productId,
-    p_token: token,
-  })
-  if (error) return { ok: false, error: error.message }
-  const result = data as { ok?: boolean; error?: string }
-  if (result.error) return { ok: false, error: result.error }
-  return { ok: true }
-}
-
 /* -------------------------------- earnings -------------------------------- */
 
 export type OrderRow = {

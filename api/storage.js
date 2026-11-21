@@ -175,10 +175,16 @@ export default async function handler(req, res) {
         res.status(401).json({ error: 'Sign in again to upload files.' })
         return
       }
-      const pages = await supabase(`pages?id=eq.${encodeURIComponent(body.pageId)}&select=id,owner_id`)
+      const pages = await supabase(
+        `pages?id=eq.${encodeURIComponent(body.pageId)}&select=id,owner_id,suspended_at`,
+      )
       const page = Array.isArray(pages) ? pages[0] : null
       if (!page || page.owner_id !== user.id) {
         res.status(403).json({ error: 'That page is not yours.' })
+        return
+      }
+      if (page.suspended_at) {
+        res.status(403).json({ error: 'This page is suspended.' })
         return
       }
       const key = `${page.id}/${crypto.randomUUID()}-${safeName(body.fileName)}`
@@ -188,7 +194,7 @@ export default async function handler(req, res) {
 
     if (body.action === 'download-url') {
       const products = await supabase(
-        `page_products?id=eq.${encodeURIComponent(body.productId)}&select=id,is_free,page_id,pages!inner(published)`,
+        `page_products?id=eq.${encodeURIComponent(body.productId)}&select=id,is_free,page_id,pages!inner(published,suspended_at)`,
       )
       const product = Array.isArray(products) ? products[0] : null
       if (!product) {
@@ -196,7 +202,7 @@ export default async function handler(req, res) {
         return
       }
       const page = Array.isArray(product.pages) ? product.pages[0] : product.pages
-      if (!page?.published) {
+      if (!page?.published || page.suspended_at) {
         res.status(404).json({ error: 'This page is not live.' })
         return
       }
