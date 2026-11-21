@@ -68,7 +68,7 @@ export function SiteNavbar({ signedIn = false }: { signedIn?: boolean }) {
           aria-expanded={mobileOpen}
           aria-controls="mobile-nav"
           aria-label={mobileOpen ? "Close menu" : "Open menu"}
-          className="flex size-9 items-center justify-center rounded-md text-[#fdfaf3]/80 transition-colors hover:text-[#fdfaf3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00] md:hidden"
+          className="flex size-9 appearance-none items-center justify-center rounded-md border-0 bg-transparent text-[#fdfaf3]/80 transition-colors hover:text-[#fdfaf3] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#dfff00] md:hidden"
         >
           {mobileOpen ? <X className="size-5" /> : <Menu className="size-5" />}
         </button>
