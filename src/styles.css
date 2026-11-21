@@ -2178,6 +2178,34 @@ textarea.input {
   color: var(--ink-soft);
 }
 
+.verify-criteria-list {
+  display: grid;
+  gap: 7px;
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+.verify-criteria-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.verify-criteria-list svg {
+  flex: none;
+  margin-top: 2px;
+  color: var(--ink);
+}
+
+.verify-criteria-list strong {
+  color: var(--ink);
+  font-weight: 600;
+}
+
 .verify-gate {
   display: flex;
   align-items: center;

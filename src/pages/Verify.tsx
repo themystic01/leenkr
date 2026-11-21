@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react'
-import { ArrowRight, Plus, ShieldCheck, Trash2 } from 'lucide-react'
+import { ArrowRight, Check, Plus, ShieldCheck, Trash2 } from 'lucide-react'
 import PlatformIcon from '../components/PlatformIcon'
 import VerifiedBadge from '../components/VerifiedBadge'
 import {
@@ -29,6 +29,14 @@ function day(iso: string | null) {
   const date = new Date(iso)
   if (Number.isNaN(date.getTime())) return ''
   return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
+}
+
+function qualifyingAccount(socials: VerificationSocial[]) {
+  const best = socials
+    .filter((social) => social.handle.trim().length > 0 && social.followers >= FOLLOWER_MIN)
+    .sort((a, b) => b.followers - a.followers)[0]
+  if (!best) return null
+  return `@${best.handle.replace(/^@/, '')} (${count(best.followers)} followers)`
 }
 
 function seedSocials(profileSocials: { platform: PlatformKey; handle: string }[]) {
@@ -177,10 +185,23 @@ export default function Verify() {
 
         <div className="verify-criteria">
           <p className="verify-criteria-title">What we check</p>
-          <p>
-            At least {count(FOLLOWER_MIN)} followers on one of your social profiles, and the email
-            that belongs to this page. We look at the public account, so keep the handle exact.
-          </p>
+          <ul className="verify-criteria-list">
+            <li>
+              <Check size={13} />
+              <span>
+                <strong>{count(FOLLOWER_MIN)} followers or more</strong> on at least one account you
+                list here.
+              </span>
+            </li>
+            <li>
+              <Check size={13} />
+              <span>The handle is the public account, spelled exactly as it appears.</span>
+            </li>
+            <li>
+              <Check size={13} />
+              <span>An email address that belongs to this page, so we can reach you.</span>
+            </li>
+          </ul>
         </div>
 
         {loading ? (
@@ -331,13 +352,17 @@ export default function Verify() {
                 </div>
               ) : null}
 
-              <span className={qualifies(socials) ? 'verify-qualify ok' : 'verify-qualify'}>
+              <span
+                className={qualifies(socials) ? 'verify-qualify ok' : 'verify-qualify'}
+                aria-live="polite"
+              >
                 {qualifies(socials) ? (
                   <>
-                    <ShieldCheck size={13} /> Meets the follower rule on at least one account.
+                    <ShieldCheck size={13} /> Requirement met: {qualifyingAccount(socials)} clears
+                    the bar.
                   </>
                 ) : (
-                  `One account needs ${count(FOLLOWER_MIN)} followers or more.`
+                  `No account has ${count(FOLLOWER_MIN)} followers yet. Add the count for the largest one.`
                 )}
               </span>
             </div>

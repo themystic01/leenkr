@@ -5,7 +5,6 @@ import VerifiedBadge from '../../components/VerifiedBadge'
 import { usePageTitle } from '../../lib/title'
 import { when } from '../../lib/admin'
 import {
-  FOLLOWER_MIN,
   listAdminVerifications,
   reviewVerification,
   type AdminVerificationList,
@@ -74,9 +73,12 @@ export default function AdminVerifications() {
             Creators who asked for the check. Approving turns the badge on for their page.
           </p>
         </div>
-        <span className="pill live">
-          <ShieldCheck size={13} /> {count(FOLLOWER_MIN)} followers
-        </span>
+        {data ? (
+          <span className="pill live">
+            <ShieldCheck size={13} /> {count(data.total)}{' '}
+            {state === 'pending' ? 'awaiting review' : 'in this view'}
+          </span>
+        ) : null}
       </header>
 
       <div className="admin-toolbar">
@@ -132,13 +134,7 @@ export default function AdminVerifications() {
                       {PLATFORMS.find((entry) => entry.key === social.platform)?.label}
                     </span>
                     <span className="verify-summary-handle">@{social.handle}</span>
-                    <span
-                      className={
-                        social.followers >= FOLLOWER_MIN ? 'verify-count ok' : 'verify-count'
-                      }
-                    >
-                      {count(social.followers)}
-                    </span>
+                    <span className="verify-count">{count(social.followers)}</span>
                   </div>
                 ))}
               </div>
