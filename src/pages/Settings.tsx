@@ -12,8 +12,10 @@ import {
   User,
   type LucideIcon,
 } from 'lucide-react'
+import PasswordInput from '../components/PasswordInput'
 import { useSession } from '../auth'
 import { isHandleAvailable } from '../lib/api'
+import { passwordProblem } from '../lib/password'
 import {
   PAGE_ACCENTS,
   PAGE_MOTIONS,
@@ -160,21 +162,34 @@ function AccountPanel() {
 
 function SecurityPanel() {
   const { profile, save } = useProfile()
+  const { updatePassword } = useSession()
   const [current, setCurrent] = useState('')
   const [next, setNext] = useState('')
   const [confirm, setConfirm] = useState('')
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [saved, setSaved] = useState(false)
+  const [failure, setFailure] = useState('')
+  const [busy, setBusy] = useState(false)
 
-  const submit = (event: FormEvent) => {
+  const submit = async (event: FormEvent) => {
     event.preventDefault()
     const found: Record<string, string> = {}
     if (!current) found.current = 'Enter your current password.'
-    if (next.length < 8) found.next = 'Use at least 8 characters.'
+    const problem = passwordProblem(next)
+    if (problem) found.next = problem
     if (confirm !== next) found.confirm = 'The two passwords don’t match.'
     setErrors(found)
     setSaved(false)
+    setFailure('')
     if (Object.keys(found).length > 0) return
+
+    setBusy(true)
+    const result = await updatePassword(next, current)
+    setBusy(false)
+    if (!result.ok) {
+      setFailure(result.error ?? 'Could not save the new password.')
+      return
+    }
     setCurrent('')
     setNext('')
     setConfirm('')
@@ -193,10 +208,8 @@ function SecurityPanel() {
         <form onSubmit={submit} noValidate>
           <div className="field">
             <label htmlFor="security-current">Current password</label>
-            <input
+            <PasswordInput
               id="security-current"
-              className="input"
-              type="password"
               autoComplete="current-password"
               value={current}
               onChange={(event) => setCurrent(event.target.value)}
@@ -206,10 +219,8 @@ function SecurityPanel() {
           <div className="field-grid">
             <div className="field">
               <label htmlFor="security-next">New password</label>
-              <input
+              <PasswordInput
                 id="security-next"
-                className="input"
-                type="password"
                 autoComplete="new-password"
                 value={next}
                 onChange={(event) => setNext(event.target.value)}
@@ -218,10 +229,8 @@ function SecurityPanel() {
             </div>
             <div className="field">
               <label htmlFor="security-confirm">Confirm new password</label>
-              <input
+              <PasswordInput
                 id="security-confirm"
-                className="input"
-                type="password"
                 autoComplete="new-password"
                 value={confirm}
                 onChange={(event) => setConfirm(event.target.value)}
@@ -233,15 +242,17 @@ function SecurityPanel() {
             <div className="foot-right">
               {saved ? (
                 <Saved>Password updated.</Saved>
+              ) : failure ? (
+                <span className="form-note">{failure}</span>
               ) : (
                 <span className="form-note">
-                  Passwords belong to the account service — this build only checks the form, it never stores them.
+                  You stay signed in here; other devices have to sign in again.
                 </span>
               )}
             </div>
-            <button type="submit" className="btn">
+            <button type="submit" className="btn" disabled={busy}>
               <KeyRound size={16} />
-              Update password
+              {busy ? 'Updating…' : 'Update password'}
             </button>
           </div>
         </form>

@@ -71,7 +71,7 @@ type Auth = {
   signIn: (email: string, password: string) => Promise<AuthResult>
   signUp: (email: string, password: string, name?: string) => Promise<AuthResult>
   resetPassword: (email: string) => Promise<AuthResult>
-  updatePassword: (password: string) => Promise<AuthResult>
+  updatePassword: (password: string, currentPassword?: string) => Promise<AuthResult>
   finishOnboarding: () => void
   signOut: () => void
 }
@@ -215,8 +215,17 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const updatePassword = useCallback(
-    async (password: string): Promise<AuthResult> => {
-      if (!backend) return { ok: false, error: 'Password reset isn’t available right now.' }
+    async (password: string, currentPassword?: string): Promise<AuthResult> => {
+      if (!backend) return { ok: false, error: 'Password changes aren’t available right now.' }
+      // A signed-in change has to prove the old password; a recovery link has none.
+      if (currentPassword !== undefined) {
+        if (!session?.email) return { ok: false, error: 'Sign in again to change your password.' }
+        const { error: mismatch } = await backend.auth.signInWithPassword({
+          email: session.email,
+          password: currentPassword,
+        })
+        if (mismatch) return { ok: false, error: 'That current password is not right.' }
+      }
       const { data, error } = await backend.auth.updateUser({ password })
       if (error) return { ok: false, error: error.message }
       // A reset should also end any session someone else may still be holding.
@@ -224,7 +233,7 @@ export function SessionProvider({ children }: { children: ReactNode }) {
       if (data.user) setSession(await readSession(data.user))
       return { ok: true }
     },
-    [readSession],
+    [readSession, session?.email],
   )
 
   const finishOnboarding = useCallback(() => {

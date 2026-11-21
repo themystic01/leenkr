@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { ArrowRight, KeyRound } from 'lucide-react'
 import AuthShell from '../components/AuthShell'
+import PasswordInput from '../components/PasswordInput'
 import { useSession } from '../auth'
 import { PASSWORD_MIN, passwordProblem } from '../lib/password'
 import { usePageTitle } from '../lib/title'
@@ -79,10 +80,8 @@ export default function ResetPassword() {
       <form className="auth-form" onSubmit={submit} noValidate>
         <div className="field">
           <label htmlFor="reset-password">New password</label>
-          <input
+          <PasswordInput
             id="reset-password"
-            className="input"
-            type="password"
             autoComplete="new-password"
             autoFocus
             placeholder={`At least ${PASSWORD_MIN} characters`}
@@ -96,10 +95,8 @@ export default function ResetPassword() {
 
         <div className="field">
           <label htmlFor="reset-confirm">Confirm new password</label>
-          <input
+          <PasswordInput
             id="reset-confirm"
-            className="input"
-            type="password"
             autoComplete="new-password"
             placeholder="Type it again"
             value={confirm}

@@ -2,6 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { ArrowRight, MailCheck } from 'lucide-react'
 import AuthShell from '../components/AuthShell'
+import PasswordInput from '../components/PasswordInput'
 import { useSession } from '../auth'
 import { PASSWORD_MIN, passwordProblem } from '../lib/password'
 import { usePageTitle } from '../lib/title'
@@ -112,10 +113,8 @@ export default function Signup() {
 
         <div className="field">
           <label htmlFor="signup-password">Password</label>
-          <input
+          <PasswordInput
             id="signup-password"
-            className="input"
-            type="password"
             autoComplete="new-password"
             placeholder={`At least ${PASSWORD_MIN} characters`}
             value={password}
